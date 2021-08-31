@@ -1237,7 +1237,7 @@ pre .javascript .function {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #dbffff;
+  background: #af2afe;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
@@ -2696,27 +2696,4 @@ ul.breadcrumb li + li:last-child {
 }
 .popup {
   opacity: 0.9;
-}
-@media (prefers-color-scheme: dark) {
-  .v *,
-  .v .vwrap input,
-  .v .vwrap input::placeholder,
-  .v .veditor,
-  .v .veditor::placeholder,
-  .v a,
-  .v a:hover {
-    color: rgba(255,255,255,0.9);
-    opacity: 1;
-  }
-  .v .vbtn {
-    color: rgba(255,255,255,0.9);
-    border: none;
-  }
-  .v .vbtn:hover {
-    color: #fff;
-    border-color: #fff;
-  }
-  .v .vlist .vcard .vhead .vsys {
-    background: #333;
-  }
 }

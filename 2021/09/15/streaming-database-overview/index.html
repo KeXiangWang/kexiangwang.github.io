@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/bitbug_favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/bitbug_favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/bitbug_favicon-32x32.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.kexiang.me","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言: 这篇博文是我受一次面试启发后，搜集信息完成行业调研完成的。主要内容是流数据库（Streaming Database）的一些概念，技术，系统和对应公司的情况。大部分内容是从互联网上各处搜寻来的，也有一部分是我和一些从业人员或者基础架构领域的前辈交流得来的。除此以外，我也添加了一些我个人关于这些系统以及整个流数据库行业主观判断和想法。 文章定位是帮助技术朋友们快速了解这个新方向，并给金融行业">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Streaming Database调研">
+<meta property="og:url" content="https://www.kexiang.me/2021/09/15/streaming-database-overview/index.html">
+<meta property="og:site_name" content="kexiang&#39;s blog">
+<meta property="og:description" content="前言: 这篇博文是我受一次面试启发后，搜集信息完成行业调研完成的。主要内容是流数据库（Streaming Database）的一些概念，技术，系统和对应公司的情况。大部分内容是从互联网上各处搜寻来的，也有一部分是我和一些从业人员或者基础架构领域的前辈交流得来的。除此以外，我也添加了一些我个人关于这些系统以及整个流数据库行业主观判断和想法。 文章定位是帮助技术朋友们快速了解这个新方向，并给金融行业">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/OLAP-OLTP-work.svg">
+<meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/streaming-database-work.svg">
+<meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/streaming-database-inner.svg">
+<meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/common-arch-of-streaming-processing.png">
+<meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/current-database-complexity.png">
+<meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/current-database-complexity.png">
+<meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/DB-engines-types.png">
+<meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/steaming-database-scenario-singularity.png">
+<meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/steaming-database-scenario-EMQ.png">
+<meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/typical-analytic-model.svg">
+<meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/A-using-type.svg">
+<meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/B-using-type.svg">
+<meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/C-using-type.svg">
+<meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/Noria-arch.png">
+<meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/Noria-DAG.png">
+<meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/Materialize-arch.png">
+<meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/ksqlDB-position.png">
+<meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/ksqlDB-charactor.png">
+<meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/HStreamDB-components.png">
+<meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/HStreamDB-arch.png">
+<meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/compare-with-TSDB.svg">
+<meta property="article:published_time" content="2021-09-15T19:07:30.000Z">
+<meta property="article:modified_time" content="2021-09-15T19:07:30.606Z">
+<meta property="article:author" content="Kexiang Wang">
+<meta property="article:tag" content="Industry Research">
+<meta property="article:tag" content="Systems">
+<meta property="article:tag" content="Database">
+<meta property="article:tag" content="Streaming">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.kexiang.me/images/streaming-database-overview/OLAP-OLTP-work.svg">
+
+<link rel="canonical" href="https://www.kexiang.me/2021/09/15/streaming-database-overview/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Streaming Database调研 | kexiang's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">kexiang's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+
+  <a href="https://github.com/KeXiangWang" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://www.kexiang.me/2021/09/15/streaming-database-overview/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar-time.jpg">
+      <meta itemprop="name" content="Kexiang Wang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="kexiang's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Streaming Database调研
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-09-15 15:07:30" itemprop="dateCreated datePublished" datetime="2021-09-15T15:07:30-04:00">2021-09-15</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Market/" itemprop="url" rel="index"><span itemprop="name">Market</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Market/Database/" itemprop="url" rel="index"><span itemprop="name">Database</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Industry/" itemprop="url" rel="index"><span itemprop="name">Industry</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Industry/Database/" itemprop="url" rel="index"><span itemprop="name">Database</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2021/09/15/streaming-database-overview/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/09/15/streaming-database-overview/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>18k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>16 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>前言:</p>
+<p>这篇博文是我受一次面试启发后，搜集信息完成行业调研完成的。主要内容是流数据库（Streaming Database）的一些概念，技术，系统和对应公司的情况。大部分内容是从互联网上各处搜寻来的，也有一部分是我和一些从业人员或者基础架构领域的前辈交流得来的。除此以外，我也添加了一些我个人关于这些系统以及整个流数据库行业主观判断和想法。</p>
+<p>文章定位是帮助技术朋友们快速了解这个新方向，并给金融行业朋友提供一些技术的视角。</p>
+<p>完成的时间大概是5月份，最近临开学，时间比较充裕，才有机会搭建博客并把这篇文章发到互联网上。也因此里面的一些内容可能有一些时效性不足（其中企业的融资情况我特地更新了一下，应该是最新公开信息了），欢迎诸位读者朋友评论或者邮件与我交流。如有内容错误的地方也欢迎批评指正。</p>
+</blockquote>
+<h1 id="overview"><a class="markdownIt-Anchor" href="#overview"></a> Overview</h1>
+<p>本文主要对流数据库这一新兴数据模型和商业模式进行了调研和分析。首先介绍了介绍流数据库相关的基本概念，然后阐述了流数据库的基本定义及价值意义。接着对流数据库系统的典型技术路线和典型系统及其对应企业进行了分析。最后分析了流数据库与相似数据模型的区别。</p>
+<h1 id="流数据"><a class="markdownIt-Anchor" href="#流数据"></a> 流数据</h1>
+<p>近年来，在Web应用、网络监控、传感监测等领域，兴起了一种新的数据密集型应用——流数据，即数据以大量、快速、时变的流形式持续到达。</p>
+<ul>
+<li>实例：PM2.5检测、电子商务网站用户点击流</li>
+</ul>
+<p><strong>流数据具有如下特征：</strong><sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
+<ul>
+<li>数据快速持续到达，潜在大小也许是无穷无尽的。</li>
+<li>数据来源众多，格式复杂。</li>
+<li>数据量大，但是不十分关注存储，一旦经过处理，可能被丢弃或归档存储。</li>
+<li>注重数据的整体价值，不过分关注个别数据。</li>
+<li>数据顺序颠倒，或者不完整，系统无法控制将要处理的新到达的数据元素的顺序。</li>
+</ul>
+<h1 id="流数据库定义"><a class="markdownIt-Anchor" href="#流数据库定义"></a> 流数据库定义</h1>
+<h2 id="定义"><a class="markdownIt-Anchor" href="#定义"></a> 定义</h2>
+<p>不同于其它数据库系统将静态的数据集（表或文档等）作为基本的存储和处理单元，流数据库是以动态的连续数据流作为基本对象，以实时性作为主要特征的数据库。流数据库是数据库在流时代的重新架构和设计。<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup></p>
+<p>A <strong>streaming database</strong> is broadly defined as a data store designed to collect, process, and/or enrich an incoming series of data points (i.e., a data stream) in real time, typically immediately after the data is created. This term does not refer to a discrete class of database management systems, but rather, applies to several types of databases that handle streaming data in real time, including in-memory data grids, in-memory databases, NewSQL databases, NoSQL databases, and time-series databases. <sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup></p>
+<p>上面是两家公司从流式计算的一些场景给出的streaming database的定义。</p>
+<p>从技术角度讲，本文作者认为，流数据库的典型特征基本是，在SQL数据库的基础上，使用物化视图为代表技术进行数据库请求的性能调优以实现低延时，并通过技术手段优化减少性能调优带来的资源占用。</p>
+<p>流数据库的作用和生态地位，可以用下面的简化抽象，不太准确但形象地表示出来的：</p>
+<p>假如我们有很多不同颜色的小球通过管道源源不断传递过来，我们希望统计每个颜色小球的数量，那么传统的大数据架构会如下图工作（忽略流式处理，位置和AP差不多）：</p>
+<img src="/images/streaming-database-overview/OLAP-OLTP-work.svg" width="70%" height="70%">
+<center>传统大数据小球统计</center>
+<p>传统大数据会用一个叫OLTP的桶来接球，然后定期用泵（各种中间件MQ等）把一批小球泵到一个更大的叫做OLAP的桶，然后这个OLAP的桶再慢慢去按照颜色统计小球的个数。</p>
+<p>而流数据库的统计小球会像下图来工作（后文C类型工作模式为例）：</p>
+<img src="/images/streaming-database-overview/streaming-database-work.svg" width="30%" height="30%">
+<center>流数据库小球统计</center>
+<p>流数据库会在接收数据的同时，尽可能实时的现时桶里面按颜色统计的结果。如果我们打开streaming database这个桶看，我们大概会看到这样的景象，桶内有提前布置好的管道，新的进入后直接流入对应的分区，从而实现实时统计数目。</p>
+<img src="/images/streaming-database-overview/streaming-database-inner.svg" width="40%" height="40%">
+<center>流数据库小球统计内部</center>
+<p>关于Streaming Database和OLAP的更多对比或者tradeoff，可以参考后文”流数据库&amp;时序数据库&amp;OLAP“章节。</p>
+<h2 id="区分于streaming-sql"><a class="markdownIt-Anchor" href="#区分于streaming-sql"></a> 区分于Streaming SQL</h2>
+<p>为了支持对流式数据的支持，在Hadoop平台上Apache标准内有一些针对的Streaming数据的类SQL标准。比如由Apache Calcite的stream接口提供的Streaming SQL<sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup> ，Confluent的KsqlDB中定义的KSQL。</p>
+<p>Calcite是一个面向Hadoop平台的SQL引擎，起源于Hive后，独立成为Apache项目。秉持着one size fit all的思想，其优良的模块化设计，使其成为众多计算引擎的SQL解释/优化层，可以将SQL或StreamSQL<sup class="footnote-ref"><a href="#fn4" id="fnref4:1">[4:1]</a></sup> 转化为不同层级的运算任务<sup class="footnote-ref"><a href="#fn5" id="fnref5">[5]</a></sup>，Beam，Flink等系统均基于Calcite架构进行实现<sup class="footnote-ref"><a href="#fn6" id="fnref6">[6]</a></sup>。</p>
+<h2 id="区分于streaming-analytic"><a class="markdownIt-Anchor" href="#区分于streaming-analytic"></a> 区分于Streaming Analytic</h2>
+<p>Streaming Analytic流处理引擎是流数据另一个非常热门的话题。许多公司和机构都有自己的流式引擎，比如最早在2003年Stanford提出CQL Continuous Query Language时作出的原型系统STREAM，就具有一定的处理流数据的功能。2008年IBM开始对外销售并不断更新自己的流式引擎The System S<sup class="footnote-ref"><a href="#fn7" id="fnref7">[7]</a></sup>。Storm是最早作为流失计算引擎大规模使用起来的系统，此后此后各个互联网公司纷纷基于开源实现或者从零开始搭建了属于自己的流式引擎或者流式计算平台，比如谷歌的Millwheel，Dataflow，Azure的Stream Analytics，Amazon的Kinesis和Twitter的Heron。开源社区也有非常多经典的实现，比如Apache旗下的Storm、Spark Streaming、Flink、Samza、Apex等都是经过了时间的考验的系统。此外还有专门提供通用引擎框架的部署框架Beam和具有可移植性的SQL框架Calcite。</p>
+<p>流处理引擎和流数据库是两个不同定位的系统，流处理引擎试图解决在类似Hadoop大数据场景下，对持续海量数据的持续处理需求。其自身不包含对数据本身的存储功能，只是读取数据计算结果并进行计算。而流数据库既关注对流数据的持续处理能力，也承担对流数据的存储和管理能力。</p>
+<h3 id="对比"><a class="markdownIt-Anchor" href="#对比"></a> 对比</h3>
+<p>Streaming Analytic流处理引擎和流数据库的使用场景对比可以参考下面的表格（其中的Streaming Database中的内容主要参考后文中提到的几个比较现代的流数据库的信息）</p>
+<table>
+<thead>
+<tr>
+<th>对比项目</th>
+<th>BigData Streaming Analytic</th>
+<th>Streaming Database</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>延时</td>
+<td>1s - 1min</td>
+<td>10ms - 1s</td>
+</tr>
+<tr>
+<td>容量</td>
+<td>PB</td>
+<td>TB</td>
+</tr>
+<tr>
+<td>资源消耗</td>
+<td>正比于数据量</td>
+<td>正比于数据量到数据量的平方</td>
+</tr>
+<tr>
+<td>运维成本</td>
+<td>高</td>
+<td>低</td>
+</tr>
+<tr>
+<td>使用场景</td>
+<td>AP场景，ML场景</td>
+<td>AP场景</td>
+</tr>
+<tr>
+<td>自由度</td>
+<td>高，可自由编写task</td>
+<td>中等，sql标准内的操作</td>
+</tr>
+<tr>
+<td>数据持久化</td>
+<td>不持久化</td>
+<td>可以支持持久化</td>
+</tr>
+</tbody>
+</table>
+<h2 id="区别于streaming-platform"><a class="markdownIt-Anchor" href="#区别于streaming-platform"></a> 区别于Streaming Platform</h2>
+<h3 id="对比-2"><a class="markdownIt-Anchor" href="#对比-2"></a> 对比</h3>
+<p>Streaming Platform是对Streaming Analytic流处理引擎能力的完善，通常的做法是在流处理引擎周边补充完整的数据存储系统和消息中间件，使流处理引擎成为一个完整的平台。可以完成收集，处理，存储整个流处理流程。</p>
+<p>Streaming Platform和Streaming Database具有大部分相同的功能，在定位上有不少重合，但是也有一些不同点。</p>
+<ol>
+<li>现有Streaming Platform通常提供Streaming SQL的语义，核心任务仍然是流式计算本身，不关心数据的存储功能。而Streaming Database旨在提供标准SQL或者PgSQL的语义兼容，不仅提供流式处理请求的能力，也需要拥有一定的正常TP或LP功能。</li>
+<li>Streaming Platform本质上是多个系统耦合而成的大工程，包括消息队列，计算引擎，编排调度，存储系统，以及相关周边系统。相反，Streaming Database提供一站式服务体验。这一点类似于SQL-on-hadoop与普通分布式RDBMS的关系。</li>
+<li>性能上说Streaming Platform服务的规模更大，延时更高达到秒级甚至分钟级，Streaming Database服务的规模较小，延时可以达到亚秒级。</li>
+</ol>
+<h3 id="现有流数据平台"><a class="markdownIt-Anchor" href="#现有流数据平台"></a> 现有流数据平台</h3>
+<p>相对来说互联网巨头更倾向于使用这一种模式来完成Streaming的一系列工作。而Streaming Database往往定位到没有足够能力驾驭如此巨大系统的中小型公司。业界有一定知名度的Streaming Platform包括：</p>
+<ol>
+<li>AthenaX是Uber开源的Streaming Platform，基于Calcite和Flink进行SQL的运算，数据持久化到LevelDB上。</li>
+<li>Keystone是Netflix内部的Streaming Platform，使用Flink做计算引擎，spinnaker做编排调度，数据落盘到 AWS RDS上。</li>
+<li>Turbine<sup class="footnote-ref"><a href="#fn8" id="fnref8">[8]</a></sup><sup class="footnote-ref"><a href="#fn9" id="fnref9">[9]</a></sup>是Facebook内部的Streaming Platform，使用大量内部的系统实现，目标是提高现有流计算系统的可延展性</li>
+<li>SnappyData<sup class="footnote-ref"><a href="#fn10" id="fnref10">[10]</a></sup>是一个基于Hadoop的半开源系统，企业版（ComputeDB）由TIBCO收购并反哺开源社区。SnappyData支持了行存和列存（但是对于每份数据只能二选一）。使用Spark Streaming实现Streaming Procsessing功能，GemFire实现TP功能，Spark实现AP功能。在一个系统上实现了Streaming，TP，AP系统。其企业版ComputeDB已经很大程度上具有数据库功能，但是并没有使用Material View进行优化。</li>
+<li>国内东方国信同样也曾推出过类似的系统CirroStream<sup class="footnote-ref"><a href="#fn11" id="fnref11">[11]</a></sup>，但是资料有限。</li>
+<li>以上主要是公开信息中可以找到的一些系统，此外国内大厂中应该也会有自己的一套体系，比如据了解字节内部类似的系统被称为DataLeaf。更多信息欢迎有了解的朋友邮件与我沟通。</li>
+</ol>
+<h1 id="流数据库诞生的背景"><a class="markdownIt-Anchor" href="#流数据库诞生的背景"></a> 流数据库诞生的背景</h1>
+<h2 id="现有大数据流处理模式"><a class="markdownIt-Anchor" href="#现有大数据流处理模式"></a> 现有大数据流处理模式</h2>
+<p>现有的提供流处理能力的系统本质上是类似于SQL-on-Hadoop的解决方式，使用多个系统整合，形成一个平台式的大系统。互联网厂商通常会有自己的平台完成这一任务，也有一些经典的框架来完成这一工作，比如Lambda架构、kappa架构<sup class="footnote-ref"><a href="#fn12" id="fnref12">[12]</a></sup>、SnappyData等均可以在一定程度上将一个大数据系统封装成为一个类数据库的平台。但这带来了巨大的使用成本，包括运维复杂性，资源需求等。应运而生的需求便是一个具有流处理能力的一体化，可控，方便运维，对数据量要求不高的数据库。<sup class="footnote-ref"><a href="#fn10" id="fnref10:1">[10:1]</a></sup></p>
+<p><img src="/images/streaming-database-overview/common-arch-of-streaming-processing.png" alt="典型大数据流处理模式" /></p>
+<center>典型的流处理模式（Lambda Architecture）</center>
+<h2 id="现有数据库体系的复杂性"><a class="markdownIt-Anchor" href="#现有数据库体系的复杂性"></a> 现有数据库体系的复杂性</h2>
+<p>现有数据库体系同样可以在一定程度上完成多读，大量读请求的场景。现有数据库+Cache+分布式组件的模式可以依靠层级存储，达到较低的延迟。但是与大数据流处理模式相同的是，这种模式同样需要多个系统协作，例如Facebook中对Cache层使用mcrouter进行协同，使用mcsqueal进行cache层和数据库层的协同。这同样带来了高复杂度和维护成本。此外，数据不一致，同步效率低也是这一体系的天然弱势。对此产生的需求是，一体化，低同步成本，高同步效率的系统。</p>
+<p><img src="/images/streaming-database-overview/current-database-complexity.png" alt="现有数据库体系复杂性" /></p>
+<center>现有数据库体系复杂性（Facebook为例）</center>
+<h2 id="大量中小型公司的query相对固定"><a class="markdownIt-Anchor" href="#大量中小型公司的query相对固定"></a> 大量中小型公司的query相对固定</h2>
+<p>随时移动互联网大环境的发展减缓，各个公司的业务相对成熟和稳定，很多公司的业务下对数据的访问也逐渐稳定。访问固定，但是数据不断产生成为新常态。</p>
+<h2 id="query延时敏感的应用越来越多"><a class="markdownIt-Anchor" href="#query延时敏感的应用越来越多"></a> query延时敏感的应用越来越多</h2>
+<p>根据国际知名分析机构 IDC 的研究报告<sup class="footnote-ref"><a href="#fn13" id="fnref13">[13]</a></sup>，实时的流式数据占总体数据规模的比例正不断攀升，预计 2025 年能达到 30%。（字节在20年底，流式计算的计算规模已经赶上批式计算，预计将在21年实现超越。）营销，风险防控，商业决策对数据的实时性要求越来越高。对底层读能力的考验越来越严峻。<sup class="footnote-ref"><a href="#fn14" id="fnref14">[14]</a></sup></p>
+<p><img src="/images/streaming-database-overview/current-database-complexity.png" alt="Real-Time-data-size" /></p>
+<center>IDC对实时数据的预测（the digitization of the world from edge to core）</center>
+<h2 id="流系统和流数据库"><a class="markdownIt-Anchor" href="#流系统和流数据库"></a> 流系统和流数据库</h2>
+<p>处理流系统中的延时问题，通常来说有几个解决途径，a.放松一致性的要求，b.进行预计算，c.添加集群规模，d.极致的工程优化。流数据库试图使用在a,b,d中进行平衡实现最好的性能体验。目前整个数据库领域，流数据库仍然是一个非常小众的方向，在著名的数据库排行网站DB-engines<sup class="footnote-ref"><a href="#fn15" id="fnref15">[15]</a></sup>上，也还没有将Streaming Database作为一个数据库方向。</p>
+<p><img src="/images/streaming-database-overview/DB-engines-types.png" alt="DB-engines上的数据库方向" /></p>
+<center>DB-engines上的数据库方向</center>
+<h1 id="流数据库的应用场景"><a class="markdownIt-Anchor" href="#流数据库的应用场景"></a> 流数据库的应用场景</h1>
+<ol>
+<li>在泛机器学习领域上，流式数据可以提供快速的模型更新，辅助模型做出更加即时的决策。</li>
+<li>在工业互联网/物联网（IOT）领域上，设备上的传感器将“流数据”持续不断的发送到流处理平台，实现对机器设备的监测，对生产风险的预警，防止重大生产事故的发生。</li>
+<li>在金融风控领域上，通过实时跟踪贷款人的金融行为“流数据”，检查异常客户，及时报警和逾期客户的失联修复。</li>
+<li>在商业营销领域上，可以通过检测客户的实时位置“流数据”，推送基于地理位置的广告信息，比如餐厅、商场、加油站等。</li>
+<li>在新媒体领域上，通过对数十亿的在线内容点击“流数据”进行流处理，优化网站上的内容投放，为用户提供最佳的用户体验。</li>
+</ol>
+<p><img src="/images/streaming-database-overview/steaming-database-scenario-singularity.png" alt="流数据库的适用场景-1" /></p>
+<center>流数据库的适用场景-1</center>
+<p><img src="/images/streaming-database-overview/steaming-database-scenario-EMQ.png" alt="流数据库的适用场景-2" /></p>
+<center>流数据库的适用场景-2</center>
+<h1 id="技术路线"><a class="markdownIt-Anchor" href="#技术路线"></a> 技术路线</h1>
+<p>Streaming Database的典型特征是Materialized View<sup class="footnote-ref"><a href="#fn16" id="fnref16">[16]</a></sup>，通过Materialized View进行预计算以达到请求低延时的需求。</p>
+<p>部分传统数据库同样可以Materialized View的支持提供类streaming功能，比如MongoDB上的 Change Streams<sup class="footnote-ref"><a href="#fn17" id="fnref17">[17]</a></sup>，PgSQL和Oracle提供View Maintenance的功能。但是普遍对Materialized View的支持都不完善，也没有专门对此进行资源和性能优化等。</p>
+<h2 id="典型的分析模型"><a class="markdownIt-Anchor" href="#典型的分析模型"></a> 典型的分析模型</h2>
+<p><img src="/images/streaming-database-overview/typical-analytic-model.svg" alt="典型的分析模型" /></p>
+<center>典型的分析模型</center>
+<p>如图是一个典型的分析模型，数据写入TP，然后通过Debezium转化做流，发给AP分析之后application才可以读到数据。这也是大部分大数据场景的基本架构。</p>
+<h2 id="使用方式"><a class="markdownIt-Anchor" href="#使用方式"></a> 使用方式</h2>
+<p>流数据库这一方向还没有一个具体的标准，不同厂家的流数据库往往具有不同的使用方式或者生态地位。</p>
+<p>调查各个现有的系统总结归纳之后，流数据库streaming database的模式基本有如下三种：</p>
+<h3 id="a类型的作模式"><a class="markdownIt-Anchor" href="#a类型的作模式"></a> A类型的作模式</h3>
+<p><img src="/images/streaming-database-overview/A-using-type.svg" alt="A类型的作模式" /></p>
+<h3 id="b类型工作模式"><a class="markdownIt-Anchor" href="#b类型工作模式"></a> B类型工作模式</h3>
+<p><img src="/images/streaming-database-overview/B-using-type.svg" alt="B类型工作模式" /></p>
+<h3 id="c类型工作模式"><a class="markdownIt-Anchor" href="#c类型工作模式"></a> C类型工作模式</h3>
+<p><img src="/images/streaming-database-overview/C-using-type.svg" alt="C类型工作模式" /></p>
+<h1 id="市面上的系统"><a class="markdownIt-Anchor" href="#市面上的系统"></a> 市面上的系统</h1>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>对外发布时间</th>
+<th>开源状态</th>
+<th>开发进度</th>
+<th>企业</th>
+<th>工业级</th>
+<th>与消息队列关系</th>
+<th>开发语言</th>
+<th>语义</th>
+<th>存储引擎</th>
+<th>增量分析</th>
+<th>支持的工作模式</th>
+<th>Feature</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Noria</td>
+<td>2018</td>
+<td>完全开源</td>
+<td>暂无更新</td>
+<td>BrownU</td>
+<td>否</td>
+<td>从MQ读</td>
+<td>Rust</td>
+<td>MySQL</td>
+<td>rocskdb</td>
+<td>支持</td>
+<td>支持C模式</td>
+<td>SQL支持</td>
+</tr>
+<tr>
+<td>Materialize</td>
+<td></td>
+<td>BSL 1.1，单机开源可用</td>
+<td>持续迭代</td>
+<td>Materialize</td>
+<td>是</td>
+<td>从MQ读</td>
+<td>Rust</td>
+<td>大部分PgSQL、标准SQL</td>
+<td></td>
+<td>支持</td>
+<td>支持AC模式</td>
+<td>SQL支持</td>
+</tr>
+<tr>
+<td>HStreamDB</td>
+<td>2021</td>
+<td>按揭开源</td>
+<td>框架搭建中</td>
+<td>EMQ</td>
+<td>否</td>
+<td>包含MQ功能</td>
+<td>Haskell</td>
+<td>自研StreamSQL</td>
+<td>RocksDB Hadoop</td>
+<td>None</td>
+<td>支持ABC三种模式</td>
+<td>Tiered Storage/Rust/SQL</td>
+</tr>
+<tr>
+<td>ksqlDB</td>
+<td>2019</td>
+<td>基本开源，只能用，不能Saas卖</td>
+<td>持续迭代</td>
+<td>Confluent</td>
+<td>是</td>
+<td>是kafka的扩展</td>
+<td>Java</td>
+<td>LightWeight SQL、自定义Streaming SQL</td>
+<td>Kafka rocksdb</td>
+<td>不支持</td>
+<td>支持BC三种模式</td>
+<td>专门针对流，放弃了部分SQL语义，非读写强一直，支持了云原生</td>
+</tr>
+<tr>
+<td>RethinkDB</td>
+<td>2009</td>
+<td>开源，有商用版本</td>
+<td>半死亡</td>
+<td>YC -&gt; （2016）CNCF</td>
+<td>是</td>
+<td>从MQ读</td>
+<td>C++</td>
+<td>类MongoDB ReQL</td>
+<td>B+tree + LSM</td>
+<td>不支持</td>
+<td>支持C模式</td>
+<td>类似于mongodb的推式数据库，SSD的充分利用</td>
+</tr>
+<tr>
+<td>PipelineDB</td>
+<td>2013</td>
+<td>完全开源</td>
+<td>死亡</td>
+<td>PipelineDB</td>
+<td>否</td>
+<td>从MQ读</td>
+<td>C语言</td>
+<td>完整的PgSQL和StreamSQL</td>
+<td>PgSQL</td>
+<td>支持</td>
+<td>支持C模式</td>
+<td>是PgSQL的插件，为PgSQL添加了流的概念，SQL支持</td>
+</tr>
+<tr>
+<td>Rockset</td>
+<td>2018</td>
+<td>闭源</td>
+<td>持续迭代</td>
+<td>Rockset</td>
+<td>是</td>
+<td>从MQ读</td>
+<td>C++</td>
+<td>完整的SQL</td>
+<td>Rocksdb</td>
+<td>不支持</td>
+<td>支持AB三种模式</td>
+<td>高性能，快速查询，使用聚类索引的方式，提供完整sql</td>
+</tr>
+</tbody>
+</table>
+<h2 id="已关闭的产品"><a class="markdownIt-Anchor" href="#已关闭的产品"></a> 已关闭的产品</h2>
+<h3 id="rethinkdb"><a class="markdownIt-Anchor" href="#rethinkdb"></a> RethinkDB</h3>
+<p>RethinkDB<sup class="footnote-ref"><a href="#fn18" id="fnref18">[18]</a></sup>最早是作为一个对SSD进行专门优化的MySQL存储引擎出现的，其特点在于对SSD的充分利用。而目前RethinkDB已经脱离MySQL成为一个独立的存储。RethinkDB是自底向上为实时网页设计的第一个开源的、分布式的、可扩展的数据库，提供类似于MongoDB的功能，具有强大的集群和自动故障转移功能。传统数据库使用的是一种查询——响应数据库访问模式。</p>
+<p>RethinkDB使用了新的数据库的访问模型，而不是轮询数据库更改，开发者可以命令RethinkDB实时的向应用连续推送更新查询结果。这使得搭建现代、实时的应用程序十分方便：开发者可以得到一个可扩展的实时Web应用程序的App，并在用一小部分时间运行的同时使用更少的工程资源。</p>
+<p>RethinkDB的核心贡献是给出了新的数据库访问模型，使数据库请求的实时性得到跨越。</p>
+<h3 id="pipelinedb"><a class="markdownIt-Anchor" href="#pipelinedb"></a> PipelineDB</h3>
+<p>PipelineDB<sup class="footnote-ref"><a href="#fn19" id="fnref19">[19]</a></sup>由PipelineDB团队于2013年创立，2016年正式开源，2018年被confluent收购，从此停止维护。</p>
+<p>PipelineDB本身不是一个完整的数据库，而是一个类似于数据库插件的系统<sup class="footnote-ref"><a href="#fn20" id="fnref20">[20]</a></sup>，他改造了PgSQL系统，为其增加了功能，实现了流处理的功能<sup class="footnote-ref"><a href="#fn21" id="fnref21">[21]</a></sup>。具体来说其为PgSQL添加的三个核心概念是</p>
+<ol>
+<li>Stream是类似于表的概念，用来承接数据。</li>
+<li>Continuous View可以看作是可以实时更新的Materialize View。提供了Incremental Update的能力。</li>
+<li>Continuous Transforms是一个中间状态，类似于一个不存数据只当管道的Stream。这一机制已经类似于Noria等系统中的operators</li>
+</ol>
+<p>PipelineDB通过这三者加上对SQL的扩展，实现了流处理的功能。PipelineDB的优秀之处在于，PipelineDB除PgSQL之外没有添加更多的依赖，以PgSQL的插件方式存在就实现了流处理的需求，是一个极其简单的设计，并且其对stream的定义，大大丰富了流处理的能力，是流处理系统早期的经典之作。其缺点在于，实现方式比较原始，有占用额外资源多等问题。</p>
+<p>被收购后，由于没有继续维护，年久失修，BUG众多，已经很少再被用到生产环境中。</p>
+<h2 id="现存的产品"><a class="markdownIt-Anchor" href="#现存的产品"></a> 现存的产品</h2>
+<h3 id="dbtoaster"><a class="markdownIt-Anchor" href="#dbtoaster"></a> DBToaster</h3>
+<p>DBToaster不是一个纯粹的数据库。是洛桑联邦理工学院数据实验室开发并于2009年对外公开的的数据流查询系统，提供从 SQL 查询语句到生成本地代码的编译框架。DBToaster可以使用storm进行计算，底层可以接入不同的存储系统。并使用Materialized View进行查询的优化。虽然不是流数据库，但是是早期比较专注于处理流数据的系统，具有一些流数据库的雏形，在一些人眼中也被视为流数据库。查询其官网发现，DBToaster已经多年未继续维护了。</p>
+<h3 id="noria"><a class="markdownIt-Anchor" href="#noria"></a> Noria</h3>
+<img src="/images/streaming-database-overview/Noria-arch.png" width="70%" height="70%">
+<center>Noria系统基本原理</center>
+<p>Noria<sup class="footnote-ref"><a href="#fn22" id="fnref22">[22]</a></sup>是MIT CSAIL实验室的Jon Gjengset, Malte Schwarzkopf等人发表于OSDI 18的一个数据库系统<sup class="footnote-ref"><a href="#fn23" id="fnref23">[23]</a></sup>，曾被Adrian Colyer评选为18年OSDI的The Morning Paper之一<sup class="footnote-ref"><a href="#fn24" id="fnref24">[24]</a></sup>。他们将自己的系统定位于服务高性能（低延迟）需求的高读取量web应用程序。虽然paper中没有明确指出Streaming Database一词，但是已经具有了Streaming Database的流处理能力，高性能访问，数据持久化等特征<sup class="footnote-ref"><a href="#fn25" id="fnref25">[25]</a></sup>。</p>
+<img src="/images/streaming-database-overview/Noria-DAG.png" width="50%" height="50%">
+<center>Noria将请求转化为DAG</center>
+<p>其核心Idea叫做partially-stateful data-flow。基于现有的Materialized View机制主要完成了几点优化</p>
+<ol>
+<li>partially-stateful是这篇文章的独到之处，Materialized View不再进行全量的填充，而是默认不填充，当数据真正被访问才会向上访问   upquery再进行填充。这会带来数据第一次访问的高延时，但是后续访问可以大大加速。Materialized View提高了性能，Partial的模式极大节省了Materialized View所需要的内存。</li>
+<li>Query复用，Noria会将数据进行DAG分析，形成一个operators流图。如果query之间有相同的查询内容，可以直接服用。</li>
+<li>基于上述复用机制，支持了Live模式的Query添加，Query添加时，只需要在适当的位置添加新的operators就可以了。</li>
+</ol>
+<p>Noria试图在现有数据库上做优化和调整支持新的流数据的需求，取得了比较好的性能。同时这篇paper也有一定的局限性，由于Materialized View的额外空间，Noria实际上使用了更多的内存，数据显示Noria在Lobsters上占用了大约三倍的内存。由于Noria只支持MySQL协议，未对Streaming进行扩展，实际上对流数据的功能有一定的局限。由于设计上没有针对一致性做过多的约束，读写一致性仍然只能达到最终一致性，这一问题在FlightTracker这篇paper<sup class="footnote-ref"><a href="#fn26" id="fnref26">[26]</a></sup>中得到一定的解决。</p>
+<h3 id="materialize"><a class="markdownIt-Anchor" href="#materialize"></a> Materialize</h3>
+<p>Materialize<sup class="footnote-ref"><a href="#fn27" id="fnref27">[27]</a></sup>是由Materialize公司开发，BSL 1.1协议下半开源（仅可以使用单机版本）的一个流数据库，他们将自己定义成OLVM （Online View Maintenance）<sup class="footnote-ref"><a href="#fn28" id="fnref28">[28]</a></sup>，对外他们提供PostgreSQL语义（实现大部分功能）的接口，可以从Kafka等消息队列或文件中读取消息作为输入。</p>
+<p><img src="/images/streaming-database-overview/Materialize-arch.png" alt="Materialize架构" /></p>
+<center>Materialize架构</center>
+<p>Materialize基于Timely Dataflow和Differential Dataflow这两个同样由Frank McSherry完成的系统构建而成。这两个系统的原型Naiad是SOSP 13的best paper之一。实现分布式系统上的增量计算，流处理，以及一致性的保证。</p>
+<p>Timely Dataflow的是一个分布式的计算引擎，上面可以定义有向循环图。Timely Dataflow使用时间戳的方式实现了增量计算和一致性保证。</p>
+<p>Differential Dataflow基于Timely Dataflow对请求进行处理，将请求和数据拆分多个差别来进行计算。</p>
+<p>基于上述两个系统，Materialize也可以作为一个单独的流数据处理引擎来使用。</p>
+<p>但是与Noria类似的是，Materialize提供的是SQL接口，没有提供直接的Stream概念（比如windows）在他们的SQL中，同样不能直接对数据进行类似于时序数据库的基于时间的分析。</p>
+<h3 id="ksqldb"><a class="markdownIt-Anchor" href="#ksqldb"></a> ksqlDB</h3>
+<p>KsqlDB<sup class="footnote-ref"><a href="#fn29" id="fnref29">[29]</a></sup>是由Conflunt公司开发维护的一个流数据库，是他们的产品KSQL的继任者。</p>
+<p>KSQL是一个基于Kafka的流处理层，可以直接对Kafka中的数据进行分析，分析结果仍然是流。提供Kafka语言的push和pull，但是不支持正常的读写功能即SQL支持。在Kafka系统上做了Stream和Table两层抽象，来分别表示离散连续数据表（比如访问记录表主要的操作是append），和关联型数据表（比如个人信息表主要的操作是update）。最终其提供的功能类似于一个Kafka的外挂模块，可以将Kafka指定的一个或多个Topics下的数据，转化成新的流。</p>
+<p>KsqlDB弥补了一部分上述功能的不完善，用Rocksdb添加了持久化层，并添加了各种KafkaConnect以从不同的数据源获取数据。同时添加了轻量的SQL支持，并且添加了对Materialize View的支持，实现了流处理引擎到类关系型数据库的转变。不过由于对于Materialized View的操作是异步操作，牺牲了读写一致性，提高了吞吐降低了延时，但是无法和OLAP数据库的可靠性进行对比。</p>
+<p>在实际使用中，其地位仍然不是真正的数据存储，而是针对不停修改的数据库内容的Materialize View外部存储。在KsqlDB中定义Materialize View后，KsqlDB通过connector监听各个数据库或者app的数据变化或者新的数据，形成数据流，使用ksql进行计算并落到rocksdb持久化的Materialize View上。当有请求进行访问时可以直接以SQL的模式返回结果。</p>
+<p><img src="/images/streaming-database-overview/ksqlDB-position.png" alt="KsqlDB的定位-1" /></p>
+<img src="/images/streaming-database-overview/ksqlDB-charactor.png" width="80%" height="80%">
+<center>KsqlDB的定位</center>
+<h3 id="rockset"><a class="markdownIt-Anchor" href="#rockset"></a> Rockset</h3>
+<p>Rockset<sup class="footnote-ref"><a href="#fn30" id="fnref30">[30]</a></sup>给是Rockset公司研发的数据库系统，并不是一个流数据库，其自身的定位是“实时分析数据库”，但是具有一定的对流式数据的处理能力。Rockset试图解决两个数据库长久以来的矛盾，一个是综合处理结构化和非结构化的数据，一个是同时做到高速更新和低速查询。给出的解决方案是Relational Document Model和海量索引。在关系型的基础上，使用动态模式自动展开嵌套处理文档等非结构化数据。使用大量索引提高查询的效率</p>
+<p>Rockset严格来说更像是一个OLAP产品，但是其运行的数据级并没有达到PB的级别，相对更集中在GBTB的规模上，其公司自称为OPAP（OPerational Analytics Processing），被理解为运营级数据分析。其高性能快速查询的能力，对流式数据的处理能力，都和streaming database提供的能力有一定程度的吻合。但与streaming database不同的地方在于，Rockset不依赖预先设定好的query进行预运算，更灵活，但是其在复杂query上的性能可能并不如streaming database。</p>
+<p>在技术特点上，其使用的是为所有数据建立聚合索引的方式进行提速。这种模式有一定的空间和性能损失，但是相比Materialize View具有更高的Query灵活性。此外Rockset使用Rocksdb进行索引的持久化，并使用rocksbd-cloud功能实现了存储计算分离云原生化<sup class="footnote-ref"><a href="#fn31" id="fnref31">[31]</a></sup>。</p>
+<h3 id="hstreamdb"><a class="markdownIt-Anchor" href="#hstreamdb"></a> HStreamDB</h3>
+<p>HStreamDB<sup class="footnote-ref"><a href="#fn32" id="fnref32">[32]</a></sup>是EMQ自2021起开发维护的流数据库，已经开源。但是目前规划的功能还没有实现，尚在逐步迭代发展中。根据其架构，该产品预计有以下特点</p>
+<ol>
+<li>具有一部分MQ的功能，可以处理海量请求，并快速的将这些请求记录下来，然后进行分析。天然高吞吐。</li>
+<li>支持Tiered Storage可以将Dump到云平台以实现数据持久化。</li>
+<li>同样基于Materialize以达到低延时的效果。</li>
+<li>丰富的运维能力和安全体系。</li>
+<li>较为完善的SQL能力和流处理能力。</li>
+</ol>
+<p><img src="/images/streaming-database-overview/HStreamDB-components.png" alt="HStreamDB组件" /></p>
+<center>HStreamDB组件</center>
+<p><img src="/images/streaming-database-overview/HStreamDB-arch.png" alt="HStreamDB架构" /></p>
+<center>HStreamDB架构</center>
+<h3 id="rapids-streamdb"><a class="markdownIt-Anchor" href="#rapids-streamdb"></a> Rapids StreamDB</h3>
+<p>Rapids StreamDB<sup class="footnote-ref"><a href="#fn33" id="fnref33">[33]</a></sup>是一家国内公司博睿数据开发的流数据库。其公开资料有限，根据其官网上的设计图等信息，可以推测其设计方向为：</p>
+<ol>
+<li>Materialized View加速访问，支持增量更新</li>
+<li>纯内存数据库，不进行落盘</li>
+<li>以Kafka等大数据系统产生的流数据作为数据源</li>
+<li>经典的MPP架构</li>
+<li>支持标准SQL</li>
+</ol>
+<h3 id="qflow"><a class="markdownIt-Anchor" href="#qflow"></a> QFLOW</h3>
+<p>QFLOW<sup class="footnote-ref"><a href="#fn34" id="fnref34">[34]</a></sup>是国内初创企业快立方qcubic的流数据库，暂无太多有效产品信息。根据其官网，其目标是兼容标准SQL的内存流数据库。但是自首篇PR之后就找不到其他信息了，不知道有没有继续推进。</p>
+<h1 id="市场"><a class="markdownIt-Anchor" href="#市场"></a> 市场</h1>
+<h2 id="市场规模"><a class="markdownIt-Anchor" href="#市场规模"></a> 市场规模</h2>
+<p>本文作者也不是金融出身，也没钱买专业数据，就不强行评估了，不过可以看看相关的一些数据。</p>
+<p>根据MarketsAndMarkets的评估<sup class="footnote-ref"><a href="#fn35" id="fnref35">[35]</a></sup>，2020年全球Cloud database and Database as a Service (DBaaS) 的市场规模大概是120亿美元，并以平均15.7%的年增速增长，预计2025年达到248亿美元。</p>
+<p>根据MarketsAndMarkets的评估<sup class="footnote-ref"><a href="#fn36" id="fnref36">[36]</a></sup>，2021年全球Data Warehouse as a Service的市场规模大概是47亿美元，并以平均22.3%的年增速增长，预计2026年达到129亿美元。</p>
+<p>根据MarketsAndMarkets的评估<sup class="footnote-ref"><a href="#fn37" id="fnref37">[37]</a></sup>，2020年全球整个Streaming Analytic的市场规模大概是125亿美元，并以平均25.2%的年增速增长，预计2025年达到368亿美元。</p>
+<p>根据MarketsAndMarkets的评估<sup class="footnote-ref"><a href="#fn38" id="fnref38">[38]</a></sup>，2020年全球Cloud Analytics的市场规模大概是232亿美元，并以平均23.0%的年增速增长，预计2025年达到654亿美元。</p>
+<p>拍脑袋算的话，作者估计可能2020年大概是40亿美元，2025年大概100亿美元。</p>
+<p>streaming database这个行业整体还算蓝海，说不好以后的发展。这或许取决于streaming database未来会变成streaming和database的交集，还是并集。</p>
+<h2 id="企业"><a class="markdownIt-Anchor" href="#企业"></a> 企业</h2>
+<h3 id="国内"><a class="markdownIt-Anchor" href="#国内"></a> 国内</h3>
+<h4 id="映云科技emq-hstreamdb"><a class="markdownIt-Anchor" href="#映云科技emq-hstreamdb"></a> 映云科技EMQ - HStreamDB</h4>
+<p>EMQ诞生于2017年4月。</p>
+<p>18年4月获晨晖创投领投的种子轮投资，具体金额未知。</p>
+<p>20年8月获维新力特资本领投的A轮投资，具体金额未知。</p>
+<p>20年12月获高瓴资本领投的C轮1.4亿人民币投资。</p>
+<p>EMQ创始人李枫13年起就开始参与开源项目，早年任职华为，在EMQ 项目之前还曾成功创办过一家企业服务软件公司，拥有多年的企业运营经验，是一位商业开源的忠实信徒。</p>
+<p>EMQ长期以来一直将开源，实时性和高并发作为自己的核心卖点，围绕自研MQTT消息中间件对IOT场景和边云结合方向进行探索。演化出多个服务端和边缘端产品。在关注国内市场的同时，同样关注海外市场，拥有众多海内外用户。</p>
+<h4 id="快立方qcubic-qflow"><a class="markdownIt-Anchor" href="#快立方qcubic-qflow"></a> 快立方Qcubic - QFLOW</h4>
+<p>2013年成立</p>
+<p>2021年1月，获东华软件的750万人民币战略融资</p>
+<h4 id="柏睿数据boraydata-rapids-streamdb"><a class="markdownIt-Anchor" href="#柏睿数据boraydata-rapids-streamdb"></a> 柏睿数据BorayData - Rapids StreamDB</h4>
+<p>2014年创立，最早以内存数据库作为主打产品，基于经典的MPP架构。</p>
+<p>2015年柏睿数据获得蓝驰创投近千万元PreA轮投资。</p>
+<p>2016年获得数千万A轮融资，由信中利领投。</p>
+<p>2017年5月，柏睿数据获得中科院国科嘉和基金投资的千万级美元B轮融资。</p>
+<p>2018年获得东方嘉富、盛世泰诺等亿元人民B+轮投资。</p>
+<p>2020年获海通证券与盛石资本2亿元人民C轮投资。</p>
+<p>博睿数据的创始人刘睿民确实是数据库领域的老兵，师从著名的数据库学者，图灵奖创始人Jim Grey，先后在多家企业担任技术骨干。参考其个人访谈，可以看出其对于数据库技术的热爱和对前沿技术的关注。</p>
+<p>柏睿数据是比较早提出流数据库概念的公司，主笔参与制定了相关ISO标准（虽然最终这一标准被取消）。由于博睿数据对外披露的Rapids StreamDB信息披露甚少，也没有对系统进行开源，博睿数据对于流数据库的定义与上文提到的到底有多少重合，还不好说。</p>
+<h4 id="奇点无限singularitydata"><a class="markdownIt-Anchor" href="#奇点无限singularitydata"></a> 奇点无限SingularityData</h4>
+<p>奇点无限大约创立于21年初或20年底，</p>
+<p>21年初，获数百万美元种子轮投资。</p>
+<p>21年8月获云启资本的种子轮1000万美元投资。</p>
+<p>奇点无限的CEO吴英骏博士毕业于新国立，先后在IBM的数据库团队和AWS的RedShift团队工作。是Flink的早期贡献者。</p>
+<p>CTO张焕晨本科就读于UW-Madison，师从著名存储大拿Remzi Arpaci-Dusseau。博士毕业于CMU，师从数据库科学家Dave Andersen和AndyPavlo。目前在清华姚班担任助理讲师。2021年5月获数据库领域的大奖Jim Gray奖。</p>
+<p>奇点无限是近期市场上最热的基础架构创业公司之一，在种子轮已估值达到两亿美金，是几乎所有投资人眼中的香饽饽。目前他们的系统还在紧锣密鼓的开发，团队扩张也在进行中。不少基础架构领域的年轻人都以加入这家公司作为目标。</p>
+<h3 id="国外"><a class="markdownIt-Anchor" href="#国外"></a> 国外</h3>
+<h4 id="confluent-ksqldb"><a class="markdownIt-Anchor" href="#confluent-ksqldb"></a> Confluent - ksqlDB</h4>
+<p>Confluent建立于2014年。</p>
+<p>14年5月获Benchmark领投的A轮690万美元投资。</p>
+<p>15年7月获Index Ventures领投的B轮2400万美元投资。</p>
+<p>17年3月获Sequoia Capital领投的C轮5000万美元投资。</p>
+<p>19年1月获Sequoia Capital领投的D轮1.25亿美元投资。</p>
+<p>20年4月获Coatue领投的E轮2.5亿美元投资。</p>
+<p>21年6月以91亿美元的市值在纳斯达克证券交易所上市，首个交易日跳涨超过20%。</p>
+<p>Confluent是在Kafka的基础上创建的公司，创始人团队来自Linkedin，主要是Jay Kreps、Neha Narkhede和饶军三人。Kafka作为中间件在现代大数据格局中扮演了重要的角色，提供开源和商业版两个版本，几乎是所有互联网公司软件架构中必备的组件。Confluent的价值也因为Kafka的普及而迅速提升。而后Confluent基于Kafka研发了许多外围组件出售，其中就包括基于Kafka出来的流式数据形式演化出来的事件流数据库KsqlDB。</p>
+<p>Confluent无疑是一家成功的公司，从初创企业到上市一步一个脚印，同时也给其他创业公司释放一个信息，在大数据时代，选好一个角色的重要性。</p>
+<h4 id="materialize-materialize"><a class="markdownIt-Anchor" href="#materialize-materialize"></a> Materialize - Materialize</h4>
+<p>2019年融资由Lightspeed领投完成800万美元的A轮融资。</p>
+<p>2020年融资由Lightspeed领投完成3200万美元的B轮融资。</p>
+<p>Materialize拥有强大的团队，包括前Cockroach Labs的首席执行官Arjun Narayan和首席科学家Frank McSherry。他们希望用自己的系统将每个公司的软件在不进行任何额外技术培训的前提下转换为高实时性软件。标准SQL的支持是他们的主打特性之一。Materialize的原型Naiad，是一些流数据库从业者视为行业开拓者的系统。</p>
+<h4 id="rockset-rockset"><a class="markdownIt-Anchor" href="#rockset-rockset"></a> Rockset - Rockset</h4>
+<p>2016年种子轮获300万美元投资</p>
+<p>2018年获Sequoia Capital领投的185万美元的A轮融资。</p>
+<p>2020年获Sequoia Capital领投的4000万美元的B轮融资。</p>
+<p>CEO Venkat Venkataramani毕业于Wisconsin-Madison，02年起在Oracle工作5年，然后07到Facebook，工作了8年，在创办Rockset之前是Facebook负责在线数据平台的工程总监。16年创办RockSet。</p>
+<p>CTO Dhruba Borthakur，毕业自Wisconsin-Madison，先后工作于IBM、Veritas，06年加入Yahoo，是HDFS创始人之一，也是重要的HBase contributor。08年起在Facebook干了8年，是RocksDB的创始人。</p>
+<p>Rockset踩在了云原生的风口上，提出了OPAP的概念，拥有极强的团队组成，是实时数据库这一方向不可忽视的力量。</p>
+<h1 id="期待的发展方向"><a class="markdownIt-Anchor" href="#期待的发展方向"></a> 期待的发展方向</h1>
+<ol>
+<li>
+<p>清晰产品定位，制定比较统一的产品标准。现有对流数据的应用一般是不需要长期保存数据的，一般会a. 只保留数据计算的结果，b. dump数据到HDFS等冷存平台。流数据库的存储能力在这些场景下显得不太必要。真正需要直接存储流数据的场景不一定有很多。</p>
+</li>
+<li>
+<p>做好流处理数据一致性方面的设计，可以在延时和一致性之间提供选择的余地。</p>
+</li>
+<li>
+<p>做好模块化的设计，提供消息队列能力，存储的松解藕能力的支持。</p>
+</li>
+<li>
+<p>做好性能和scalability的平衡。是顺应计算存储分离大潮，保持scalability，换取低延时，还是放弃一部分延展性，追求极致的性能。</p>
+</li>
+<li>
+<p>Materialized View本身的分布式化的相关技术似乎不多，如何做还是个未知数。</p>
+</li>
+<li>
+<p>解决或者进一步削减Materialize Views这一技术带来的潜在问题，额外的大量内存/硬盘资源消耗。</p>
+</li>
+</ol>
+<h1 id="流数据库时序数据库olap"><a class="markdownIt-Anchor" href="#流数据库时序数据库olap"></a> 流数据库&amp;时序数据库&amp;OLAP</h1>
+<h2 id="流数据库时序数据库的对比"><a class="markdownIt-Anchor" href="#流数据库时序数据库的对比"></a> 流数据库&amp;时序数据库的对比</h2>
+<p>流数据库和时序数据库的对比可能是对流数据库感兴趣的人经常会遇到的问题，这两种系统在一定程度上是有重叠的，他们都重点关注请求的低延时。但是分别做出了不同的tradeoff。</p>
+<img src="/images/streaming-database-overview/compare-with-TSDB.svg" width="50%" height="50%">
+<center>流数据库对比TSDB</center>
+<p>时序数据库本质上是一种AP能力的特化优化，放弃了一部分比如Join操作的性能来获取其他操作上的性能。其在生产场景中的写入模式更类似于TP，读取模式类似AP。时序数据库针在基本没有消耗更多系统资源的条件下，对这种操作模式提供特定优化，形成一个类似窄列数据库的系统模型。涛思数据的TDengine甚至专门针对IoT这一单一场景做系统设计，依靠反木桶原理创造出了美好的性能指标。</p>
+<p>目前流数据库的设计基本是可以覆盖时序数据库中的需求的，但是从存储和系统优化的角度来说，大概率做不到TSDB这种极致优化。如果希望提供一站式服务，必定需要牺牲极致的性能。流数据库是在尽量保证计算能力的完备性条件下，使用资源换性能的方式给出了自己的性能提升。</p>
+<h2 id="流数据库olap的对比"><a class="markdownIt-Anchor" href="#流数据库olap的对比"></a> 流数据库&amp;OLAP的对比</h2>
+<p>流数据库能不能取代OLAP，用流式的能力完成批式运算，可能也是很多人会感兴趣的话题。目前来看似乎还存在一些GAP，一个是OLAP毕竟很多时候是在离线在batch运算，可以做很多单独的性能优化，但是streaming database未必可以做到同等的优化程度。再有就是批式计算还是有一些场景/Corner Case是流式处理无法覆盖的。短期内我们可能看不到流数据库能完全cover OLAP的局面，但是长期来看流数据库这一数据模型应该是有这个潜力的。</p>
+<h1 id="结论"><a class="markdownIt-Anchor" href="#结论"></a> 结论</h1>
+<p>流数据库作为一个新兴的数据模型，从功能性角度讲，具有较大的潜力，理论上可以以相对优雅的性能，处理几乎所有的请求和分析模式。从性能角度讲，目标是实现实时或近实时的请求处理。对应的，流数据库为自身引入了一定的系统复杂度和较高的额外资源开销。</p>
+<p>流数据库作为一个新兴的商业软件，在市场规模上，顺应流数据和时序性需求的发展，会有不错的潜力。在市场竞争中，还处于比较早期的时间点，参与竞争的企业较水。目前真正使用流数据库的企业不多，企业在寻找合适的用户上多做投入，甚至自己培养用户习惯。在不断扩展市场需求的同时，提高自身的多能性，实时性，易用性，是流数据库未来的出路。</p>
+<hr class="footnotes-sep" />
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000017459762">https://segmentfault.com/a/1190000017459762</a> <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn2" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://www.emqx.cn/blog/birth-of-streaming-database">https://www.emqx.cn/blog/birth-of-streaming-database</a> <a href="#fnref2" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn3" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://hazelcast.com/glossary/streaming-database/">https://hazelcast.com/glossary/streaming-database/</a> <a href="#fnref3" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn4" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://calcite.apache.org/docs/stream.html#references">https://calcite.apache.org/docs/stream.html#references</a> <a href="#fnref4" class="footnote-backref">↩︎</a> <a href="#fnref4:1" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn5" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/5074b0892f4d">https://www.jianshu.com/p/5074b0892f4d</a> <a href="#fnref5" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn6" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1802.10233.pdf">https://arxiv.org/pdf/1802.10233.pdf</a> <a href="#fnref6" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn7" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://researcher.watson.ibm.com/researcher/view_group.php?id=2531">https://researcher.watson.ibm.com/researcher/view_group.php?id=2531</a> <a href="#fnref7" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn8" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://www.infoq.cn/article/icvke4pkamyvvrqeu1yq">https://www.infoq.cn/article/icvke4pkamyvvrqeu1yq</a> <a href="#fnref8" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn9" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://conferences.computer.org/icde/2020/pdfs/ICDE2020-5acyuqhpJ6L9P042wmjY1p/290300b591/290300b591.pdf">https://conferences.computer.org/icde/2020/pdfs/ICDE2020-5acyuqhpJ6L9P042wmjY1p/290300b591/290300b591.pdf</a> <a href="#fnref9" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn10" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://blog.bcmeng.com/post/snappydata.html">https://blog.bcmeng.com/post/snappydata.html</a> <a href="#fnref10" class="footnote-backref">↩︎</a> <a href="#fnref10:1" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn11" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/87184575">https://zhuanlan.zhihu.com/p/87184575</a> <a href="#fnref11" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn12" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/haibucuoba/article/details/94444374?utm_term=kappa%E6%9E%B6%E6%9E%84&amp;utm_medium=distribute.pc_aggpage_search_result.none-task-blog-2~all~sobaiduweb~default-0-94444374&amp;spm=3001.4430">Kappa架构与Lambda架构比较_haibucuoba的博客-CSDN博客_kappa</a> <a href="#fnref12" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn13" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://www.seagate.com/files/www-content/our-story/trends/files/idc-seagate-dataage-whitepaper.pdf">https://www.seagate.com/files/www-content/our-story/trends/files/idc-seagate-dataage-whitepaper.pdf</a> <a href="#fnref13" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn14" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://www.emqx.com/zh/blog/birth-of-streaming-database">https://www.emqx.com/zh/blog/birth-of-streaming-database</a> <a href="#fnref14" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn15" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://db-engines.com/en/ranking_categories">https://db-engines.com/en/ranking_categories</a> <a href="#fnref15" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn16" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://wiki.postgresql.org/wiki/Incremental_View_Maintenance">https://wiki.postgresql.org/wiki/Incremental_View_Maintenance</a> <a href="#fnref16" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn17" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://docs.mongodb.com/v3.6/changeStreams/#changestreams">Change Streams — MongoDB Manual</a> <a href="#fnref17" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn18" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://rethinkdb.com/">RethinkDB: the open-source database for the realtime web</a> <a href="#fnref18" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn19" class="footnote-item"><p><a target="_blank" rel="noopener" href="http://docs.pipelinedb.com/quickstart.html">http://docs.pipelinedb.com/quickstart.html</a> <a href="#fnref19" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn20" class="footnote-item"><p><a target="_blank" rel="noopener" href="http://www.jouypub.com/2019/aba9afaf67ef3851b7cf3ddd6c6e8ef1/">http://www.jouypub.com/2019/aba9afaf67ef3851b7cf3ddd6c6e8ef1/</a> <a href="#fnref20" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn21" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://wiki.postgresql.org/images/a/ad/South_Bay_PG_Meetup_2016-03-08_PipelineDB.pdf">https://wiki.postgresql.org/images/a/ad/South_Bay_PG_Meetup_2016-03-08_PipelineDB.pdf</a> <a href="#fnref21" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn22" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://github.com/mit-pdos/noria">https://github.com/mit-pdos/noria</a> <a href="#fnref22" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn23" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://dspace.mit.edu/bitstream/handle/1721.1/130767/1252061486-MIT.pdf?sequence=1&amp;isAllowed=y">https://dspace.mit.edu/bitstream/handle/1721.1/130767/1252061486-MIT.pdf?sequence=1&amp;isAllowed=y</a> <a href="#fnref23" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn24" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://blog.acolyer.org/2018/10/29/noria-dynamic-partially-stateful-data-flow-for-high-performance-web-applications/">https://blog.acolyer.org/2018/10/29/noria-dynamic-partially-stateful-data-flow-for-high-performance-web-applications/</a> <a href="#fnref24" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn25" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://www.notamonadtutorial.com/interview-with-norias-creator-a-promising-dataflow-database-implemented-in-rust/">https://www.notamonadtutorial.com/interview-with-norias-creator-a-promising-dataflow-database-implemented-in-rust/</a> <a href="#fnref25" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn26" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://www.usenix.org/system/files/osdi20-shi.pdf">https://www.usenix.org/system/files/osdi20-shi.pdf</a> <a href="#fnref26" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn27" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://materialize.com/blog-cmudb/">https://materialize.com/blog-cmudb/</a> <a href="#fnref27" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn28" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://materialize.com/blog-olvm/">https://materialize.com/blog-olvm/</a> <a href="#fnref28" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn29" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://www.confluent.io/blog/intro-to-ksqldb-sql-database-streaming/">https://www.confluent.io/blog/intro-to-ksqldb-sql-database-streaming/</a> <a href="#fnref29" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn30" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://docs.rockset.com/">https://docs.rockset.com/</a> <a href="#fnref30" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn31" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://wemp.app/posts/4d7b00ea-247b-457a-97cf-89243cc78813">https://wemp.app/posts/4d7b00ea-247b-457a-97cf-89243cc78813</a> <a href="#fnref31" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn32" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://www.emqx.cn/blog/hstreamdb-is-now-officially-open-source">https://www.emqx.cn/blog/hstreamdb-is-now-officially-open-source</a> <a href="#fnref32" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn33" class="footnote-item"><p><a target="_blank" rel="noopener" href="http://rapidsdb.com/products/rapids-streamdb/">http://rapidsdb.com/products/rapids-streamdb/</a> <a href="#fnref33" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn34" class="footnote-item"><p><a target="_blank" rel="noopener" href="http://www.qcubic.com/newsinfo/116623.html">http://www.qcubic.com/newsinfo/116623.html</a> <a href="#fnref34" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn35" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://www.marketsandmarkets.com/PressReleases/cloud-database-as-a-service-dbaas.asp">https://www.marketsandmarkets.com/PressReleases/cloud-database-as-a-service-dbaas.asp</a> <a href="#fnref35" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn36" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://www.marketsandmarkets.com/Market-Reports/data-warehouse-as-a-service-market-191544663.html">https://www.marketsandmarkets.com/Market-Reports/data-warehouse-as-a-service-market-191544663.html</a> <a href="#fnref36" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn37" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://www.marketsandmarkets.com/Market-Reports/streaming-analytics-market-64196229.html">https://www.marketsandmarkets.com/Market-Reports/streaming-analytics-market-64196229.html</a> <a href="#fnref37" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn38" class="footnote-item"><p><a target="_blank" rel="noopener" href="https://www.marketsandmarkets.com/Market-Reports/cloud-based-business-analytics-market-959.html">https://www.marketsandmarkets.com/Market-Reports/cloud-based-business-analytics-market-959.html</a> <a href="#fnref38" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Kexiang Wang
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://www.kexiang.me/2021/09/15/streaming-database-overview/" title="Streaming Database调研">https://www.kexiang.me/2021/09/15/streaming-database-overview/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://twitter.com/KexiangW">
+            <span class="icon">
+              <i class="fab fa-twitter"></i>
+            </span>
+
+            <span class="label">Twitter</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://www.linkedin.com/in/kexiang-wang-73b6171a0/">
+            <span class="icon">
+              <i class="fab fa-linkedin-in"></i>
+            </span>
+
+            <span class="label">Linkedin</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://www.zhihu.com/people/wang-ke-xiang-52">
+            <span class="icon">
+              <i class="fab fa-zhihu"></i>
+            </span>
+
+            <span class="label">Zhihu</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Industry-Research/" rel="tag"># Industry Research</a>
+              <a href="/tags/Systems/" rel="tag"># Systems</a>
+              <a href="/tags/Database/" rel="tag"># Database</a>
+              <a href="/tags/Streaming/" rel="tag"># Streaming</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/09/14/my-goal/" rel="prev" title="关于建立网站的目的">
+      <i class="fa fa-chevron-left"></i> 关于建立网站的目的
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#overview"><span class="nav-number">1.</span> <span class="nav-text"> Overview</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B5%81%E6%95%B0%E6%8D%AE"><span class="nav-number">2.</span> <span class="nav-text"> 流数据</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B5%81%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AE%9A%E4%B9%89"><span class="nav-number">3.</span> <span class="nav-text"> 流数据库定义</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89"><span class="nav-number">3.1.</span> <span class="nav-text"> 定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%BA%E5%88%86%E4%BA%8Estreaming-sql"><span class="nav-number">3.2.</span> <span class="nav-text"> 区分于Streaming SQL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%BA%E5%88%86%E4%BA%8Estreaming-analytic"><span class="nav-number">3.3.</span> <span class="nav-text"> 区分于Streaming Analytic</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%B9%E6%AF%94"><span class="nav-number">3.3.1.</span> <span class="nav-text"> 对比</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%BA%E5%88%AB%E4%BA%8Estreaming-platform"><span class="nav-number">3.4.</span> <span class="nav-text"> 区别于Streaming Platform</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%B9%E6%AF%94-2"><span class="nav-number">3.4.1.</span> <span class="nav-text"> 对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%B0%E6%9C%89%E6%B5%81%E6%95%B0%E6%8D%AE%E5%B9%B3%E5%8F%B0"><span class="nav-number">3.4.2.</span> <span class="nav-text"> 现有流数据平台</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B5%81%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AF%9E%E7%94%9F%E7%9A%84%E8%83%8C%E6%99%AF"><span class="nav-number">4.</span> <span class="nav-text"> 流数据库诞生的背景</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%B0%E6%9C%89%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%B5%81%E5%A4%84%E7%90%86%E6%A8%A1%E5%BC%8F"><span class="nav-number">4.1.</span> <span class="nav-text"> 现有大数据流处理模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%B0%E6%9C%89%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BD%93%E7%B3%BB%E7%9A%84%E5%A4%8D%E6%9D%82%E6%80%A7"><span class="nav-number">4.2.</span> <span class="nav-text"> 现有数据库体系的复杂性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%A7%E9%87%8F%E4%B8%AD%E5%B0%8F%E5%9E%8B%E5%85%AC%E5%8F%B8%E7%9A%84query%E7%9B%B8%E5%AF%B9%E5%9B%BA%E5%AE%9A"><span class="nav-number">4.3.</span> <span class="nav-text"> 大量中小型公司的query相对固定</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#query%E5%BB%B6%E6%97%B6%E6%95%8F%E6%84%9F%E7%9A%84%E5%BA%94%E7%94%A8%E8%B6%8A%E6%9D%A5%E8%B6%8A%E5%A4%9A"><span class="nav-number">4.4.</span> <span class="nav-text"> query延时敏感的应用越来越多</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E7%B3%BB%E7%BB%9F%E5%92%8C%E6%B5%81%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">4.5.</span> <span class="nav-text"> 流系统和流数据库</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B5%81%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">5.</span> <span class="nav-text"> 流数据库的应用场景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E8%B7%AF%E7%BA%BF"><span class="nav-number">6.</span> <span class="nav-text"> 技术路线</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B8%E5%9E%8B%E7%9A%84%E5%88%86%E6%9E%90%E6%A8%A1%E5%9E%8B"><span class="nav-number">6.1.</span> <span class="nav-text"> 典型的分析模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="nav-number">6.2.</span> <span class="nav-text"> 使用方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#a%E7%B1%BB%E5%9E%8B%E7%9A%84%E4%BD%9C%E6%A8%A1%E5%BC%8F"><span class="nav-number">6.2.1.</span> <span class="nav-text"> A类型的作模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#b%E7%B1%BB%E5%9E%8B%E5%B7%A5%E4%BD%9C%E6%A8%A1%E5%BC%8F"><span class="nav-number">6.2.2.</span> <span class="nav-text"> B类型工作模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#c%E7%B1%BB%E5%9E%8B%E5%B7%A5%E4%BD%9C%E6%A8%A1%E5%BC%8F"><span class="nav-number">6.2.3.</span> <span class="nav-text"> C类型工作模式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B8%82%E9%9D%A2%E4%B8%8A%E7%9A%84%E7%B3%BB%E7%BB%9F"><span class="nav-number">7.</span> <span class="nav-text"> 市面上的系统</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%B2%E5%85%B3%E9%97%AD%E7%9A%84%E4%BA%A7%E5%93%81"><span class="nav-number">7.1.</span> <span class="nav-text"> 已关闭的产品</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#rethinkdb"><span class="nav-number">7.1.1.</span> <span class="nav-text"> RethinkDB</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pipelinedb"><span class="nav-number">7.1.2.</span> <span class="nav-text"> PipelineDB</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%B0%E5%AD%98%E7%9A%84%E4%BA%A7%E5%93%81"><span class="nav-number">7.2.</span> <span class="nav-text"> 现存的产品</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#dbtoaster"><span class="nav-number">7.2.1.</span> <span class="nav-text"> DBToaster</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#noria"><span class="nav-number">7.2.2.</span> <span class="nav-text"> Noria</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#materialize"><span class="nav-number">7.2.3.</span> <span class="nav-text"> Materialize</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ksqldb"><span class="nav-number">7.2.4.</span> <span class="nav-text"> ksqlDB</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rockset"><span class="nav-number">7.2.5.</span> <span class="nav-text"> Rockset</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hstreamdb"><span class="nav-number">7.2.6.</span> <span class="nav-text"> HStreamDB</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rapids-streamdb"><span class="nav-number">7.2.7.</span> <span class="nav-text"> Rapids StreamDB</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#qflow"><span class="nav-number">7.2.8.</span> <span class="nav-text"> QFLOW</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B8%82%E5%9C%BA"><span class="nav-number">8.</span> <span class="nav-text"> 市场</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%82%E5%9C%BA%E8%A7%84%E6%A8%A1"><span class="nav-number">8.1.</span> <span class="nav-text"> 市场规模</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%81%E4%B8%9A"><span class="nav-number">8.2.</span> <span class="nav-text"> 企业</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%BD%E5%86%85"><span class="nav-number">8.2.1.</span> <span class="nav-text"> 国内</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%98%A0%E4%BA%91%E7%A7%91%E6%8A%80emq-hstreamdb"><span class="nav-number">8.2.1.1.</span> <span class="nav-text"> 映云科技EMQ - HStreamDB</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BF%AB%E7%AB%8B%E6%96%B9qcubic-qflow"><span class="nav-number">8.2.1.2.</span> <span class="nav-text"> 快立方Qcubic - QFLOW</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9F%8F%E7%9D%BF%E6%95%B0%E6%8D%AEboraydata-rapids-streamdb"><span class="nav-number">8.2.1.3.</span> <span class="nav-text"> 柏睿数据BorayData - Rapids StreamDB</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A5%87%E7%82%B9%E6%97%A0%E9%99%90singularitydata"><span class="nav-number">8.2.1.4.</span> <span class="nav-text"> 奇点无限SingularityData</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%BD%E5%A4%96"><span class="nav-number">8.2.2.</span> <span class="nav-text"> 国外</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#confluent-ksqldb"><span class="nav-number">8.2.2.1.</span> <span class="nav-text"> Confluent - ksqlDB</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#materialize-materialize"><span class="nav-number">8.2.2.2.</span> <span class="nav-text"> Materialize - Materialize</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#rockset-rockset"><span class="nav-number">8.2.2.3.</span> <span class="nav-text"> Rockset - Rockset</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%9F%E5%BE%85%E7%9A%84%E5%8F%91%E5%B1%95%E6%96%B9%E5%90%91"><span class="nav-number">9.</span> <span class="nav-text"> 期待的发展方向</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B5%81%E6%95%B0%E6%8D%AE%E5%BA%93%E6%97%B6%E5%BA%8F%E6%95%B0%E6%8D%AE%E5%BA%93olap"><span class="nav-number">10.</span> <span class="nav-text"> 流数据库&amp;时序数据库&amp;OLAP</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E6%95%B0%E6%8D%AE%E5%BA%93%E6%97%B6%E5%BA%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AF%B9%E6%AF%94"><span class="nav-number">10.1.</span> <span class="nav-text"> 流数据库&amp;时序数据库的对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E6%95%B0%E6%8D%AE%E5%BA%93olap%E7%9A%84%E5%AF%B9%E6%AF%94"><span class="nav-number">10.2.</span> <span class="nav-text"> 流数据库&amp;OLAP的对比</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%93%E8%AE%BA"><span class="nav-number">11.</span> <span class="nav-text"> 结论</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Kexiang Wang"
+      src="/images/avatar-time.jpg">
+  <p class="site-author-name" itemprop="name">Kexiang Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/KeXiangWang" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;KeXiangWang" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.linkedin.com/in/kexiang-wang-73b6171a0/" title="Linkedin → https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;kexiang-wang-73b6171a0&#x2F;" rel="noopener" target="_blank"><i class="fab fa-linkedin-in fa-fw"></i>Linkedin</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/wang-ke-xiang-52" title="Zhihu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;wang-ke-xiang-52" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>Zhihu</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/KexiangW" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;KexiangW" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ke.wang@hotmail.com" title="E-Mail → mailto:ke.wang@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Kexiang Wang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">22k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">20 mins.</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('/js/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : true,
+      appId      : '5F4DdksFXCxgcPFJfYq2raiB-gzGzoHsz',
+      appKey     : '36G9n5NWIiCjzVVLQFf5B0QF',
+      placeholder: "Any comments are welcomed! Please leave your E-Mail if you want to be contacted!",
+      avatar     : 'retro',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'en' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

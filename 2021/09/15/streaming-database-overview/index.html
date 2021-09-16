@@ -66,7 +66,7 @@
 <meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/HStreamDB-arch.png">
 <meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/compare-with-TSDB.svg">
 <meta property="article:published_time" content="2021-09-15T19:07:30.000Z">
-<meta property="article:modified_time" content="2021-09-15T19:07:30.606Z">
+<meta property="article:modified_time" content="2021-09-16T03:23:06.299Z">
 <meta property="article:author" content="Kexiang Wang">
 <meta property="article:tag" content="Industry Research">
 <meta property="article:tag" content="Systems">
@@ -233,8 +233,9 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
+              
 
-              <time title="Created: 2021-09-15 15:07:30" itemprop="dateCreated datePublished" datetime="2021-09-15T15:07:30-04:00">2021-09-15</time>
+              <time title="Created: 2021-09-15 15:07:30 / Modified: 23:23:06" itemprop="dateCreated datePublished" datetime="2021-09-15T15:07:30-04:00">2021-09-15</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -335,7 +336,7 @@
 <p>假如我们有很多不同颜色的小球通过管道源源不断传递过来，我们希望统计每个颜色小球的数量，那么传统的大数据架构会如下图工作（忽略流式处理，位置和AP差不多）：</p>
 <img src="/images/streaming-database-overview/OLAP-OLTP-work.svg" width="70%" height="70%">
 <center>传统大数据小球统计</center>
-<p>传统大数据会用一个叫OLTP的桶来接球，然后定期用泵（各种中间件MQ等）把一批小球泵到一个更大的叫做OLAP的桶，然后这个OLAP的桶再慢慢去按照颜色统计小球的个数。</p>
+<p>由于统计和接受小球（数据）需要使用不同的底层架构，传统大数据会分开处理两个任务，用一个叫OLTP的桶来接球，然后定期用泵（各种中间件MQ等）把一批小球泵到一个更大的叫做OLAP的桶，然后这个OLAP的桶再慢慢去按照颜色统计小球的个数。</p>
 <p>而流数据库的统计小球会像下图来工作（后文C类型工作模式为例）：</p>
 <img src="/images/streaming-database-overview/streaming-database-work.svg" width="30%" height="30%">
 <center>流数据库小球统计</center>

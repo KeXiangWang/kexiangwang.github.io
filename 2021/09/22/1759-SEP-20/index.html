@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/bitbug_favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/bitbug_favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/bitbug_favicon-32x32.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.kexiang.me","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="This is a &#39;Paper Reading&#39; post for Course ECE1759. The topic is &#39;Historical Perspective&#39;. This paper list is here:  E. W. Dijkstra, The Structure of the &#39;THE&#39;-Multiprogramming System, Communications">
+<meta property="og:type" content="article">
+<meta property="og:title" content="1759 &#39;Historical Perspective&#39; SEP-20">
+<meta property="og:url" content="https://www.kexiang.me/2021/09/22/1759-SEP-20/index.html">
+<meta property="og:site_name" content="kexiang&#39;s blog">
+<meta property="og:description" content="This is a &#39;Paper Reading&#39; post for Course ECE1759. The topic is &#39;Historical Perspective&#39;. This paper list is here:  E. W. Dijkstra, The Structure of the &#39;THE&#39;-Multiprogramming System, Communications">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-09-22T05:13:21.000Z">
+<meta property="article:modified_time" content="2021-09-22T05:13:21.457Z">
+<meta property="article:author" content="Kexiang Wang">
+<meta property="article:tag" content="Systems">
+<meta property="article:tag" content="Paper Reading">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://www.kexiang.me/2021/09/22/1759-SEP-20/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>1759 'Historical Perspective' SEP-20 | kexiang's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">kexiang's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+
+  <a href="https://github.com/KeXiangWang" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://www.kexiang.me/2021/09/22/1759-SEP-20/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar-time.jpg">
+      <meta itemprop="name" content="Kexiang Wang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="kexiang's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          1759 'Historical Perspective' SEP-20
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-09-22 01:13:21" itemprop="dateCreated datePublished" datetime="2021-09-22T01:13:21-04:00">2021-09-22</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/" itemprop="url" rel="index"><span itemprop="name">Academic</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/Paper-Reading/" itemprop="url" rel="index"><span itemprop="name">Paper Reading</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/Paper-Reading/1759/" itemprop="url" rel="index"><span itemprop="name">1759</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/OS/" itemprop="url" rel="index"><span itemprop="name">OS</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2021/09/22/1759-SEP-20/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/09/22/1759-SEP-20/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>10k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>9 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>This is a 'Paper Reading' post for Course ECE1759. The topic is 'Historical Perspective'. This paper list is here:</p>
+<ul>
+<li>E. W. Dijkstra, The Structure of the 'THE'-Multiprogramming System, Communications of the ACM, Vol. 11, No. 5, May 1968, pp. 341-346.</li>
+<li>P. B. Hansen, The Nucleus of a Multiprogramming System, Communications of the ACM, Vol. 13, No. 4, April 1970, pp. 238-241, 250.</li>
+<li>D. G. Bobrow, J. D. Burchfiel, D. L. Murphy, and R. S. Tomlinson, TENEX, a Paged Time Sharing System for the PDP-10, Communications of the ACM, Vol. 15, No. 3, March 1972, pp. 135-143.</li>
+</ul>
+</blockquote>
+<h1 id="background"><a class="markdownIt-Anchor" href="#background"></a> Background</h1>
+<ul>
+<li>There is no 'Thread' concept.</li>
+<li>There is no C language.</li>
+<li>There is no Unix (Announced outside Bell Labs in October 1973).</li>
+<li>There is no Cache mechanism.</li>
+<li>There is  no Multi-core processor.</li>
+<li>File systems already exist.</li>
+</ul>
+<h1 id="the-structure-of-the-the-multiprogramming-system"><a class="markdownIt-Anchor" href="#the-structure-of-the-the-multiprogramming-system"></a> The Structure of the 'THE'-Multiprogramming System</h1>
+<h2 id="what-is-multiprogramming"><a class="markdownIt-Anchor" href="#what-is-multiprogramming"></a> What is Multiprogramming</h2>
+<p>Multiprogramming systems separate a job into some processes by some waiting periods like IO. On one CPU, OS will switch to another job when the executing job needs to do waiting like IO. The new job will then compute on the CPU. By switching, the CPU is always computing with the least waiting.</p>
+<ul>
+<li>The difference between Multiprogramming with Multi-tasking is that there is no time slices in Multiprogramming. (Just like coroutine, but for a different reason.) Multiprogramming is not time-sharing.</li>
+<li>The difference between Multiprogramming and Time-Sharing is that Time-Sharing has multiple users, and the systems must be interactive. Users can use their consoles to interact with or send commands to the system. The users share the CPU and memory.</li>
+</ul>
+<h3 id="multiprogramming-in-this-paper"><a class="markdownIt-Anchor" href="#multiprogramming-in-this-paper"></a> Multiprogramming in this paper</h3>
+<p>Unlike the multiprogramming concept we mentioned before, this paper's multiprogramming looks like be with time slices, as it also has a clock to prevent processor monopolization.</p>
+<p>In this system, each period of a process is called a sequential process.</p>
+<h2 id="core-idea"><a class="markdownIt-Anchor" href="#core-idea"></a> Core Idea</h2>
+<p>The paper reports their system's current progress and introduces some innovative points in their system, including the Storage Allocation with page&amp;segment, Processor Allocation, Hierarchical Structure, and the use of Semaphore.</p>
+<h3 id="goal"><a class="markdownIt-Anchor" href="#goal"></a> Goal</h3>
+<ul>
+<li>
+<p>a reduction of  turn-around time for programs of short duration,</p>
+</li>
+<li>
+<p>economic use of peripheral devices,</p>
+</li>
+<li>
+<p>automatic control  Communications of the ACM 341 of backing store to be combined with economic use of the  central processor, and</p>
+</li>
+<li>
+<p>the economic feasibility to use  the machine for those applications for which only the flexibility of a general purpose computer is needed, but (as a  rule) not the capacity nor the processing power.</p>
+</li>
+</ul>
+<h3 id="about-page-segmentationstorage-allocation"><a class="markdownIt-Anchor" href="#about-page-segmentationstorage-allocation"></a> About Page Segmentation/Storage allocation</h3>
+<ul>
+<li>Drum memory works as a secondary memory or persistent memory.</li>
+<li>Segments corresponds one or a set of memory page.
+<ul>
+<li>The number of possible segment ids is much larger than physical memory.</li>
+<li>The loaded page from drum memory is not necessary to dump back to the original address since it may be allocate to other application. Just getting a new unoccupied address is more efficient than reallocating the original resource.</li>
+</ul>
+</li>
+<li>This technology make the programs in the future can run on different machines.</li>
+</ul>
+<h3 id="about-hierarchical-structure"><a class="markdownIt-Anchor" href="#about-hierarchical-structure"></a> About Hierarchical Structure</h3>
+<h4 id="level-0"><a class="markdownIt-Anchor" href="#level-0"></a> Level 0</h4>
+<p>Processor Scheduling. Introduce a real-time clock for preventing monopolization. Priority is introduced to responding quickly is needed.</p>
+<h4 id="level-1"><a class="markdownIt-Anchor" href="#level-1"></a> Level 1</h4>
+<p>Segment controller (Pager). Manage virtual address (segment) and physical address (page).</p>
+<p>In this level, a processor is owned only by one job from the job perspective.</p>
+<h4 id="level-2"><a class="markdownIt-Anchor" href="#level-2"></a> Level 2</h4>
+<p>Message Interpreter(Drivers of the console, TTY). Interpret the messages from the terminals and peripherals &amp; communicate with the operator. Since we have a message interpreter, we can use it to simulate many consoles. Each process seems to have one private console. Level 2 is above Level 1 because it needs to use virtual memory.</p>
+<h4 id="level-3"><a class="markdownIt-Anchor" href="#level-3"></a> Level 3</h4>
+<p>IO peripherals abstraction (Shell). Here IO is abstracted as sequential processes and relies on message communications.</p>
+<h4 id="level-4"><a class="markdownIt-Anchor" href="#level-4"></a> Level 4</h4>
+<p>User's Programs.</p>
+<h4 id="level-5"><a class="markdownIt-Anchor" href="#level-5"></a> Level 5</h4>
+<p>Operators.</p>
+<h3 id="advantages"><a class="markdownIt-Anchor" href="#advantages"></a> Advantages</h3>
+<ul>
+<li>Testing and Verification
+<ul>
+<li>For verification, when we have precondition and code, the postcondition has been decided. Iterative.</li>
+</ul>
+</li>
+</ul>
+<h3 id="disadvantages"><a class="markdownIt-Anchor" href="#disadvantages"></a> Disadvantages</h3>
+<ul>
+<li>The higher layer will always rely on the lower layer. But the lower layer can not have any dependence on the higher layer. So it is not that flexible.</li>
+</ul>
+<h3 id="about-design-experience"><a class="markdownIt-Anchor" href="#about-design-experience"></a> About Design Experience</h3>
+<ul>
+<li>Test one layer immediately when one layer is finished. Make sure to build on top of a correct layer.</li>
+<li>Without separating the levels, &quot;relevant states&quot; will inflate to a large number.</li>
+</ul>
+<h4 id="two-types-of-philosophy"><a class="markdownIt-Anchor" href="#two-types-of-philosophy"></a> Two Types of Philosophy</h4>
+<ul>
+<li><strong>MIT Style</strong>: Sacrifice simplicity for correctness</li>
+<li><strong>New Jersey style</strong>: Everything should be simple.</li>
+</ul>
+<h3 id="about-semaphore"><a class="markdownIt-Anchor" href="#about-semaphore"></a> About Semaphore</h3>
+<ul>
+<li>
+<p>It is actually not Dijkstra that the first one to introduce semaphore. But he is the first one to document this tech.</p>
+</li>
+<li>
+<p>Just like the PV operation we know.</p>
+</li>
+<li>
+<ul>
+<li>P is short for Passeren, which means pass in Dutch.</li>
+<li>V is short for Vrijgeven, which means release in Dutch.</li>
+</ul>
+</li>
+<li>
+<p>The paper did not mention how to make the operations atomic.</p>
+</li>
+<li>
+<p>Semaphore is used to implement mutual synchronization.</p>
+</li>
+<li>
+<p>Private semaphore</p>
+</li>
+<li>
+<ul>
+<li>Semaphores that other processes can not do P operation but are visible to others.</li>
+</ul>
+</li>
+</ul>
+<h2 id="advantages-2"><a class="markdownIt-Anchor" href="#advantages-2"></a> Advantages</h2>
+<ul>
+<li>Introduce a new programming model: structured programming. Trigger future verification research.</li>
+<li>The idea of abstraction.</li>
+<li>A lot of philosophy. Quite insightful.</li>
+</ul>
+<h2 id="disadvantages-2"><a class="markdownIt-Anchor" href="#disadvantages-2"></a> Disadvantages</h2>
+<ul>
+<li>No specific method to keep semaphore atomic.</li>
+<li>It's hard to find relative articles with no reference (Maybe because it is too old).</li>
+<li>No reviews of other systems.</li>
+<li>No pictures.</li>
+</ul>
+<h2 id="confusion"><a class="markdownIt-Anchor" href="#confusion"></a> Confusion</h2>
+<ul>
+<li>How the peripherals are economically used. It did not point out how it was working before the paper.Console, IO, CPU, memory.
+<ul>
+<li>Achieved by multiprogramming.</li>
+</ul>
+</li>
+<li>How the turn-around time for programs is reduced.
+<ul>
+<li>Achieved by Priority scheduling</li>
+</ul>
+</li>
+</ul>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<h1 id="the-nucleus-of-a-multiprogramming-system"><a class="markdownIt-Anchor" href="#the-nucleus-of-a-multiprogramming-system"></a> The Nucleus of a Multiprogramming System</h1>
+<h2 id="overview"><a class="markdownIt-Anchor" href="#overview"></a> Overview</h2>
+<p>The resulting system was not a complete operating system but a small kernel providing the mechanisms upon which operating systems for different purposes could be built.</p>
+<p>The system applied a new message/answer method to do synchronizing.</p>
+<h2 id="rc4000"><a class="markdownIt-Anchor" href="#rc4000"></a> RC4000</h2>
+<p>The RC 4000 Multiprogramming System (also termed <strong>Monitor</strong>) is historically notable for being the first attempt to break down an operating system into a group of interacting programs communicating via a message passing kernel. RC 4000 was not widely used, but was highly influential, sparking the microkernel concept that dominated operating system research through the 1970s and 1980s.</p>
+<h2 id="core-ideas"><a class="markdownIt-Anchor" href="#core-ideas"></a> Core Ideas</h2>
+<h3 id="about-external-process"><a class="markdownIt-Anchor" href="#about-external-process"></a> About External Process</h3>
+<p>It is a system that considers peripherals as processes instead of files. So read/write will be considered as sending/receive messages to another process, which simplifies system construction.</p>
+<h3 id="about-process-hierarchy"><a class="markdownIt-Anchor" href="#about-process-hierarchy"></a> About Process Hierarchy</h3>
+<ul>
+<li>It uses an inverted tree to manage processes.</li>
+<li>The parent process has full control of the child processes.</li>
+</ul>
+<h3 id="about-communications"><a class="markdownIt-Anchor" href="#about-communications"></a> About Communications</h3>
+<p>send message (receiver, message, buffer),</p>
+<p>wait message (sender, message, buffer),</p>
+<p>send answer (result, answer, buffer),</p>
+<p>wait answer (result, answer, buffer).</p>
+<h2 id="advantages-3"><a class="markdownIt-Anchor" href="#advantages-3"></a> Advantages</h2>
+<ul>
+<li>It fits the modern software requirement——extensibility, with which designers can easily extend or experiment with new techniques.</li>
+<li>Give a more precise 'process' concept.</li>
+<li>Give a clear explanation of the message/answer mechanism, which is more efficient to deliver information.</li>
+</ul>
+<h3 id="shared-memory-vs-message-passing"><a class="markdownIt-Anchor" href="#shared-memory-vs-message-passing"></a> Shared memory V.S. message passing</h3>
+<table>
+<thead>
+<tr>
+<th>Shared Memory</th>
+<th>Message Passing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hard to verify</td>
+<td>Easy to verify</td>
+</tr>
+<tr>
+<td>High speed</td>
+<td>Low speed</td>
+</tr>
+<tr>
+<td>Now on single machine</td>
+<td>Now as RPC</td>
+</tr>
+</tbody>
+</table>
+<h2 id="disadvantages-3"><a class="markdownIt-Anchor" href="#disadvantages-3"></a> Disadvantages</h2>
+<ul>
+<li>For now, we use shared memory instead of message passing to communicate in a system on a single machine. So the fact is message passing <strong>lost in the competition of process communication</strong> finally.</li>
+<li>It seems to use the old memory allocation way without pages. So the resources will be limited for each process.</li>
+<li>It seems that considering the occupation of the pool of the buffers. Should there not be too many processes?</li>
+<li>Relatively <strong>slow</strong> when using the message/answer communication.</li>
+</ul>
+<h2 id="confusion-2"><a class="markdownIt-Anchor" href="#confusion-2"></a> Confusion</h2>
+<ul>
+<li>What is the black sheep for semaphore? No examples.
+<ul>
+<li>To be solved.</li>
+</ul>
+</li>
+<li>Does it apply a segment-page strategy? Will the process have uneven storage allocation?
+<ul>
+<li>I guess not.</li>
+</ul>
+</li>
+</ul>
+<h2 id="reference-2"><a class="markdownIt-Anchor" href="#reference-2"></a> Reference</h2>
+<h1 id="tenex-a-paged-time-sharing-system-for-the-pdp-10"><a class="markdownIt-Anchor" href="#tenex-a-paged-time-sharing-system-for-the-pdp-10"></a> TENEX, a Paged Time Sharing System for the PDP-10</h1>
+<h2 id="background-2"><a class="markdownIt-Anchor" href="#background-2"></a> Background</h2>
+<ul>
+<li>DEC's PDP-10 was manufactured beginning in 1966.</li>
+<li>Now we have Unix shell, the V6 shell (though not public outside the Bell Lab).</li>
+</ul>
+<h2 id="goals"><a class="markdownIt-Anchor" href="#goals"></a> Goals</h2>
+<ul>
+<li>State of the art virtual machine.
+<ul>
+<li>Paged virtual address space</li>
+<li>Multiple process capability</li>
+<li>File systems: integrated into virtual address space, multilevel directory structure,  consistent access</li>
+</ul>
+</li>
+<li>Good human engineering throughout system.
+<ul>
+<li>An executive command language interpreter(Shell)</li>
+<li>Terminal interface</li>
+<li>Virtual machine functions</li>
+<li>Easy to use and safe from unexpected interaction</li>
+</ul>
+</li>
+<li>The system must be implementable, maintainable, and modifiable.
+<ul>
+<li>Modular</li>
+<li>Debuggable and reliable,</li>
+<li>Run efficiently and allow dynamic adjustment or reconfiguration.</li>
+<li>Contain instrumentation to clearly  indicate performance</li>
+</ul>
+</li>
+</ul>
+<h2 id="core-ideas-2"><a class="markdownIt-Anchor" href="#core-ideas-2"></a> Core Ideas</h2>
+<h3 id="hardware"><a class="markdownIt-Anchor" href="#hardware"></a> Hardware</h3>
+<h4 id="pager-just-like-mmu"><a class="markdownIt-Anchor" href="#pager-just-like-mmu"></a> Pager (Just like MMU)</h4>
+<ul>
+<li>Convert virtual memory to physical memory.</li>
+</ul>
+<h4 id="new-monitor-call-jsyssystem-call"><a class="markdownIt-Anchor" href="#new-monitor-call-jsyssystem-call"></a> New Monitor Call JSYS(System Call).</h4>
+<ul>
+<li>JSYS provides an independent  transfer mechanism into the monitor which does not  conflict with previous system.</li>
+<li>The old software (binary) will use the old system calls while the new software on the new OS will call system calls through JSYS.</li>
+</ul>
+<h3 id="virtual-machine"><a class="markdownIt-Anchor" href="#virtual-machine"></a> Virtual Machine</h3>
+<p>Not like what we means nowadays. More like a process run on the top of virtual memory.</p>
+<h4 id="vm-structure"><a class="markdownIt-Anchor" href="#vm-structure"></a> VM structure</h4>
+<ul>
+<li>Virtual memory is viewed 256K words (512 slot * 512 page size) (But the physical memory has about 1024K(1,048,576) words......)</li>
+<li>A private page is automatically created whenever a process makes a reference to a page for which the map slot is empty. (Unlike now, we use new and delete in C++)</li>
+</ul>
+<h4 id="job-structure"><a class="markdownIt-Anchor" href="#job-structure"></a> Job structure</h4>
+<ul>
+<li>Tree-like structure, parent processes can manage its child processes.</li>
+<li>Use command EXEC to run user programs and handle faults, service interrupts (which is considered to be easy to use and interactive for users.)</li>
+</ul>
+<h4 id="pseudo-interrupts"><a class="markdownIt-Anchor" href="#pseudo-interrupts"></a> Pseudo-Interrupts</h4>
+<ul>
+<li>process to receive asynchronous signals from other processes or terminals</li>
+<li>detect sets of unusual conditions, including illegal memory reference, process overflow, EOF, and data errors.</li>
+</ul>
+<h3 id="tenex-file-system"><a class="markdownIt-Anchor" href="#tenex-file-system"></a> Tenex File System</h3>
+<ul>
+<li>
+<p>Relative primitive, has tree of max depth 5</p>
+</li>
+<li>
+<p>With access protection.</p>
+</li>
+<li>
+<p>With file version control, but no details about the implementation.</p>
+</li>
+<li>
+<p>15 bit (5*3) file permissions.</p>
+<ul>
+<li>5 file operations: list, read, write, append, execute.</li>
+<li>3 types of locations relative to user or group.</li>
+</ul>
+</li>
+<li>
+<p>Thawed file (Single Write) and unthawed file (Multi Write)</p>
+</li>
+</ul>
+<h3 id="monitor-kernel"><a class="markdownIt-Anchor" href="#monitor-kernel"></a> Monitor (Kernel)</h3>
+<h4 id="scheduler-for-processes"><a class="markdownIt-Anchor" href="#scheduler-for-processes"></a> Scheduler (for processes)</h4>
+<ul>
+<li>Requirements
+<ul>
+<li>Provide an equitable distribution of CPU service.</li>
+<li>Identify and give prompt service to jobs making interactive requests.</li>
+<li>Make efficient use of core memory to maximize CPU usage.</li>
+</ul>
+</li>
+<li>Balance Set Scheduling.
+<ul>
+<li>Balance set is the set of jobs with highest priority whose total working sets fit in core mem.</li>
+</ul>
+</li>
+<li>Setting Process Priorities.
+<ul>
+<li>Old ways caused uneven distribution compute-bound and interactive jobs. Interactive ones have higher priority.</li>
+<li>TENEX use long-term average ratio of CPU use to real time as the hints for priority. So more balanced.</li>
+<li>Priority decreased at constant rate, increased while blocked.</li>
+<li>short burst of max priority and queue position determined by long term average
+<ul>
+<li>hopeful to get quick service to very short interactions.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Resource Guarantees and Limitations.
+<ul>
+<li>A person with appropriate administrative access can assign to any job on the system a fraction, F, of guaranteed CPU service. For any job so designated, the scheduler will attempt to ensure that C/T&gt; F, where C is the CPU seconds used by the process, and T is the real time since the process last unblocked.</li>
+</ul>
+</li>
+</ul>
+<h3 id="core-management"><a class="markdownIt-Anchor" href="#core-management"></a> Core Management</h3>
+<ul>
+<li>Every process has tis own work set of pages.</li>
+<li>The size of work set of processes are dynamic decided by page fault time.</li>
+<li>The swaping in a work set for each process use the LRU algorithm.</li>
+</ul>
+<h2 id="advantages-4"><a class="markdownIt-Anchor" href="#advantages-4"></a> Advantages</h2>
+<ul>
+<li>Practical and full of technical details.</li>
+<li>Very similar to modern operating systems.</li>
+<li>Schedule with priority and try to avoid starvation.</li>
+</ul>
+<h2 id="disadvantages-4"><a class="markdownIt-Anchor" href="#disadvantages-4"></a> Disadvantages</h2>
+<ul>
+<li>Pseudo Interrupt System provides no details of implementation.</li>
+<li>Too much introduction of file system and its naming rules.</li>
+<li>No details of message methods.</li>
+<li>The file system only supports a five-depth tree, which seems to be a strong constraint.</li>
+<li>The virtual memory is smaller than physical memory.</li>
+</ul>
+<h2 id="confusion-3"><a class="markdownIt-Anchor" href="#confusion-3"></a> Confusion</h2>
+<ul>
+<li>Don't know the formula's meaning.
+<ul>
+<li>Not solved</li>
+</ul>
+</li>
+<li>Did the different version of file stored?
+<ul>
+<li>Not solved</li>
+</ul>
+</li>
+</ul>
+<h3 id="reference-3"><a class="markdownIt-Anchor" href="#reference-3"></a> Reference</h3>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Kexiang Wang
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://www.kexiang.me/2021/09/22/1759-SEP-20/" title="1759 &#39;Historical Perspective&#39; SEP-20">https://www.kexiang.me/2021/09/22/1759-SEP-20/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://twitter.com/KexiangW">
+            <span class="icon">
+              <i class="fab fa-twitter"></i>
+            </span>
+
+            <span class="label">Twitter</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://www.linkedin.com/in/kexiang-wang-73b6171a0/">
+            <span class="icon">
+              <i class="fab fa-linkedin-in"></i>
+            </span>
+
+            <span class="label">Linkedin</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://www.zhihu.com/people/wang-ke-xiang-52">
+            <span class="icon">
+              <i class="fab fa-zhihu"></i>
+            </span>
+
+            <span class="label">Zhihu</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Systems/" rel="tag"># Systems</a>
+              <a href="/tags/Paper-Reading/" rel="tag"># Paper Reading</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/09/15/streaming-database-overview/" rel="prev" title="Streaming Database调研">
+      <i class="fa fa-chevron-left"></i> Streaming Database调研
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#background"><span class="nav-number">1.</span> <span class="nav-text"> Background</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#the-structure-of-the-the-multiprogramming-system"><span class="nav-number">2.</span> <span class="nav-text"> The Structure of the &#39;THE&#39;-Multiprogramming System</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#what-is-multiprogramming"><span class="nav-number">2.1.</span> <span class="nav-text"> What is Multiprogramming</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#multiprogramming-in-this-paper"><span class="nav-number">2.1.1.</span> <span class="nav-text"> Multiprogramming in this paper</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#core-idea"><span class="nav-number">2.2.</span> <span class="nav-text"> Core Idea</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#goal"><span class="nav-number">2.2.1.</span> <span class="nav-text"> Goal</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#about-page-segmentationstorage-allocation"><span class="nav-number">2.2.2.</span> <span class="nav-text"> About Page Segmentation&#x2F;Storage allocation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#about-hierarchical-structure"><span class="nav-number">2.2.3.</span> <span class="nav-text"> About Hierarchical Structure</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#level-0"><span class="nav-number">2.2.3.1.</span> <span class="nav-text"> Level 0</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#level-1"><span class="nav-number">2.2.3.2.</span> <span class="nav-text"> Level 1</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#level-2"><span class="nav-number">2.2.3.3.</span> <span class="nav-text"> Level 2</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#level-3"><span class="nav-number">2.2.3.4.</span> <span class="nav-text"> Level 3</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#level-4"><span class="nav-number">2.2.3.5.</span> <span class="nav-text"> Level 4</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#level-5"><span class="nav-number">2.2.3.6.</span> <span class="nav-text"> Level 5</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#advantages"><span class="nav-number">2.2.4.</span> <span class="nav-text"> Advantages</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#disadvantages"><span class="nav-number">2.2.5.</span> <span class="nav-text"> Disadvantages</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#about-design-experience"><span class="nav-number">2.2.6.</span> <span class="nav-text"> About Design Experience</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#two-types-of-philosophy"><span class="nav-number">2.2.6.1.</span> <span class="nav-text"> Two Types of Philosophy</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#about-semaphore"><span class="nav-number">2.2.7.</span> <span class="nav-text"> About Semaphore</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#advantages-2"><span class="nav-number">2.3.</span> <span class="nav-text"> Advantages</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#disadvantages-2"><span class="nav-number">2.4.</span> <span class="nav-text"> Disadvantages</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#confusion"><span class="nav-number">2.5.</span> <span class="nav-text"> Confusion</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reference"><span class="nav-number">2.6.</span> <span class="nav-text"> Reference</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#the-nucleus-of-a-multiprogramming-system"><span class="nav-number">3.</span> <span class="nav-text"> The Nucleus of a Multiprogramming System</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#overview"><span class="nav-number">3.1.</span> <span class="nav-text"> Overview</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#rc4000"><span class="nav-number">3.2.</span> <span class="nav-text"> RC4000</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#core-ideas"><span class="nav-number">3.3.</span> <span class="nav-text"> Core Ideas</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#about-external-process"><span class="nav-number">3.3.1.</span> <span class="nav-text"> About External Process</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#about-process-hierarchy"><span class="nav-number">3.3.2.</span> <span class="nav-text"> About Process Hierarchy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#about-communications"><span class="nav-number">3.3.3.</span> <span class="nav-text"> About Communications</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#advantages-3"><span class="nav-number">3.4.</span> <span class="nav-text"> Advantages</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#shared-memory-vs-message-passing"><span class="nav-number">3.4.1.</span> <span class="nav-text"> Shared memory V.S. message passing</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#disadvantages-3"><span class="nav-number">3.5.</span> <span class="nav-text"> Disadvantages</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#confusion-2"><span class="nav-number">3.6.</span> <span class="nav-text"> Confusion</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reference-2"><span class="nav-number">3.7.</span> <span class="nav-text"> Reference</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#tenex-a-paged-time-sharing-system-for-the-pdp-10"><span class="nav-number">4.</span> <span class="nav-text"> TENEX, a Paged Time Sharing System for the PDP-10</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#background-2"><span class="nav-number">4.1.</span> <span class="nav-text"> Background</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#goals"><span class="nav-number">4.2.</span> <span class="nav-text"> Goals</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#core-ideas-2"><span class="nav-number">4.3.</span> <span class="nav-text"> Core Ideas</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#hardware"><span class="nav-number">4.3.1.</span> <span class="nav-text"> Hardware</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#pager-just-like-mmu"><span class="nav-number">4.3.1.1.</span> <span class="nav-text"> Pager (Just like MMU)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#new-monitor-call-jsyssystem-call"><span class="nav-number">4.3.1.2.</span> <span class="nav-text"> New Monitor Call JSYS(System Call).</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#virtual-machine"><span class="nav-number">4.3.2.</span> <span class="nav-text"> Virtual Machine</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#vm-structure"><span class="nav-number">4.3.2.1.</span> <span class="nav-text"> VM structure</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#job-structure"><span class="nav-number">4.3.2.2.</span> <span class="nav-text"> Job structure</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#pseudo-interrupts"><span class="nav-number">4.3.2.3.</span> <span class="nav-text"> Pseudo-Interrupts</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#tenex-file-system"><span class="nav-number">4.3.3.</span> <span class="nav-text"> Tenex File System</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#monitor-kernel"><span class="nav-number">4.3.4.</span> <span class="nav-text"> Monitor (Kernel)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#scheduler-for-processes"><span class="nav-number">4.3.4.1.</span> <span class="nav-text"> Scheduler (for processes)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#core-management"><span class="nav-number">4.3.5.</span> <span class="nav-text"> Core Management</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#advantages-4"><span class="nav-number">4.4.</span> <span class="nav-text"> Advantages</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#disadvantages-4"><span class="nav-number">4.5.</span> <span class="nav-text"> Disadvantages</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#confusion-3"><span class="nav-number">4.6.</span> <span class="nav-text"> Confusion</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#reference-3"><span class="nav-number">4.6.1.</span> <span class="nav-text"> Reference</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Kexiang Wang"
+      src="/images/avatar-time.jpg">
+  <p class="site-author-name" itemprop="name">Kexiang Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/KeXiangWang" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;KeXiangWang" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.linkedin.com/in/kexiang-wang-73b6171a0/" title="Linkedin → https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;kexiang-wang-73b6171a0&#x2F;" rel="noopener" target="_blank"><i class="fab fa-linkedin-in fa-fw"></i>Linkedin</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/wang-ke-xiang-52" title="Zhihu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;wang-ke-xiang-52" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>Zhihu</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/KexiangW" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;KexiangW" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ke.wang@hotmail.com" title="E-Mail → mailto:ke.wang@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Kexiang Wang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">33k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">30 mins.</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('/js/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : true,
+      appId      : '5F4DdksFXCxgcPFJfYq2raiB-gzGzoHsz',
+      appKey     : '36G9n5NWIiCjzVVLQFf5B0QF',
+      placeholder: "Any comments are welcomed! Please leave your E-Mail if you want to be contacted!",
+      avatar     : 'retro',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'en' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

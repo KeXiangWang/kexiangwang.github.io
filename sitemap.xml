@@ -2,23 +2,23 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://www.kexiang.me/2021/09/22/1759-SEP-20/</loc>
-    
-    <lastmod>2021-09-22</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>https://www.kexiang.me/2021/09/12/todo-list/</loc>
     
-    <lastmod>2021-09-21</lastmod>
+    <lastmod>2021-09-24</lastmod>
     
   </url>
   
   <url>
     <loc>https://www.kexiang.me/2021/09/15/streaming-database-overview/</loc>
     
-    <lastmod>2021-09-16</lastmod>
+    <lastmod>2021-09-24</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.kexiang.me/2021/09/22/1759-SEP-20/</loc>
+    
+    <lastmod>2021-09-22</lastmod>
     
   </url>
   
@@ -60,7 +60,7 @@
 
   <url>
     <loc>https://www.kexiang.me/</loc>
-    <lastmod>2021-09-22</lastmod>
+    <lastmod>2021-09-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -68,49 +68,49 @@
   
   <url>
     <loc>https://www.kexiang.me/tags/Daily-Life/</loc>
-    <lastmod>2021-09-22</lastmod>
+    <lastmod>2021-09-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/tags/Blog-Building/</loc>
-    <lastmod>2021-09-22</lastmod>
+    <lastmod>2021-09-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/tags/Industry-Research/</loc>
-    <lastmod>2021-09-22</lastmod>
+    <lastmod>2021-09-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/tags/Systems/</loc>
-    <lastmod>2021-09-22</lastmod>
+    <lastmod>2021-09-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/tags/Database/</loc>
-    <lastmod>2021-09-22</lastmod>
+    <lastmod>2021-09-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/tags/Streaming/</loc>
-    <lastmod>2021-09-22</lastmod>
+    <lastmod>2021-09-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/tags/Paper-Reading/</loc>
-    <lastmod>2021-09-22</lastmod>
+    <lastmod>2021-09-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
@@ -119,63 +119,63 @@
   
   <url>
     <loc>https://www.kexiang.me/categories/Life/</loc>
-    <lastmod>2021-09-22</lastmod>
+    <lastmod>2021-09-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Market/</loc>
-    <lastmod>2021-09-22</lastmod>
+    <lastmod>2021-09-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Market/Database/</loc>
-    <lastmod>2021-09-22</lastmod>
+    <lastmod>2021-09-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Industry/</loc>
-    <lastmod>2021-09-22</lastmod>
+    <lastmod>2021-09-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Industry/Database/</loc>
-    <lastmod>2021-09-22</lastmod>
+    <lastmod>2021-09-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Academic/</loc>
-    <lastmod>2021-09-22</lastmod>
+    <lastmod>2021-09-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Academic/Paper-Reading/</loc>
-    <lastmod>2021-09-22</lastmod>
+    <lastmod>2021-09-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Academic/Paper-Reading/1759/</loc>
-    <lastmod>2021-09-22</lastmod>
+    <lastmod>2021-09-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Academic/OS/</loc>
-    <lastmod>2021-09-22</lastmod>
+    <lastmod>2021-09-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>

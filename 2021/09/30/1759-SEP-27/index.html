@@ -45,7 +45,7 @@
 <meta property="og:description" content="This is a &#39;Paper Reading&#39; post for Course ECE1759. The topic is &#39;Historical Perspective&#39;. This paper list is here:  B. Lampson, Protection, Operating Systems Review, Vol. 8, No. 1, January 1974, pp.">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-10-01T02:12:42.000Z">
-<meta property="article:modified_time" content="2021-10-01T02:30:30.413Z">
+<meta property="article:modified_time" content="2021-10-09T04:12:43.683Z">
 <meta property="article:author" content="Kexiang Wang">
 <meta property="article:tag" content="Systems">
 <meta property="article:tag" content="Paper Reading">
@@ -210,10 +210,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2021-09-30 22:12:42 / Modified: 22:30:30" itemprop="dateCreated datePublished" datetime="2021-09-30T22:12:42-04:00">2021-09-30</time>
+              <time title="Created: 2021-09-30 22:12:42" itemprop="dateCreated datePublished" datetime="2021-09-30T22:12:42-04:00">2021-09-30</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-10-09 00:12:43" itemprop="dateModified" datetime="2021-10-09T00:12:43-04:00">2021-10-09</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -321,26 +327,18 @@
 </ul>
 <h3 id="objects-and-access-matrices"><a class="markdownIt-Anchor" href="#objects-and-access-matrices"></a> <strong>Objects and Access Matrices</strong></h3>
 <ul>
-<li>
-<p>The paper use a matrix to describe the privilege a user own.</p>
-</li>
-<li>
-<p><strong>Copy Bit is similar to current setuid bit</strong></p>
-</li>
+<li>The paper use a matrix to describe the privilege a user own.</li>
+<li><strong>Copy Bit is similar to current setuid bit</strong></li>
 </ul>
 <h3 id="capability-access-control-list"><a class="markdownIt-Anchor" href="#capability-access-control-list"></a> <strong>Capability &amp; Access Control List</strong></h3>
 <ul>
-<li>
-<p>They are two types of access matrices.</p>
-</li>
-<li>
-<p>Capability List</p>
+<li>They are two types of access matrices.</li>
+<li>Capability List
 <ul>
 <li>List of &lt;object,access&gt;</li>
 </ul>
 </li>
-<li>
-<p>Access Control List</p>
+<li>Access Control List
 <ul>
 <li>List of &lt;domain, access&gt;</li>
 </ul>
@@ -392,25 +390,17 @@
 </ul>
 <h4 id="access-control-lists"><a class="markdownIt-Anchor" href="#access-control-lists"></a> Access Control Lists</h4>
 <ul>
-<li>
-<p>Associated with each segment is an access control list (Corresponds Lampson's protection matrix), an open-ended list of names of users who  are permitted to reference the segment.</p>
-</li>
-<li>
-<p>Each process have a id (principal identifier, just like username). When accessing will try to find the id in the target's list.</p>
-</li>
-<li>
-<p>Multics' id actually have three partitions:</p>
+<li>Associated with each segment is an access control list (Corresponds Lampson's protection matrix), an open-ended list of names of users who  are permitted to reference the segment.</li>
+<li>Each process have a id (principal identifier, just like username). When accessing will try to find the id in the target's list.</li>
+<li>Multics' id actually have three partitions:
 <ul>
 <li>Almost direct user.</li>
 <li>Groups called project. Users: Projects is M: N</li>
 <li>Groups called Compartments. Users: Projects is M: N. But one can not use the resources in Compartment 'a' and the resources in Compartment 'b' at  the same time.</li>
 </ul>
 </li>
-<li>
-<p>In the access control lists, here's a special flag to indicate that the corresponding partition of the id does not matter.</p>
-</li>
-<li>
-<p>There are 4 types of objects in the storage systems have protection mechanisms (Each of them have different types of controllable modes of access):</p>
+<li>In the access control lists, here's a special flag to indicate that the corresponding partition of the id does not matter.</li>
+<li>There are 4 types of objects in the storage systems have protection mechanisms (Each of them have different types of controllable modes of access):
 <ul>
 <li>Segments.</li>
 <li>Message queues (experimental implementation).</li>
@@ -418,18 +408,14 @@
 <li>Removable media descriptors (not yet implemented).</li>
 </ul>
 </li>
-<li>
-<p>The  access control lists are sorted and are initialized when the object is created.</p>
-</li>
-<li>
-<p>An example of access control list entry is (none means no permission, rw means read&amp;write):</p>
+<li>The  access control lists are sorted and are initialized when the object is created.</li>
+<li>An example of access control list entry is (none means no permission, rw means read&amp;write):
 <ul>
 <li>Smith.Inventory. * (none)</li>
 <li>* . Inventory. * rw</li>
 </ul>
 </li>
-<li>
-<p>Compare with CTSS(Compatible Time-sharing System by MIT 1966)</p>
+<li>Compare with CTSS(Compatible Time-sharing System by MIT 1966)
 <ul>
 <li>It use links(with same name but has further restrictions) for file to share between users</li>
 <li>Defects:
@@ -442,14 +428,9 @@
 <li>In Multics, a link is only an alias.</li>
 </ul>
 </li>
-<li>
-<p>All user names, once  registered, are permanent in the system even the user departs.</p>
-</li>
-<li>
-<p>the &quot;trap&quot; extension was aborted because of complexity.</p>
-</li>
-<li>
-<p>Limitation</p>
+<li>All user names, once  registered, are permanent in the system even the user departs.</li>
+<li>the &quot;trap&quot; extension was aborted because of complexity.</li>
+<li>Limitation
 <ul>
 <li>Only the user can set privilege. So-called one way. For military use, the police can not read the criminal's file.</li>
 </ul>
@@ -576,7 +557,6 @@
 <li>Weakness:
 <ul>
 <li>hard to implement, contains a lot of operations for gaining and losing.</li>
-<li></li>
 </ul>
 </li>
 <li>Strength:

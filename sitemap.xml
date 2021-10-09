@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://www.kexiang.me/2021/10/09/locality-aware-dynamic-load-management-for-massively-multiplayer-games/</loc>
+    
+    <lastmod>2021-10-09</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://www.kexiang.me/2021/09/30/1759-SEP-27/</loc>
     
     <lastmod>2021-10-09</lastmod>
@@ -143,6 +150,13 @@
     <priority>0.6</priority>
   </url>
   
+  <url>
+    <loc>https://www.kexiang.me/tags/HPC/</loc>
+    <lastmod>2021-10-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
 
   
   <url>
@@ -217,6 +231,20 @@
   
   <url>
     <loc>https://www.kexiang.me/categories/Academic/Virtualization/</loc>
+    <lastmod>2021-10-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.kexiang.me/categories/Academic/Paper-Reading/1747/</loc>
+    <lastmod>2021-10-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.kexiang.me/categories/Academic/HPC/</loc>
     <lastmod>2021-10-09</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>

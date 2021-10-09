@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/bitbug_favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/bitbug_favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/bitbug_favicon-32x32.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.kexiang.me","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="This is a &#39;Paper Reading&#39; post for Course ECE1759. The topic is &#39;Historical Perspective&#39;. This paper list is here:  B. Lampson, Protection, Operating Systems Review, Vol. 8, No. 1, January 1974, pp.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="1759 &#39;Historical Perspective&#39; SEP-27">
+<meta property="og:url" content="https://www.kexiang.me/2021/09/30/1759-SEP-27/index.html">
+<meta property="og:site_name" content="kexiang&#39;s blog">
+<meta property="og:description" content="This is a &#39;Paper Reading&#39; post for Course ECE1759. The topic is &#39;Historical Perspective&#39;. This paper list is here:  B. Lampson, Protection, Operating Systems Review, Vol. 8, No. 1, January 1974, pp.">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-10-01T02:12:42.000Z">
+<meta property="article:modified_time" content="2021-10-01T02:30:30.413Z">
+<meta property="article:author" content="Kexiang Wang">
+<meta property="article:tag" content="Systems">
+<meta property="article:tag" content="Paper Reading">
+<meta property="article:tag" content="Security">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://www.kexiang.me/2021/09/30/1759-SEP-27/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>1759 'Historical Perspective' SEP-27 | kexiang's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">kexiang's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+
+  <a href="https://github.com/KeXiangWang" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://www.kexiang.me/2021/09/30/1759-SEP-27/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar-time.jpg">
+      <meta itemprop="name" content="Kexiang Wang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="kexiang's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          1759 'Historical Perspective' SEP-27
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-09-30 22:12:42 / Modified: 22:30:30" itemprop="dateCreated datePublished" datetime="2021-09-30T22:12:42-04:00">2021-09-30</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/" itemprop="url" rel="index"><span itemprop="name">Academic</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/Paper-Reading/" itemprop="url" rel="index"><span itemprop="name">Paper Reading</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/Paper-Reading/1759/" itemprop="url" rel="index"><span itemprop="name">1759</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/OS/" itemprop="url" rel="index"><span itemprop="name">OS</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/Security/" itemprop="url" rel="index"><span itemprop="name">Security</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2021/09/30/1759-SEP-27/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/09/30/1759-SEP-27/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>7.9k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>7 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>This is a 'Paper Reading' post for Course ECE1759. The topic is 'Historical Perspective'. This paper list is here:</p>
+<ul>
+<li>B. Lampson, Protection, Operating Systems Review, Vol. 8, No. 1, January 1974, pp. 18-24.</li>
+<li>J. H. Saltzer, Protection and the Control of Information Sharing in Multics, Communications of the ACM, Vol. 17, No. 7, July 1974, pp. 388-402.</li>
+<li>W. Wulf, E. Cohen, W. Corwin, A. Jones, R. Levin, C. Pierson, and F. Pollack. HYDRA: The Kernel of a Multiprocessor Operating System, Communications of the ACM. Vol. 17, No. 6, June 1974, pp. 337-344.</li>
+</ul>
+</blockquote>
+<h1 id="protection"><a class="markdownIt-Anchor" href="#protection"></a> Protection</h1>
+<h1 id="abstract"><a class="markdownIt-Anchor" href="#abstract"></a> Abstract</h1>
+<p>Abstract models are given which reflect the  properties of most existing mechanisms for enforcing  protection or access control, together with some  possible implementations. The properties of existing  systems are explicated in terms of the model and  implementations.</p>
+<h2 id="core-ideas"><a class="markdownIt-Anchor" href="#core-ideas"></a> Core Ideas</h2>
+<h3 id="reasons"><a class="markdownIt-Anchor" href="#reasons"></a> Reasons</h3>
+<h4 id="harm"><a class="markdownIt-Anchor" href="#harm"></a> Harm</h4>
+<ul>
+<li>by destroying or modifying another user's data.</li>
+<li>by reading or copying another user's data without permission.</li>
+<li>by degrading the service another user gets (like use up all disk or crash the whole OS)</li>
+</ul>
+<h4 id="two-main-directions-of-protection"><a class="markdownIt-Anchor" href="#two-main-directions-of-protection"></a> Two Main Directions of Protection</h4>
+<ul>
+<li>Modular (So errors in one module will not affect  another one.)</li>
+<li>Support proprietary programs (So the program can only be called, but not read)</li>
+</ul>
+<h3 id="protection-domain"><a class="markdownIt-Anchor" href="#protection-domain"></a> Protection Domain</h3>
+<ul>
+<li>Set Domains (Context). Each domain has its own objects and cannot access other domains' objects.
+<ul>
+<li>Only under supervisor state (Kernel state) programs can execute I/O instructions.</li>
+</ul>
+</li>
+<li>Example: On a system only use message to finish processes (Just like domains) communications instead of shared memory.</li>
+</ul>
+<h3 id="objects-and-access-matrices"><a class="markdownIt-Anchor" href="#objects-and-access-matrices"></a> <strong>Objects and Access Matrices</strong></h3>
+<ul>
+<li>
+<p>The paper use a matrix to describe the privilege a user own.</p>
+</li>
+<li>
+<p><strong>Copy Bit is similar to current setuid bit</strong></p>
+</li>
+</ul>
+<h3 id="capability-access-control-list"><a class="markdownIt-Anchor" href="#capability-access-control-list"></a> <strong>Capability &amp; Access Control List</strong></h3>
+<ul>
+<li>
+<p>They are two types of access matrices.</p>
+</li>
+<li>
+<p>Capability List</p>
+<ul>
+<li>List of &lt;object,access&gt;</li>
+</ul>
+</li>
+<li>
+<p>Access Control List</p>
+<ul>
+<li>List of &lt;domain, access&gt;</li>
+</ul>
+</li>
+</ul>
+<h2 id="others"><a class="markdownIt-Anchor" href="#others"></a> Others</h2>
+<p>message-base systems are securer.</p>
+<h2 id="advantages"><a class="markdownIt-Anchor" href="#advantages"></a> Advantages</h2>
+<ul>
+<li>High level</li>
+</ul>
+<h2 id="disadvantages"><a class="markdownIt-Anchor" href="#disadvantages"></a> Disadvantages</h2>
+<h2 id="confusion"><a class="markdownIt-Anchor" href="#confusion"></a> Confusion</h2>
+<ul>
+<li>Still did not get what subsystem in the paper means.</li>
+</ul>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<h1 id="protection-and-the-control-of-information-sharing-in-multics"><a class="markdownIt-Anchor" href="#protection-and-the-control-of-information-sharing-in-multics"></a> Protection and the Control of Information Sharing in Multics</h1>
+<h2 id="abstract-2"><a class="markdownIt-Anchor" href="#abstract-2"></a> Abstract</h2>
+<p>Introduced the mechanisms to control the sharing  of information in the Multics systems.</p>
+<p>Design principles help provide insight into the tradeoffs.</p>
+<ul>
+<li>access control lists</li>
+<li>hierarchical control  of access specifications</li>
+<li>identification</li>
+<li>authentication  of users</li>
+<li>primary memory protection</li>
+</ul>
+<h2 id="core-ideas-2"><a class="markdownIt-Anchor" href="#core-ideas-2"></a> Core Ideas</h2>
+<h3 id="design-principles"><a class="markdownIt-Anchor" href="#design-principles"></a> Design Principles</h3>
+<h4 id="five-principles"><a class="markdownIt-Anchor" href="#five-principles"></a> Five Principles</h4>
+<ul>
+<li>Base the protection mechanisms on permission rather than exclusion.</li>
+<li>Check every access to every object for current authority. (Check every time if stateless, consider careful for storage if stateful)</li>
+<li>The design is not secret. (Based on algorithms rather than secrets like passwords)</li>
+<li>The principle of least privilege. (Get the users/processes as less privilege as possible.)</li>
+<li>Human interface should be easy to use.</li>
+</ul>
+<h4 id="two-objectives"><a class="markdownIt-Anchor" href="#two-objectives"></a> Two Objectives</h4>
+<ul>
+<li>Decentralization of the setting of protection specifications (Avoid bottlenecks, but centralization of authority must also be available  as an option)</li>
+<li>Assume that  some users will require protection schemes not anticipated in the original design. (Multics allow users to create a protection subsystem for the objectives)</li>
+</ul>
+<h3 id="the-storage-system-and-access-control-lists"><a class="markdownIt-Anchor" href="#the-storage-system-and-access-control-lists"></a> The Storage System and Access Control Lists</h3>
+<h4 id="memory-protection"><a class="markdownIt-Anchor" href="#memory-protection"></a> Memory protection</h4>
+<ul>
+<li>Virtual memory space: 262K 36-bit Words</li>
+<li>Unit: segment</li>
+</ul>
+<h4 id="access-control-lists"><a class="markdownIt-Anchor" href="#access-control-lists"></a> Access Control Lists</h4>
+<ul>
+<li>
+<p>Associated with each segment is an access control list (Corresponds Lampson's protection matrix), an open-ended list of names of users who  are permitted to reference the segment.</p>
+</li>
+<li>
+<p>Each process have a id (principal identifier, just like username). When accessing will try to find the id in the target's list.</p>
+</li>
+<li>
+<p>Multics' id actually have three partitions:</p>
+<ul>
+<li>Almost direct user.</li>
+<li>Groups called project. Users: Projects is M: N</li>
+<li>Groups called Compartments. Users: Projects is M: N. But one can not use the resources in Compartment 'a' and the resources in Compartment 'b' at  the same time.</li>
+</ul>
+</li>
+<li>
+<p>In the access control lists, here's a special flag to indicate that the corresponding partition of the id does not matter.</p>
+</li>
+<li>
+<p>There are 4 types of objects in the storage systems have protection mechanisms (Each of them have different types of controllable modes of access):</p>
+<ul>
+<li>Segments.</li>
+<li>Message queues (experimental implementation).</li>
+<li>Directories (called catalogs in some systems).</li>
+<li>Removable media descriptors (not yet implemented).</li>
+</ul>
+</li>
+<li>
+<p>The  access control lists are sorted and are initialized when the object is created.</p>
+</li>
+<li>
+<p>An example of access control list entry is (none means no permission, rw means read&amp;write):</p>
+<ul>
+<li>Smith.Inventory. * (none)</li>
+<li>* . Inventory. * rw</li>
+</ul>
+</li>
+<li>
+<p>Compare with CTSS(Compatible Time-sharing System by MIT 1966)</p>
+<ul>
+<li>It use links(with same name but has further restrictions) for file to share between users</li>
+<li>Defects:
+<ul>
+<li>Revocation of access was awkward</li>
+<li>One need to decide which link to use in order to correctly access the file. This can introduce mistakes.</li>
+<li>One has to search every directory in the system to make a list of links in order to know the list of users who can access the file. It is expensive and compromised other users' privacy.</li>
+</ul>
+</li>
+<li>In Multics, a link is only an alias.</li>
+</ul>
+</li>
+<li>
+<p>All user names, once  registered, are permanent in the system even the user departs.</p>
+</li>
+<li>
+<p>the &quot;trap&quot; extension was aborted because of complexity.</p>
+</li>
+<li>
+<p>Limitation</p>
+<ul>
+<li>Only the user can set privilege. So-called one way. For military use, the police can not read the criminal's file.</li>
+</ul>
+</li>
+</ul>
+<h3 id="hierarchical-control-of-access-specifications"><a class="markdownIt-Anchor" href="#hierarchical-control-of-access-specifications"></a> Hierarchical Control of Access Specifications</h3>
+<ul>
+<li>Why not &quot;Common access control list&quot;: it make it difficult for a user to be sure of all  the consequences of a change to the access specification</li>
+<li>An alternatives:
+<ul>
+<li>Self-control: the ability to modify an  access control list would be one of the modes of access  controlled by the list itself</li>
+</ul>
+</li>
+</ul>
+<h3 id="authentication-of-users"><a class="markdownIt-Anchor" href="#authentication-of-users"></a> Authentication of Users</h3>
+<ul>
+<li>Users can have their username and password.</li>
+<li>All the jobs must be initiated by some job already on the system, and whose legitimacy has been previously authenticated.</li>
+<li>When the user is requested to give his password, at login time, the printer on his terminal is turned off.</li>
+<li>User logging time-out mechanism is added.</li>
+<li>Anonymous principal identifier is added.</li>
+</ul>
+<h3 id="primary-memory-protection"><a class="markdownIt-Anchor" href="#primary-memory-protection"></a> Primary Memory Protection</h3>
+<p>The second level protection is implemented on hardware level.</p>
+<ul>
+<li>Multics use <em>addressing descriptors</em> to describe segment. In the descriptors there are some bit (three types of extensions) to record privilege.</li>
+<li>Storage accessing is achieved via virtual memory so it is also protected and need no other mechanism.</li>
+</ul>
+<h3 id="weakness"><a class="markdownIt-Anchor" href="#weakness"></a> Weakness</h3>
+<ul>
+<li>Many program modules are able to compromise the protection system. (about 15%, due to the inability to construct suitable  descriptors)</li>
+<li>The complexity of the user interface</li>
+</ul>
+<h2 id="others-2"><a class="markdownIt-Anchor" href="#others-2"></a> Others</h2>
+<ul>
+<li>Multics is time-sharing</li>
+<li>Time-sharing need protection. But non-time-sharing systems like THE, have only a single user, so it do not need protection mechanisms.</li>
+</ul>
+<h2 id="advantages-2"><a class="markdownIt-Anchor" href="#advantages-2"></a> Advantages</h2>
+<ul>
+<li>Check the Comparison Section for the advantage of ACLs.</li>
+<li>Detailed the defects of the Multics in the paper.</li>
+</ul>
+<h2 id="disadvantages-2"><a class="markdownIt-Anchor" href="#disadvantages-2"></a> Disadvantages</h2>
+<ul>
+<li>Check the Comparison Section for the disadvantage of ACLs.</li>
+<li>The access control list entry is a little bit too complicated, which can introduce extra search burden.</li>
+</ul>
+<h2 id="reference-2"><a class="markdownIt-Anchor" href="#reference-2"></a> Reference</h2>
+<h1 id="hydra-the-kernel-of-a-multiprocessor-operating-system"><a class="markdownIt-Anchor" href="#hydra-the-kernel-of-a-multiprocessor-operating-system"></a> HYDRA: The Kernel of a Multiprocessor Operating System</h1>
+<h2 id="introduction"><a class="markdownIt-Anchor" href="#introduction"></a> Introduction</h2>
+<ul>
+<li>Kernel based</li>
+<li>Two Goals of HYDRA:
+<ul>
+<li>To provide an environment for effective utilization of the hardware  resources.</li>
+<li>To facilitate the construction of such  environments.</li>
+</ul>
+</li>
+<li>Considerations for a kernel
+<ul>
+<li>Multiprocessor environment.</li>
+<li>Separation of mechanism and policy.</li>
+<li>Integration of the design with implementation methodology.</li>
+<li>Rejection of strict hierarchical laying. (Not structured programming globally)</li>
+<li>Protection. (the kernel provides a protection facility  for all entities in the system.)</li>
+<li>Reliability. (Not only correct also able to discover and resume)</li>
+</ul>
+</li>
+<li>Target of mechanisms:
+<ul>
+<li>Support the abstracted notion of a  resource.</li>
+</ul>
+</li>
+<li>Mechanisms provide:
+<ul>
+<li>Creation and representation of new types of resources, as well as operations  defined on them</li>
+<li>Protected access to instances of one or  more resources within controlled execution domains,</li>
+<li>Controlled passing of both control and resources  between execution domains.</li>
+</ul>
+</li>
+</ul>
+<h2 id="core-ideas-3"><a class="markdownIt-Anchor" href="#core-ideas-3"></a> Core Ideas</h2>
+<h3 id="overview-of-the-hydra-environment"><a class="markdownIt-Anchor" href="#overview-of-the-hydra-environment"></a> Overview of the HYDRA Environment</h3>
+<ul>
+<li>Interrelationships of three object types: procedure,  LNS, and process.
+<ul>
+<li>Procedure: procedure or subroutine (<strong>code</strong>). Examples: Read Write Update
+<ul>
+<li>code&amp;data</li>
+<li>parameters&amp;return values</li>
+<li><strong>protection facilities</strong></li>
+</ul>
+</li>
+<li>LNS: local name space</li>
+<li>Capability: A capability consists of a reference to an object together with a collection of &quot;access rights&quot; to that object</li>
+<li>Process: process, smallest entity which can be independently scheduled for execution.
+<ul>
+<li>inter-process communication and synchronization：
+<ul>
+<li>message buffering  and semaphore</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>HYDRA provides a protection mechanism for the application of operations (procedures) to instances of resources  (objects).</li>
+<li>separating mechanism (the ability to do an action) from policy (condition enforcing a mechanism).</li>
+</ul>
+<h3 id="the-protection-mechanism"><a class="markdownIt-Anchor" href="#the-protection-mechanism"></a> The Protection Mechanism</h3>
+<h2 id="advantages-3"><a class="markdownIt-Anchor" href="#advantages-3"></a> Advantages</h2>
+<ul>
+<li>Check the Comparison Section.</li>
+</ul>
+<h2 id="disadvantages-3"><a class="markdownIt-Anchor" href="#disadvantages-3"></a> Disadvantages</h2>
+<ul>
+<li>Check the Comparison Section.</li>
+</ul>
+<h2 id="reference-3"><a class="markdownIt-Anchor" href="#reference-3"></a> Reference</h2>
+<h1 id="comparison"><a class="markdownIt-Anchor" href="#comparison"></a> Comparison</h1>
+<h2 id="capability"><a class="markdownIt-Anchor" href="#capability"></a> Capability</h2>
+<ul>
+<li>Weakness:
+<ul>
+<li>hard to implement, contains a lot of operations for gaining and losing.</li>
+<li></li>
+</ul>
+</li>
+<li>Strength:
+<ul>
+<li><strong>Faster</strong>, fast to check, only check for the first time</li>
+<li>Flexibility, Process can get and lose while executing</li>
+</ul>
+</li>
+</ul>
+<h2 id="acl"><a class="markdownIt-Anchor" href="#acl"></a> ACL</h2>
+<ul>
+<li>Easy to implement</li>
+<li>Weakness: Slow, Need to check privilege every access.</li>
+</ul>
+<h2 id="current-linux"><a class="markdownIt-Anchor" href="#current-linux"></a> Current Linux</h2>
+<ul>
+<li>Hybrid mechanism
+<ul>
+<li>When Open we pass the file path: ACL.</li>
+<li>Following RW we use fd: use fd as capability.</li>
+</ul>
+</li>
+<li>Different file open the same file but get different fd.</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="Kexiang Wang Alipay">
+        <p>Alipay</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Kexiang Wang
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://www.kexiang.me/2021/09/30/1759-SEP-27/" title="1759 &#39;Historical Perspective&#39; SEP-27">https://www.kexiang.me/2021/09/30/1759-SEP-27/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://twitter.com/KexiangW">
+            <span class="icon">
+              <i class="fab fa-twitter"></i>
+            </span>
+
+            <span class="label">Twitter</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://www.linkedin.com/in/kexiang-wang-73b6171a0/">
+            <span class="icon">
+              <i class="fab fa-linkedin-in"></i>
+            </span>
+
+            <span class="label">Linkedin</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://www.zhihu.com/people/wang-ke-xiang-52">
+            <span class="icon">
+              <i class="fab fa-zhihu"></i>
+            </span>
+
+            <span class="label">Zhihu</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Systems/" rel="tag"># Systems</a>
+              <a href="/tags/Paper-Reading/" rel="tag"># Paper Reading</a>
+              <a href="/tags/Security/" rel="tag"># Security</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/09/22/1759-SEP-20/" rel="prev" title="1759 'Historical Perspective' SEP-20">
+      <i class="fa fa-chevron-left"></i> 1759 'Historical Perspective' SEP-20
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/10/09/1759-OCT-4/" rel="next" title="1759 'Kernel Structure' OCT-4">
+      1759 'Kernel Structure' OCT-4 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#protection"><span class="nav-number">1.</span> <span class="nav-text"> Protection</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#abstract"><span class="nav-number">2.</span> <span class="nav-text"> Abstract</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#core-ideas"><span class="nav-number">2.1.</span> <span class="nav-text"> Core Ideas</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#reasons"><span class="nav-number">2.1.1.</span> <span class="nav-text"> Reasons</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#harm"><span class="nav-number">2.1.1.1.</span> <span class="nav-text"> Harm</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#two-main-directions-of-protection"><span class="nav-number">2.1.1.2.</span> <span class="nav-text"> Two Main Directions of Protection</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#protection-domain"><span class="nav-number">2.1.2.</span> <span class="nav-text"> Protection Domain</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#objects-and-access-matrices"><span class="nav-number">2.1.3.</span> <span class="nav-text"> Objects and Access Matrices</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#capability-access-control-list"><span class="nav-number">2.1.4.</span> <span class="nav-text"> Capability &amp; Access Control List</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#others"><span class="nav-number">2.2.</span> <span class="nav-text"> Others</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#advantages"><span class="nav-number">2.3.</span> <span class="nav-text"> Advantages</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#disadvantages"><span class="nav-number">2.4.</span> <span class="nav-text"> Disadvantages</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#confusion"><span class="nav-number">2.5.</span> <span class="nav-text"> Confusion</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reference"><span class="nav-number">2.6.</span> <span class="nav-text"> Reference</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#protection-and-the-control-of-information-sharing-in-multics"><span class="nav-number">3.</span> <span class="nav-text"> Protection and the Control of Information Sharing in Multics</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#abstract-2"><span class="nav-number">3.1.</span> <span class="nav-text"> Abstract</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#core-ideas-2"><span class="nav-number">3.2.</span> <span class="nav-text"> Core Ideas</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#design-principles"><span class="nav-number">3.2.1.</span> <span class="nav-text"> Design Principles</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#five-principles"><span class="nav-number">3.2.1.1.</span> <span class="nav-text"> Five Principles</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#two-objectives"><span class="nav-number">3.2.1.2.</span> <span class="nav-text"> Two Objectives</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#the-storage-system-and-access-control-lists"><span class="nav-number">3.2.2.</span> <span class="nav-text"> The Storage System and Access Control Lists</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#memory-protection"><span class="nav-number">3.2.2.1.</span> <span class="nav-text"> Memory protection</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#access-control-lists"><span class="nav-number">3.2.2.2.</span> <span class="nav-text"> Access Control Lists</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hierarchical-control-of-access-specifications"><span class="nav-number">3.2.3.</span> <span class="nav-text"> Hierarchical Control of Access Specifications</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#authentication-of-users"><span class="nav-number">3.2.4.</span> <span class="nav-text"> Authentication of Users</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#primary-memory-protection"><span class="nav-number">3.2.5.</span> <span class="nav-text"> Primary Memory Protection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#weakness"><span class="nav-number">3.2.6.</span> <span class="nav-text"> Weakness</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#others-2"><span class="nav-number">3.3.</span> <span class="nav-text"> Others</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#advantages-2"><span class="nav-number">3.4.</span> <span class="nav-text"> Advantages</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#disadvantages-2"><span class="nav-number">3.5.</span> <span class="nav-text"> Disadvantages</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reference-2"><span class="nav-number">3.6.</span> <span class="nav-text"> Reference</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#hydra-the-kernel-of-a-multiprocessor-operating-system"><span class="nav-number">4.</span> <span class="nav-text"> HYDRA: The Kernel of a Multiprocessor Operating System</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction"><span class="nav-number">4.1.</span> <span class="nav-text"> Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#core-ideas-3"><span class="nav-number">4.2.</span> <span class="nav-text"> Core Ideas</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#overview-of-the-hydra-environment"><span class="nav-number">4.2.1.</span> <span class="nav-text"> Overview of the HYDRA Environment</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#the-protection-mechanism"><span class="nav-number">4.2.2.</span> <span class="nav-text"> The Protection Mechanism</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#advantages-3"><span class="nav-number">4.3.</span> <span class="nav-text"> Advantages</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#disadvantages-3"><span class="nav-number">4.4.</span> <span class="nav-text"> Disadvantages</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reference-3"><span class="nav-number">4.5.</span> <span class="nav-text"> Reference</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#comparison"><span class="nav-number">5.</span> <span class="nav-text"> Comparison</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#capability"><span class="nav-number">5.1.</span> <span class="nav-text"> Capability</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#acl"><span class="nav-number">5.2.</span> <span class="nav-text"> ACL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#current-linux"><span class="nav-number">5.3.</span> <span class="nav-text"> Current Linux</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Kexiang Wang"
+      src="/images/avatar-time.jpg">
+  <p class="site-author-name" itemprop="name">Kexiang Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/KeXiangWang" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;KeXiangWang" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.linkedin.com/in/kexiang-wang-73b6171a0/" title="Linkedin → https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;kexiang-wang-73b6171a0&#x2F;" rel="noopener" target="_blank"><i class="fab fa-linkedin-in fa-fw"></i>Linkedin</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/wang-ke-xiang-52" title="Zhihu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;wang-ke-xiang-52" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>Zhihu</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/KexiangW" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;KexiangW" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ke.wang@hotmail.com" title="E-Mail → mailto:ke.wang@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Kexiang Wang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">52k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">48 mins.</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('/js/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : true,
+      appId      : '5F4DdksFXCxgcPFJfYq2raiB-gzGzoHsz',
+      appKey     : '36G9n5NWIiCjzVVLQFf5B0QF',
+      placeholder: "Any comments are welcomed! Please leave your E-Mail if you want to be contacted!",
+      avatar     : 'retro',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'en' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

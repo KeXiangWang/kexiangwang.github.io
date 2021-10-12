@@ -37,21 +37,21 @@
     var CONFIG = {"hostname":"www.kexiang.me","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":"mac","style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="This is a &#39;Paper Reading&#39; post for Course ECE1747. The course name is &#39;Parallel Computing&#39;   Introduction">
+  <meta name="description" content="通常面试之前我们都会看看八股。不过因为长时间不用，八股的内容即使我们学过也都往往忘得差不多了，复习的时候是“知其然不知其所以然”，把知识暂存在脑子里但不理解原理，面试过后大脑自动GC，下次面试再重复上述过程。为了解决这个问题（并且记录一些平时思考的问题），有了这篇post。这篇post将致力于以问题为导向，深入解读我们常见的八股背后的原理和故事，方便我们更好的理解计算机基础知识，以及面对面试中的">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Locality Aware Dynamic Load Management for Massively Multiplayer Games">
-<meta property="og:url" content="https://www.kexiang.me/2021/10/09/locality-aware-dynamic-load-management-for-massively-multiplayer-games/index.html">
+<meta property="og:title" content="深入理解常见八股知识">
+<meta property="og:url" content="https://www.kexiang.me/2021/10/11/deeper-bagu/index.html">
 <meta property="og:site_name" content="kexiang&#39;s blog">
-<meta property="og:description" content="This is a &#39;Paper Reading&#39; post for Course ECE1747. The course name is &#39;Parallel Computing&#39;   Introduction">
+<meta property="og:description" content="通常面试之前我们都会看看八股。不过因为长时间不用，八股的内容即使我们学过也都往往忘得差不多了，复习的时候是“知其然不知其所以然”，把知识暂存在脑子里但不理解原理，面试过后大脑自动GC，下次面试再重复上述过程。为了解决这个问题（并且记录一些平时思考的问题），有了这篇post。这篇post将致力于以问题为导向，深入解读我们常见的八股背后的原理和故事，方便我们更好的理解计算机基础知识，以及面对面试中的">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2021-10-09T23:02:32.000Z">
-<meta property="article:modified_time" content="2021-10-09T23:02:32.619Z">
+<meta property="article:published_time" content="2021-10-12T01:16:06.000Z">
+<meta property="article:modified_time" content="2021-10-12T01:16:06.198Z">
 <meta property="article:author" content="Kexiang Wang">
-<meta property="article:tag" content="Paper Reading">
-<meta property="article:tag" content="HPC">
+<meta property="article:tag" content="八股">
+<meta property="article:tag" content="OS">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://www.kexiang.me/2021/10/09/locality-aware-dynamic-load-management-for-massively-multiplayer-games/">
+<link rel="canonical" href="https://www.kexiang.me/2021/10/11/deeper-bagu/">
 
 
 <script id="page-configurations">
@@ -64,7 +64,7 @@
   };
 </script>
 
-  <title>Locality Aware Dynamic Load Management for Massively Multiplayer Games | kexiang's blog</title>
+  <title>深入理解常见八股知识 | kexiang's blog</title>
   
 
 
@@ -187,7 +187,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://www.kexiang.me/2021/10/09/locality-aware-dynamic-load-management-for-massively-multiplayer-games/">
+    <link itemprop="mainEntityOfPage" href="https://www.kexiang.me/2021/10/11/deeper-bagu/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar-time.jpg">
@@ -200,7 +200,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Locality Aware Dynamic Load Management for Massively Multiplayer Games
+          深入理解常见八股知识
         </h1>
 
         <div class="post-meta">
@@ -210,7 +210,7 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2021-10-09 19:02:32" itemprop="dateCreated datePublished" datetime="2021-10-09T19:02:32-04:00">2021-10-09</time>
+              <time title="Created: 2021-10-11 21:16:06" itemprop="dateCreated datePublished" datetime="2021-10-11T21:16:06-04:00">2021-10-11</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -218,19 +218,15 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Academic/" itemprop="url" rel="index"><span itemprop="name">Academic</span></a>
+                  <a href="/categories/Industry/" itemprop="url" rel="index"><span itemprop="name">Industry</span></a>
                 </span>
                   , 
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Academic/Paper-Reading/" itemprop="url" rel="index"><span itemprop="name">Paper Reading</span></a>
+                  <a href="/categories/Industry/%E5%85%AB%E8%82%A1/" itemprop="url" rel="index"><span itemprop="name">八股</span></a>
                 </span>
                   , 
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Academic/Paper-Reading/1747/" itemprop="url" rel="index"><span itemprop="name">1747</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Academic/HPC/" itemprop="url" rel="index"><span itemprop="name">HPC</span></a>
+                  <a href="/categories/Industry/OS/" itemprop="url" rel="index"><span itemprop="name">OS</span></a>
                 </span>
             </span>
 
@@ -250,8 +246,8 @@
       </span>
       <span class="post-meta-item-text">Valine: </span>
     
-    <a title="valine" href="/2021/10/09/locality-aware-dynamic-load-management-for-massively-multiplayer-games/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2021/10/09/locality-aware-dynamic-load-management-for-massively-multiplayer-games/" itemprop="commentCount"></span>
+    <a title="valine" href="/2021/10/11/deeper-bagu/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/10/11/deeper-bagu/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -261,14 +257,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>4.3k</span>
+              <span>2k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>4 mins.</span>
+              <span>2 mins.</span>
             </span>
 
         </div>
@@ -281,125 +277,58 @@
 
       
         <blockquote>
-<p>This is a 'Paper Reading' post for Course ECE1747. The course name is 'Parallel Computing'</p>
+<p>通常面试之前我们都会看看八股。不过因为长时间不用，八股的内容即使我们学过也都往往忘得差不多了，复习的时候是“知其然不知其所以然”，把知识暂存在脑子里但不理解原理，面试过后大脑自动GC，下次面试再重复上述过程。为了解决这个问题（并且记录一些平时思考的问题），有了这篇post。这篇post将致力于以问题为导向，深入解读我们常见的八股背后的原理和故事，方便我们更好的理解计算机基础知识，以及面对面试中的问题。<strong>如果我找到更加优秀且详细的资料，我会直接粘贴链接</strong>。持续更新填坑。</p>
 </blockquote>
-<h1 id="introduction"><a class="markdownIt-Anchor" href="#introduction"></a> Introduction</h1>
-<h2 id="background"><a class="markdownIt-Anchor" href="#background"></a> Background</h2>
-<p>In games, players in one big map are usually to separated into different game regions which are hosted on some servers.</p>
-<h2 id="target"><a class="markdownIt-Anchor" href="#target"></a> Target</h2>
-<p>Introduce an architecture that, players can feel like play in one big region. The interaction between users from different regions are allowed and will not be aware by the users.</p>
-<h2 id="method"><a class="markdownIt-Anchor" href="#method"></a> Method</h2>
-<p>A locality aware load balancing algorithm which can adaptively disperse or aggregate the regions.</p>
-<p>Trades-off between:</p>
-<ul>
-<li>Balancing the server load in terms of numbers of players</li>
-<li>Decreasing inter-server communication</li>
-</ul>
-<h2 id="review-of-previous-work"><a class="markdownIt-Anchor" href="#review-of-previous-work"></a> Review of previous work</h2>
-<p>Two types:</p>
-<ul>
-<li>Global algorithm that does not consider spatial locality
-<ul>
-<li>Defect: Compute and communication intensive,</li>
-</ul>
-</li>
-<li>Static game partitioning algorithm
-<ul>
-<li>Defect: Cannot solve the flocking problems</li>
-</ul>
-</li>
-</ul>
-<h2 id="results"><a class="markdownIt-Anchor" href="#results"></a> Results:</h2>
-<p>while simulate two types of configurations:</p>
-<ul>
-<li>A centralized local area network server (LAN) as in state-of-the-art game servers
-<ul>
-<li>better than static</li>
-<li>same as without locality</li>
-</ul>
-</li>
-<li>A large-scale wide-area distributed server (WAN)
-<ul>
-<li>better than static</li>
-<li>improve without locality by up to a factor of 6</li>
-</ul>
-</li>
-</ul>
-<h1 id="core-ideas"><a class="markdownIt-Anchor" href="#core-ideas"></a> Core Ideas</h1>
-<h2 id="game-server-architecture-background"><a class="markdownIt-Anchor" href="#game-server-architecture-background"></a> GAME SERVER ARCHITECTURE BACKGROUND</h2>
-<ul>
-<li>Current games require game designers to carefully plan the load distribution at the design phase in order to avoid flocking.</li>
-</ul>
-<h2 id="locality-aware-dynamic-load-management"><a class="markdownIt-Anchor" href="#locality-aware-dynamic-load-management"></a> LOCALITY AWARE DYNAMIC LOAD MANAGEMENT</h2>
-<ul>
-<li>Every server monitor
-<ul>
-<li>quality of service (QoS) violations: average update interval by sampling</li>
-</ul>
-</li>
-<li>Measure locality in two dimensions
-<ul>
-<li>Communication based on network proximity in the game</li>
-<li>Region clustering based on adjacency on the game map.</li>
-</ul>
-</li>
-</ul>
-<h3 id="definition"><a class="markdownIt-Anchor" href="#definition"></a> Definition</h3>
-<ul>
-<li>SLA violation: when a server exceeds the predefined update interval for 90% of its clients.</li>
-<li>Overload threshold (Overload th): the server load in terms of number of clients for which the SLA is violated.</li>
-<li>Safe load threshold (Safety_th): the highest server load for which the SLA is still met for all clients</li>
-</ul>
-<h3 id="locality-aware-load-shedding"><a class="markdownIt-Anchor" href="#locality-aware-load-shedding"></a> Locality Aware Load Shedding</h3>
-<p>Target: To solve the hotspot problems by shedding some load to other servers with lighter load.</p>
-<p>Best Expectation: Both overloaded source server and lightly loaded target server can become safe loaded.</p>
-<p>Two Opt:</p>
-<ul>
-<li>Locality is preserved, i.e., the same number of strongly connected components is maintained after load shedding as before and</li>
-<li>The minimum number of region migrations occur.</li>
-</ul>
-<h3 id="locality-aware-aggregation"><a class="markdownIt-Anchor" href="#locality-aware-aggregation"></a> Locality Aware Aggregation</h3>
-<p>Target: In order to solve net consumption problems caused by locality disruption through  merge regions among servers.</p>
-<p>Expectation: Reduce the number of inter-server boundaries.</p>
-<h3 id="other-static-and-dynamic-partitioning-algorithms-used-for-comparison"><a class="markdownIt-Anchor" href="#other-static-and-dynamic-partitioning-algorithms-used-for-comparison"></a> Other Static and Dynamic Partitioning Algorithms Used for Comparison</h3>
-<h4 id="spread"><a class="markdownIt-Anchor" href="#spread"></a> Spread</h4>
-<ul>
-<li>Dynamic</li>
-<li>Uniformly and simply spread players to other servers regardless of the locality.</li>
-<li>Works good for global optimum in terms of the smallest difference between the lowest and highest loaded server.</li>
-<li>But ignore network proximity or region adjacency. So may cause high network consumptions.</li>
-</ul>
-<h4 id="lightest"><a class="markdownIt-Anchor" href="#lightest"></a> Lightest</h4>
-<ul>
-<li>Dynamic</li>
-<li>In order to keep the remapping cost low, prioritize shedding load to a single server (the lightest loaded server) instead of several servers.</li>
-<li>Clustering of adjacent regions is concerned but as secondary factor.</li>
-</ul>
-<h4 id="static-partitioning"><a class="markdownIt-Anchor" href="#static-partitioning"></a> Static Partitioning</h4>
-<ul>
-<li>All bad</li>
-<li>Use static block partitioning as baseline</li>
-</ul>
-<h2 id="implementation"><a class="markdownIt-Anchor" href="#implementation"></a> IMPLEMENTATION</h2>
-<ul>
-<li>Based on the game: SimMud</li>
-</ul>
-<h1 id="questions"><a class="markdownIt-Anchor" href="#questions"></a> Questions</h1>
-<ul>
-<li>Why not regions from servers to servers instead of move servers?</li>
-</ul>
-<h1 id="advantages"><a class="markdownIt-Anchor" href="#advantages"></a> Advantages</h1>
-<ul>
-<li>Resource management is always one of the most critical topics in optimization. Unlike most papers that only consider CPU resources, the paper also finds network bandwidth resources as an essential factor, further relieving players' crowding and increasing resource utilization rates.</li>
-<li>Use an actual game to illustrate and experiment. The paper's experiment was based on the game, SimMud. Since the paper presents an algorithm useful for game servers, using a real game to experiment is the most understandable and convincing way.</li>
-<li>The experiment section examines the algorithms in two environments, LAN and WAN, which bring detailed and comprehensive experiment data.</li>
-</ul>
-<h1 id="disadvantages"><a class="markdownIt-Anchor" href="#disadvantages"></a> Disadvantages</h1>
-<ul>
-<li>The merge algorithm regards the number of inter-server boundaries as the criterion for a load of inter-server communication. But the inter-server communication frequencies among the different boundaries differ. So a better algorithm should also take the inter-server communication load like bandwidth through a boundary as a weight while merging.</li>
-<li>Network bandwidth is now becoming less important considering the popularity of 10 Gigabyte networks (IEEE 802.3a) in the industry. But CPU load is still the bottleneck. If the paper is written now, it may need to test whether reducing inter-server communication can still help reduce user response time. If the answer is no, then the locality seems to be less meaningful. Instead, increasing CPU utilization rate is more critical.</li>
-<li>The research is for static-map-partitioning games. It would be better if the algorithm could handle the dynamic partitioning maps, which means the adjacencies of regions are not fixed. The region distribution may also be dynamic and divided or aggregated, thus providing more flexibility for balancing.</li>
-</ul>
+<h1 id="线程相关"><a class="markdownIt-Anchor" href="#线程相关"></a> 线程相关</h1>
+<h1 id="内核相关"><a class="markdownIt-Anchor" href="#内核相关"></a> 内核相关</h1>
+<h2 id="内核抢占"><a class="markdownIt-Anchor" href="#内核抢占"></a> 内核抢占</h2>
+<h1 id="锁相关"><a class="markdownIt-Anchor" href="#锁相关"></a> 锁相关</h1>
+<h2 id="volatile"><a class="markdownIt-Anchor" href="#volatile"></a> Volatile</h2>
+<blockquote>
+<h3 id="volatile的作用"><a class="markdownIt-Anchor" href="#volatile的作用"></a> Volatile的作用</h3>
+</blockquote>
+<p>常见回答：保证其他线程可见</p>
+<p>深入理解：</p>
+<ol>
+<li>Volatile字面意思是&quot;易变的&quot;，但是这个很词不达意，甚至有点误解，更合理的解释应该是&quot;直接存取原始内存地址&quot;。</li>
+<li>volatile是一种声明，告诉编译器这个变量请直接存取内存，不要搞优化。之所以需要这个关键字，是因为很多时候代码会不停的访问一个标志位，编译器觉得既然经常读没有写（不知道会被其他线程写），不如直接放到寄存器，避免多次访存。虽然有缓存同步机制保证每个CPU上的Cache是一致的，但是寄存器上的值无法保证。所以寄存器可能一直不被更新，导致出错。有了volatile，程序每次都会读取内存，保证了可见性。从这个角度看，这个“易变的”只是指明了场景，并没有点到本质。</li>
+<li>volatile并不一定只是用在多线程场景。典型的其他场景是嵌入式，想想这样的一个代码:</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">(<span class="keyword">int</span>* x, <span class="keyword">int</span>* y)</span> </span>&#123;</span><br><span class="line">    *x = <span class="number">1</span>;</span><br><span class="line">    *y = <span class="number">1</span> + <span class="number">2</span> + <span class="number">3</span>;</span><br><span class="line">    *x = <span class="number">2</span>;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>这段代码中x可能是一个设备中的地址，映射到内存。更改x的值就是在修改设备状态，比如x为1亮红灯，为2亮绿灯，那么这段代码可能实际场景是计算y值期间设备亮红灯。如果编译器进行优化可能认为对x进行1的赋值是无用的就会优化掉这一行。这明显改变了设备行为。所以通常会将x声明为volatile。</li>
+</ol>
+<p>知识点：</p>
+<ol>
+<li>编译器一般不能总时正确地处理多线程协同，很多优化会打破正常程序。比如上文提到的。引申一个点，C++的memory_order，目的同样是处理编译器的优化导致的多线程场景下的异常行为问题。</li>
+</ol>
+<blockquote>
+<h3 id="volatile针对的优化导致的问题为什么使用锁不需要关心-比如不会出现放锁之后临界区变量的值还保留在寄存器中没有刷新到内存吗"><a class="markdownIt-Anchor" href="#volatile针对的优化导致的问题为什么使用锁不需要关心-比如不会出现放锁之后临界区变量的值还保留在寄存器中没有刷新到内存吗"></a> volatile针对的优化导致的问题，为什么使用锁不需要关心。比如不会出现，放锁之后，临界区变量的值还保留在寄存器中没有刷新到内存吗？</h3>
+</blockquote>
+<p>深入理解：</p>
+<ol>
+<li>不会，lock和unlock都会进行函数调用甚至是系统调用，这些都涉及所有寄存器的操作。编译器不会在这种情况下继续将值保存在寄存器。所以上锁机制（同步机制）天然不需要关心可见性。</li>
+</ol>
+<h2 id="spin_lock"><a class="markdownIt-Anchor" href="#spin_lock"></a> Spin_lock</h2>
+<blockquote>
+<h3 id="spin_lock的作用和实现方式和mutex的区别"><a class="markdownIt-Anchor" href="#spin_lock的作用和实现方式和mutex的区别"></a> spin_lock的作用和实现方式？和mutex的区别？</h3>
+</blockquote>
+<p>区别很简单：spin_lock是busy wait，mutex是sleep wait</p>
+<p>simple spin_lock -&gt; ticket lock -&gt; Array-Based Queuing Lock -&gt; MCS Lock -&gt; qspinlock</p>
+<p>Array-Based Queuing Lock其实就是把MCS Lock换成一个固定的核数个元素的环形数组。（出自“Algorithms for scalable synchronization on shared-memory multiprocessors”，论文里面说这个能避免cache invalidation，我查了一下，是用塞空数据的方式强行把数据隔开了，所以内存消耗为Cacheline*N，N是核数，所以缺点是太耗内存，MCS Lock很好的解决了这个问题）</p>
+<p>其他几种spin_lock内容请参考系列文章（强烈建议至少读完这个系列的第一第二篇） <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/80727111">Linux中的spinlock机制(一) - CAS和ticket spinlock - 知乎 (zhihu.com)</a></p>
+<p>在文章内容之外需要补充一些内容：</p>
+<ol>
+<li>自旋锁保护的代码临界区需要同时避免两方面的竞争：本cpu的内核抢占和其他cpu的竞争访问，前者我们通过关闭本cpu的内核抢占来实现，后者我们通过自旋锁的具体代码细节来实现（比如原子操作）。</li>
+<li>spin_lock上锁时会，会进入内核态，暂时禁止当前cpu核上的内核抢占，这意味着，完成上锁退出内核态的时候及之后其他中断都不会发生内核抢占，即线程不会调度，避免了其他线程进入cpu重新上锁发生死锁。下锁的时候再解除禁止内核抢占。</li>
+<li>以上两点可以参考 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/115748853">https://zhuanlan.zhihu.com/p/115748853</a></li>
+<li>MCS Lock的更具体原理可以参考论文“Algorithms for scalable synchronization on shared-memory multiprocessors”。</li>
+</ol>
+<h2 id="futex"><a class="markdownIt-Anchor" href="#futex"></a> Futex</h2>
+<p>TBA</p>
+<h1 id="网络相关"><a class="markdownIt-Anchor" href="#网络相关"></a> 网络相关</h1>
+<h1 id="虚拟内存相关"><a class="markdownIt-Anchor" href="#虚拟内存相关"></a> 虚拟内存相关</h1>
+<h1 id="c相关"><a class="markdownIt-Anchor" href="#c相关"></a> C++相关</h1>
 
     </div>
 
@@ -430,7 +359,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>Post link: </strong>
-    <a href="https://www.kexiang.me/2021/10/09/locality-aware-dynamic-load-management-for-massively-multiplayer-games/" title="Locality Aware Dynamic Load Management for Massively Multiplayer Games">https://www.kexiang.me/2021/10/09/locality-aware-dynamic-load-management-for-massively-multiplayer-games/</a>
+    <a href="https://www.kexiang.me/2021/10/11/deeper-bagu/" title="深入理解常见八股知识">https://www.kexiang.me/2021/10/11/deeper-bagu/</a>
   </li>
   <li class="post-copyright-license">
     <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
@@ -480,8 +409,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Paper-Reading/" rel="tag"># Paper Reading</a>
-              <a href="/tags/HPC/" rel="tag"># HPC</a>
+              <a href="/tags/%E5%85%AB%E8%82%A1/" rel="tag"># 八股</a>
+              <a href="/tags/OS/" rel="tag"># OS</a>
           </div>
 
         
@@ -490,13 +419,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/10/09/1759-OCT-4/" rel="prev" title="1759 'Kernel Structure' OCT-4">
-      <i class="fa fa-chevron-left"></i> 1759 'Kernel Structure' OCT-4
+    <a href="/2021/10/09/locality-aware-dynamic-load-management-for-massively-multiplayer-games/" rel="prev" title="Locality Aware Dynamic Load Management for Massively Multiplayer Games">
+      <i class="fa fa-chevron-left"></i> Locality Aware Dynamic Load Management for Massively Multiplayer Games
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2021/10/11/deeper-bagu/" rel="next" title="深入理解常见八股知识">
-      深入理解常见八股知识 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -556,7 +482,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#introduction"><span class="nav-number">1.</span> <span class="nav-text"> Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#background"><span class="nav-number">1.1.</span> <span class="nav-text"> Background</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#target"><span class="nav-number">1.2.</span> <span class="nav-text"> Target</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#method"><span class="nav-number">1.3.</span> <span class="nav-text"> Method</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#review-of-previous-work"><span class="nav-number">1.4.</span> <span class="nav-text"> Review of previous work</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#results"><span class="nav-number">1.5.</span> <span class="nav-text"> Results:</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#core-ideas"><span class="nav-number">2.</span> <span class="nav-text"> Core Ideas</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#game-server-architecture-background"><span class="nav-number">2.1.</span> <span class="nav-text"> GAME SERVER ARCHITECTURE BACKGROUND</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#locality-aware-dynamic-load-management"><span class="nav-number">2.2.</span> <span class="nav-text"> LOCALITY AWARE DYNAMIC LOAD MANAGEMENT</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#definition"><span class="nav-number">2.2.1.</span> <span class="nav-text"> Definition</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#locality-aware-load-shedding"><span class="nav-number">2.2.2.</span> <span class="nav-text"> Locality Aware Load Shedding</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#locality-aware-aggregation"><span class="nav-number">2.2.3.</span> <span class="nav-text"> Locality Aware Aggregation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#other-static-and-dynamic-partitioning-algorithms-used-for-comparison"><span class="nav-number">2.2.4.</span> <span class="nav-text"> Other Static and Dynamic Partitioning Algorithms Used for Comparison</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#spread"><span class="nav-number">2.2.4.1.</span> <span class="nav-text"> Spread</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#lightest"><span class="nav-number">2.2.4.2.</span> <span class="nav-text"> Lightest</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#static-partitioning"><span class="nav-number">2.2.4.3.</span> <span class="nav-text"> Static Partitioning</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#implementation"><span class="nav-number">2.3.</span> <span class="nav-text"> IMPLEMENTATION</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#questions"><span class="nav-number">3.</span> <span class="nav-text"> Questions</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#advantages"><span class="nav-number">4.</span> <span class="nav-text"> Advantages</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#disadvantages"><span class="nav-number">5.</span> <span class="nav-text"> Disadvantages</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%9B%B8%E5%85%B3"><span class="nav-number">1.</span> <span class="nav-text"> 线程相关</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E7%9B%B8%E5%85%B3"><span class="nav-number">2.</span> <span class="nav-text"> 内核相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E6%8A%A2%E5%8D%A0"><span class="nav-number">2.1.</span> <span class="nav-text"> 内核抢占</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%94%81%E7%9B%B8%E5%85%B3"><span class="nav-number">3.</span> <span class="nav-text"> 锁相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#volatile"><span class="nav-number">3.1.</span> <span class="nav-text"> Volatile</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#volatile%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">3.1.1.</span> <span class="nav-text"> Volatile的作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#volatile%E9%92%88%E5%AF%B9%E7%9A%84%E4%BC%98%E5%8C%96%E5%AF%BC%E8%87%B4%E7%9A%84%E9%97%AE%E9%A2%98%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8%E9%94%81%E4%B8%8D%E9%9C%80%E8%A6%81%E5%85%B3%E5%BF%83-%E6%AF%94%E5%A6%82%E4%B8%8D%E4%BC%9A%E5%87%BA%E7%8E%B0%E6%94%BE%E9%94%81%E4%B9%8B%E5%90%8E%E4%B8%B4%E7%95%8C%E5%8C%BA%E5%8F%98%E9%87%8F%E7%9A%84%E5%80%BC%E8%BF%98%E4%BF%9D%E7%95%99%E5%9C%A8%E5%AF%84%E5%AD%98%E5%99%A8%E4%B8%AD%E6%B2%A1%E6%9C%89%E5%88%B7%E6%96%B0%E5%88%B0%E5%86%85%E5%AD%98%E5%90%97"><span class="nav-number">3.1.2.</span> <span class="nav-text"> volatile针对的优化导致的问题，为什么使用锁不需要关心。比如不会出现，放锁之后，临界区变量的值还保留在寄存器中没有刷新到内存吗？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#spin_lock"><span class="nav-number">3.2.</span> <span class="nav-text"> Spin_lock</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#spin_lock%E7%9A%84%E4%BD%9C%E7%94%A8%E5%92%8C%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F%E5%92%8Cmutex%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">3.2.1.</span> <span class="nav-text"> spin_lock的作用和实现方式？和mutex的区别？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#futex"><span class="nav-number">3.3.</span> <span class="nav-text"> Futex</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E7%9B%B8%E5%85%B3"><span class="nav-number">4.</span> <span class="nav-text"> 网络相关</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%9B%B8%E5%85%B3"><span class="nav-number">5.</span> <span class="nav-text"> 虚拟内存相关</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#c%E7%9B%B8%E5%85%B3"><span class="nav-number">6.</span> <span class="nav-text"> C++相关</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

@@ -45,7 +45,7 @@
 <meta property="og:description" content="通常面试之前我们都会看看八股。不过因为长时间不用，八股的内容即使我们学过也都往往忘得差不多了，复习的时候是“知其然不知其所以然”，把知识暂存在脑子里但不理解原理，面试过后大脑自动GC，下次面试再重复上述过程。为了解决这个问题（并且记录一些平时思考的问题），有了这篇post。这篇post将致力于以问题为导向，深入解读我们常见的八股背后的原理和故事，方便我们更好的理解计算机基础知识，以及面对面试中的">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-10-12T01:16:06.000Z">
-<meta property="article:modified_time" content="2021-10-12T02:05:08.178Z">
+<meta property="article:modified_time" content="2021-10-17T17:20:30.433Z">
 <meta property="article:author" content="Kexiang Wang">
 <meta property="article:tag" content="八股">
 <meta property="article:tag" content="OS">
@@ -209,10 +209,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2021-10-11 21:16:06 / Modified: 22:05:08" itemprop="dateCreated datePublished" datetime="2021-10-11T21:16:06-04:00">2021-10-11</time>
+              <time title="Created: 2021-10-11 21:16:06" itemprop="dateCreated datePublished" datetime="2021-10-11T21:16:06-04:00">2021-10-11</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-10-17 13:20:30" itemprop="dateModified" datetime="2021-10-17T13:20:30-04:00">2021-10-17</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -281,8 +287,11 @@
 <p>通常面试之前我们都会看看八股。不过因为长时间不用，八股的内容即使我们学过也都往往忘得差不多了，复习的时候是“知其然不知其所以然”，把知识暂存在脑子里但不理解原理，面试过后大脑自动GC，下次面试再重复上述过程。为了解决这个问题（并且记录一些平时思考的问题），有了这篇post。这篇post将致力于以问题为导向，深入解读我们常见的八股背后的原理和故事，方便我们更好的理解计算机基础知识，以及面对面试中的问题。<strong>如果我找到更加优秀且详细的资料，我会直接粘贴链接</strong>。持续更新填坑。</p>
 </blockquote>
 <h1 id="线程相关"><a class="markdownIt-Anchor" href="#线程相关"></a> 线程相关</h1>
+<h2 id="协程"><a class="markdownIt-Anchor" href="#协程"></a> 协程</h2>
+<p>TBA</p>
 <h1 id="内核相关"><a class="markdownIt-Anchor" href="#内核相关"></a> 内核相关</h1>
 <h2 id="内核抢占"><a class="markdownIt-Anchor" href="#内核抢占"></a> 内核抢占</h2>
+<p>TBA</p>
 <h1 id="锁相关"><a class="markdownIt-Anchor" href="#锁相关"></a> 锁相关</h1>
 <h2 id="volatile"><a class="markdownIt-Anchor" href="#volatile"></a> Volatile</h2>
 <blockquote>
@@ -423,7 +432,10 @@
     <a href="/2021/10/09/locality-aware-dynamic-load-management-for-massively-multiplayer-games/" rel="prev" title="Locality Aware Dynamic Load Management for Massively Multiplayer Games">
       <i class="fa fa-chevron-left"></i> Locality Aware Dynamic Load Management for Massively Multiplayer Games
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2021/10/14/1759-OCT-14/" rel="next" title="1759 'Virtual Memory and OS/Hardware Interaction' OCT-14">
+      1759 'Virtual Memory and OS/Hardware Interaction' OCT-14 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -483,7 +495,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%9B%B8%E5%85%B3"><span class="nav-number">1.</span> <span class="nav-text"> 线程相关</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E7%9B%B8%E5%85%B3"><span class="nav-number">2.</span> <span class="nav-text"> 内核相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E6%8A%A2%E5%8D%A0"><span class="nav-number">2.1.</span> <span class="nav-text"> 内核抢占</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%94%81%E7%9B%B8%E5%85%B3"><span class="nav-number">3.</span> <span class="nav-text"> 锁相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#volatile"><span class="nav-number">3.1.</span> <span class="nav-text"> Volatile</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#volatile%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">3.1.1.</span> <span class="nav-text"> Volatile的作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#volatile%E9%92%88%E5%AF%B9%E7%9A%84%E4%BC%98%E5%8C%96%E5%AF%BC%E8%87%B4%E7%9A%84%E9%97%AE%E9%A2%98%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8%E9%94%81%E4%B8%8D%E9%9C%80%E8%A6%81%E5%85%B3%E5%BF%83-%E6%AF%94%E5%A6%82%E4%B8%8D%E4%BC%9A%E5%87%BA%E7%8E%B0%E6%94%BE%E9%94%81%E4%B9%8B%E5%90%8E%E4%B8%B4%E7%95%8C%E5%8C%BA%E5%8F%98%E9%87%8F%E7%9A%84%E5%80%BC%E8%BF%98%E4%BF%9D%E7%95%99%E5%9C%A8%E5%AF%84%E5%AD%98%E5%99%A8%E4%B8%AD%E6%B2%A1%E6%9C%89%E5%88%B7%E6%96%B0%E5%88%B0%E5%86%85%E5%AD%98%E5%90%97"><span class="nav-number">3.1.2.</span> <span class="nav-text"> volatile针对的优化导致的问题，为什么使用锁不需要关心。比如不会出现，放锁之后，临界区变量的值还保留在寄存器中没有刷新到内存吗？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#spin_lock"><span class="nav-number">3.2.</span> <span class="nav-text"> Spin_lock</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#spin_lock%E7%9A%84%E4%BD%9C%E7%94%A8%E5%92%8C%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F%E5%92%8Cmutex%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">3.2.1.</span> <span class="nav-text"> spin_lock的作用和实现方式？和mutex的区别？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#futex"><span class="nav-number">3.3.</span> <span class="nav-text"> Futex</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E7%9B%B8%E5%85%B3"><span class="nav-number">4.</span> <span class="nav-text"> 网络相关</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%9B%B8%E5%85%B3"><span class="nav-number">5.</span> <span class="nav-text"> 虚拟内存相关</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#c%E7%9B%B8%E5%85%B3"><span class="nav-number">6.</span> <span class="nav-text"> C++相关</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%9B%B8%E5%85%B3"><span class="nav-number">1.</span> <span class="nav-text"> 线程相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8F%E7%A8%8B"><span class="nav-number">1.1.</span> <span class="nav-text"> 协程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E7%9B%B8%E5%85%B3"><span class="nav-number">2.</span> <span class="nav-text"> 内核相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E6%8A%A2%E5%8D%A0"><span class="nav-number">2.1.</span> <span class="nav-text"> 内核抢占</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%94%81%E7%9B%B8%E5%85%B3"><span class="nav-number">3.</span> <span class="nav-text"> 锁相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#volatile"><span class="nav-number">3.1.</span> <span class="nav-text"> Volatile</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#volatile%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">3.1.1.</span> <span class="nav-text"> Volatile的作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#volatile%E9%92%88%E5%AF%B9%E7%9A%84%E4%BC%98%E5%8C%96%E5%AF%BC%E8%87%B4%E7%9A%84%E9%97%AE%E9%A2%98%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8%E9%94%81%E4%B8%8D%E9%9C%80%E8%A6%81%E5%85%B3%E5%BF%83-%E6%AF%94%E5%A6%82%E4%B8%8D%E4%BC%9A%E5%87%BA%E7%8E%B0%E6%94%BE%E9%94%81%E4%B9%8B%E5%90%8E%E4%B8%B4%E7%95%8C%E5%8C%BA%E5%8F%98%E9%87%8F%E7%9A%84%E5%80%BC%E8%BF%98%E4%BF%9D%E7%95%99%E5%9C%A8%E5%AF%84%E5%AD%98%E5%99%A8%E4%B8%AD%E6%B2%A1%E6%9C%89%E5%88%B7%E6%96%B0%E5%88%B0%E5%86%85%E5%AD%98%E5%90%97"><span class="nav-number">3.1.2.</span> <span class="nav-text"> volatile针对的优化导致的问题，为什么使用锁不需要关心。比如不会出现，放锁之后，临界区变量的值还保留在寄存器中没有刷新到内存吗？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#spin_lock"><span class="nav-number">3.2.</span> <span class="nav-text"> Spin_lock</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#spin_lock%E7%9A%84%E4%BD%9C%E7%94%A8%E5%92%8C%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F%E5%92%8Cmutex%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">3.2.1.</span> <span class="nav-text"> spin_lock的作用和实现方式？和mutex的区别？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#futex"><span class="nav-number">3.3.</span> <span class="nav-text"> Futex</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E7%9B%B8%E5%85%B3"><span class="nav-number">4.</span> <span class="nav-text"> 网络相关</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%9B%B8%E5%85%B3"><span class="nav-number">5.</span> <span class="nav-text"> 虚拟内存相关</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#c%E7%9B%B8%E5%85%B3"><span class="nav-number">6.</span> <span class="nav-text"> C++相关</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -499,7 +511,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-count">10</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -573,13 +585,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">59k</span>
+    <span title="Symbols count total">67k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">53 mins.</span>
+    <span title="Reading time total">1:01</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>

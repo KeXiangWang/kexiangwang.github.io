@@ -44,12 +44,15 @@
 <meta property="og:site_name" content="kexiang&#39;s blog">
 <meta property="og:description" content="通常面试之前我们都会看看八股。不过因为长时间不用，八股的内容即使我们学过也都往往忘得差不多了，复习的时候是“知其然不知其所以然”，把知识暂存在脑子里但不理解原理，面试过后大脑自动GC，下次面试再重复上述过程。为了解决这个问题（并且记录一些平时思考的问题），有了这篇post。这篇post将致力于以问题为导向，深入解读我们常见的八股背后的原理和故事，方便我们更好的理解计算机基础知识，以及面对面试中的">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://www.kexiang.me/images/deeper-bagu/linux2.2-page-cache.png">
+<meta property="og:image" content="https://www.kexiang.me/images/deeper-bagu/linux2.4-page-cache.png">
 <meta property="article:published_time" content="2021-10-12T01:16:06.000Z">
-<meta property="article:modified_time" content="2021-10-17T17:20:30.433Z">
+<meta property="article:modified_time" content="2021-11-04T20:42:47.953Z">
 <meta property="article:author" content="Kexiang Wang">
 <meta property="article:tag" content="八股">
 <meta property="article:tag" content="OS">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.kexiang.me/images/deeper-bagu/linux2.2-page-cache.png">
 
 <link rel="canonical" href="https://www.kexiang.me/2021/10/11/deeper-bagu/">
 
@@ -217,7 +220,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-10-17 13:20:30" itemprop="dateModified" datetime="2021-10-17T13:20:30-04:00">2021-10-17</time>
+                <time title="Modified: 2021-11-04 16:42:47" itemprop="dateModified" datetime="2021-11-04T16:42:47-04:00">2021-11-04</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -264,14 +267,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>2k</span>
+              <span>4.6k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
+              <span>4 mins.</span>
             </span>
 
         </div>
@@ -338,6 +341,89 @@
 <p>TBA</p>
 <h1 id="网络相关"><a class="markdownIt-Anchor" href="#网络相关"></a> 网络相关</h1>
 <h1 id="虚拟内存相关"><a class="markdownIt-Anchor" href="#虚拟内存相关"></a> 虚拟内存相关</h1>
+<h1 id="io相关"><a class="markdownIt-Anchor" href="#io相关"></a> IO相关</h1>
+<h2 id="page-cache和buffer-cache"><a class="markdownIt-Anchor" href="#page-cache和buffer-cache"></a> Page Cache和Buffer Cache</h2>
+<blockquote>
+<h3 id="page-cache和buffer-cache的区别和联系是什么"><a class="markdownIt-Anchor" href="#page-cache和buffer-cache的区别和联系是什么"></a> Page Cache和Buffer Cache的区别和联系是什么？</h3>
+</blockquote>
+<p>常见回答：现在是同一个东西</p>
+<p>深入理解：</p>
+<p>Linux中为了提升读写I/O性能，提供了一层Kernel buffer cache。这一层cache主要指的就是Page Cache和</p>
+<p>Buffer Cache。</p>
+<ul>
+<li>Buffer Cache是Linux非常早期（参考Linux-0.11）的模块，那个时候还没有完善的虚拟内存的机制。Buffer Cache以指针的形式存在，每个磁盘的Block（Block是文件系统概念现在一般是4KB，后文我们以1KB为例，Sector是磁盘概念一般是512B，文件系统以Block的方式管理磁盘上的Sector）在Kernel中对应一个buffer cache unit。文件读写时会首先计算出对应的buffer cache unit，然后直接读写buffer cache unit。然后buffer cache unit异步写回Block的Sector中。</li>
+<li>Linux-2.2版本时，Linux已经有了page的概念，buffer cache也以page的方式分配和管理内存。Page Cache是另外一个模块专门负责mmap部分的处理，而Buffer Cache实际上负责所有对磁盘的IO访问。如下图所示。可以看到非mmap的文件读写会绕过page cache，这就导致了不一致的可能。为了保证一致，非mmap读写会调用**<code>update_vm_cache</code>**函数更新mmap的page cache保证一致。</li>
+</ul>
+<img src="/images/deeper-bagu/linux2.2-page-cache.png" width="50%" height="50%">
+<center>Linux 2.2中的page cache和buffer cache</center>
+<ul>
+<li>Linux-2.4版本之后，Page Cache、Buffer Cache的实现进行了如下图的融合。每个page对应四个block，所以每个page cache unit对应四个buffer cache unit实现了绑定（最新的文件系统一般block和page都是4KB了，两者的融合会更加直接）。文件系统以page为单位承接读写请求，磁盘以block为单位进行写入。通过这种设置page cache和buffer cache实现了融合，并都得到了保留。当进行写入时，内核只保留一份数据。与page cache是纯文件系统概念不同，buffer cache在无文件系统的环境中同样起着重要作用。当使用Linux提供的<a target="_blank" rel="noopener" href="https://www.runoob.com/linux/linux-comm-dd.html">磁盘命令dd</a>等时，不会通过文件系统，直接读写裸磁盘时，同样会使用buffer cache进行缓存。</li>
+</ul>
+<img src="/images/deeper-bagu/linux2.4-page-cache.png" width="50%" height="50%">
+<center>Linux 2.4中的page cache和buffer cache</center>
+<p>参考资料：</p>
+<p><a target="_blank" rel="noopener" href="https://lday.me/2019/09/09/0023_linux_page_cache_and_buffer_cache/#%E7%AC%AC%E4%BA%8C%E9%98%B6%E6%AE%B5%EF%BC%9APage-Cache%E3%80%81Buffer-Cache%E4%B8%A4%E8%80%85%E5%B9%B6%E5%AD%98">https://lday.me/2019/09/09/0023_linux_page_cache_and_buffer_cache/#第二阶段：Page-Cache、Buffer-Cache两者并存</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/308054212">https://zhuanlan.zhihu.com/p/308054212</a></p>
+<h2 id="多级cache"><a class="markdownIt-Anchor" href="#多级cache"></a> 多级cache</h2>
+<blockquote>
+<h3 id="cache一一般有几级他们之间的关系是什么"><a class="markdownIt-Anchor" href="#cache一一般有几级他们之间的关系是什么"></a> Cache一一般有几级，他们之间的关系是什么</h3>
+</blockquote>
+<ol>
+<li>主流x86平台一般有三级，分别是L1，L2，L3。L3因为是最靠近主存的也被成为LLC（last-level cache）。</li>
+<li>多级Cache之间大概有四种关系（不正交）
+<ol>
+<li>inclusive，上层存储的数据，完全包含于其下一级存储。</li>
+<li>non-inclusive，上层的数据可以 不在下一级存储里。目前主流的CPU，为了性能倾向于这一种实现。</li>
+<li>exclusive，数据是在某一层存储里是独占的。</li>
+<li>non-exclusive，数据在某一层存储里不是被独占的，其他的也有。</li>
+</ol>
+</li>
+<li>多级Cache之间通过统一大小（应该一般都是统一的）的Cache Line进行数据换入换出。通常<strong>Cache Line的大小是64Bytes</strong>。</li>
+</ol>
+<p>可以参考https://zhuanlan.zhihu.com/p/109206967获得更详细的资料。</p>
+<blockquote>
+<h3 id="icache和dcache在哪里"><a class="markdownIt-Anchor" href="#icache和dcache在哪里"></a> ICache和DCache在哪里？</h3>
+</blockquote>
+<p>ICache和DCache存在于L1Cache中，因为两者的使用场景不同（比如ICache一般只读）在L1Cache中做了区分，而在L2和L3中则是统一管理。有时候会出现ICache和DCache的一致性问题（比如GDB加断点需要修改指令），则有相应的软硬件技术来处理这种问题。具体请参考资料https://zhuanlan.zhihu.com/p/112704770</p>
+<h2 id="cache一致性"><a class="markdownIt-Anchor" href="#cache一致性"></a> Cache一致性</h2>
+<blockquote>
+<h3 id="什么是mesi协议"><a class="markdownIt-Anchor" href="#什么是mesi协议"></a> 什么是MESI协议</h3>
+</blockquote>
+<h2 id="zore-copy"><a class="markdownIt-Anchor" href="#zore-copy"></a> Zore Copy</h2>
+<blockquote>
+<h2 id="linux-如何实现零拷贝"><a class="markdownIt-Anchor" href="#linux-如何实现零拷贝"></a> Linux 如何实现零拷贝？</h2>
+</blockquote>
+<p>具体实现参考https://zhuanlan.zhihu.com/p/308054212</p>
+<p>提供一个简单版本：大体上Zero-Copy是为了避免CPU多余的内存拷贝，通常用于通过网络传输文件时节省 CPU 周期和内存带宽。是一类技术或者一个概念，而非一项具体的技术。</p>
+<p>实现技术大概有三种：</p>
+<ul>
+<li>减少甚至避免用户空间和内核空间之间的数据拷贝，通过直接操作内核的内存（用户态操作映射后的地址）实现，mmap()，<a target="_blank" rel="noopener" href="https://www.cnblogs.com/zlcxbb/p/6411568.html">sendfile</a>() 以及 splice()。</li>
+<li>绕过内核的直接 I/O，DMA或者RDMA。</li>
+<li>内核缓冲区和用户缓冲区之间的传输优化，动态重映射与写时拷贝 (Copy-on-Write)和缓冲区共享 (Buffer Sharing)等。</li>
+</ul>
+<h2 id="mmap"><a class="markdownIt-Anchor" href="#mmap"></a> mmap</h2>
+<blockquote>
+<h3 id="mmap的用途"><a class="markdownIt-Anchor" href="#mmap的用途"></a> mmap的用途</h3>
+</blockquote>
+<ol>
+<li>
+<p>跳过page cache直接进行读写，效率更高</p>
+</li>
+<li>
+<p>内核和用户态的修改都会直接的反映在映射区域，是一种高效的用户态内核态交互方式</p>
+</li>
+<li>
+<p>提供进程间共享内存及相互通信的方式。不管是父子进程还是无亲缘关系的进程，都可以将自身用户空间映射到同一个文件或匿名映射到同一片区域。从而通过各自对映射区域的改动，达到进程间通信和进程间共享的目的。</p>
+<p>同时，如果进程A和进程B都映射了区域C，当A第一次读取C时通过缺页从磁盘复制文件页到内存中；但当B再读C的相同页面时，虽然也会产生缺页异常，但是不再需要从磁盘中复制文件过来，而可直接使用已经保存在内存中的文件数据。</p>
+</li>
+<li>
+<p>可用于实现高效的大规模数据传输。内存空间不足，是制约大数据操作的一个方面，解决方案往往是借助硬盘空间协助操作，补充内存的不足。但是进一步会造成大量的文件I/O操作，极大影响效率。这个问题可以通过mmap映射很好的解决。换句话说，但<strong>凡是需要用磁盘空间代替内存的时候，mmap都可以发挥其功效</strong>。</p>
+</li>
+</ol>
+<p>参考资料</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/huxiao-tee/p/4660352.html">https://www.cnblogs.com/huxiao-tee/p/4660352.html</a></p>
+<h2 id="copy-on-write"><a class="markdownIt-Anchor" href="#copy-on-write"></a> Copy-on-Write</h2>
+<p>TBA</p>
 <h1 id="c相关"><a class="markdownIt-Anchor" href="#c相关"></a> C++相关</h1>
 
     </div>
@@ -495,7 +581,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%9B%B8%E5%85%B3"><span class="nav-number">1.</span> <span class="nav-text"> 线程相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8F%E7%A8%8B"><span class="nav-number">1.1.</span> <span class="nav-text"> 协程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E7%9B%B8%E5%85%B3"><span class="nav-number">2.</span> <span class="nav-text"> 内核相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E6%8A%A2%E5%8D%A0"><span class="nav-number">2.1.</span> <span class="nav-text"> 内核抢占</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%94%81%E7%9B%B8%E5%85%B3"><span class="nav-number">3.</span> <span class="nav-text"> 锁相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#volatile"><span class="nav-number">3.1.</span> <span class="nav-text"> Volatile</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#volatile%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">3.1.1.</span> <span class="nav-text"> Volatile的作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#volatile%E9%92%88%E5%AF%B9%E7%9A%84%E4%BC%98%E5%8C%96%E5%AF%BC%E8%87%B4%E7%9A%84%E9%97%AE%E9%A2%98%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8%E9%94%81%E4%B8%8D%E9%9C%80%E8%A6%81%E5%85%B3%E5%BF%83-%E6%AF%94%E5%A6%82%E4%B8%8D%E4%BC%9A%E5%87%BA%E7%8E%B0%E6%94%BE%E9%94%81%E4%B9%8B%E5%90%8E%E4%B8%B4%E7%95%8C%E5%8C%BA%E5%8F%98%E9%87%8F%E7%9A%84%E5%80%BC%E8%BF%98%E4%BF%9D%E7%95%99%E5%9C%A8%E5%AF%84%E5%AD%98%E5%99%A8%E4%B8%AD%E6%B2%A1%E6%9C%89%E5%88%B7%E6%96%B0%E5%88%B0%E5%86%85%E5%AD%98%E5%90%97"><span class="nav-number">3.1.2.</span> <span class="nav-text"> volatile针对的优化导致的问题，为什么使用锁不需要关心。比如不会出现，放锁之后，临界区变量的值还保留在寄存器中没有刷新到内存吗？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#spin_lock"><span class="nav-number">3.2.</span> <span class="nav-text"> Spin_lock</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#spin_lock%E7%9A%84%E4%BD%9C%E7%94%A8%E5%92%8C%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F%E5%92%8Cmutex%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">3.2.1.</span> <span class="nav-text"> spin_lock的作用和实现方式？和mutex的区别？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#futex"><span class="nav-number">3.3.</span> <span class="nav-text"> Futex</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E7%9B%B8%E5%85%B3"><span class="nav-number">4.</span> <span class="nav-text"> 网络相关</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%9B%B8%E5%85%B3"><span class="nav-number">5.</span> <span class="nav-text"> 虚拟内存相关</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#c%E7%9B%B8%E5%85%B3"><span class="nav-number">6.</span> <span class="nav-text"> C++相关</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%9B%B8%E5%85%B3"><span class="nav-number">1.</span> <span class="nav-text"> 线程相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8F%E7%A8%8B"><span class="nav-number">1.1.</span> <span class="nav-text"> 协程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E7%9B%B8%E5%85%B3"><span class="nav-number">2.</span> <span class="nav-text"> 内核相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E6%8A%A2%E5%8D%A0"><span class="nav-number">2.1.</span> <span class="nav-text"> 内核抢占</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%94%81%E7%9B%B8%E5%85%B3"><span class="nav-number">3.</span> <span class="nav-text"> 锁相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#volatile"><span class="nav-number">3.1.</span> <span class="nav-text"> Volatile</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#volatile%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">3.1.1.</span> <span class="nav-text"> Volatile的作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#volatile%E9%92%88%E5%AF%B9%E7%9A%84%E4%BC%98%E5%8C%96%E5%AF%BC%E8%87%B4%E7%9A%84%E9%97%AE%E9%A2%98%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8%E9%94%81%E4%B8%8D%E9%9C%80%E8%A6%81%E5%85%B3%E5%BF%83-%E6%AF%94%E5%A6%82%E4%B8%8D%E4%BC%9A%E5%87%BA%E7%8E%B0%E6%94%BE%E9%94%81%E4%B9%8B%E5%90%8E%E4%B8%B4%E7%95%8C%E5%8C%BA%E5%8F%98%E9%87%8F%E7%9A%84%E5%80%BC%E8%BF%98%E4%BF%9D%E7%95%99%E5%9C%A8%E5%AF%84%E5%AD%98%E5%99%A8%E4%B8%AD%E6%B2%A1%E6%9C%89%E5%88%B7%E6%96%B0%E5%88%B0%E5%86%85%E5%AD%98%E5%90%97"><span class="nav-number">3.1.2.</span> <span class="nav-text"> volatile针对的优化导致的问题，为什么使用锁不需要关心。比如不会出现，放锁之后，临界区变量的值还保留在寄存器中没有刷新到内存吗？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#spin_lock"><span class="nav-number">3.2.</span> <span class="nav-text"> Spin_lock</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#spin_lock%E7%9A%84%E4%BD%9C%E7%94%A8%E5%92%8C%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F%E5%92%8Cmutex%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">3.2.1.</span> <span class="nav-text"> spin_lock的作用和实现方式？和mutex的区别？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#futex"><span class="nav-number">3.3.</span> <span class="nav-text"> Futex</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E7%9B%B8%E5%85%B3"><span class="nav-number">4.</span> <span class="nav-text"> 网络相关</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%9B%B8%E5%85%B3"><span class="nav-number">5.</span> <span class="nav-text"> 虚拟内存相关</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#io%E7%9B%B8%E5%85%B3"><span class="nav-number">6.</span> <span class="nav-text"> IO相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#page-cache%E5%92%8Cbuffer-cache"><span class="nav-number">6.1.</span> <span class="nav-text"> Page Cache和Buffer Cache</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#page-cache%E5%92%8Cbuffer-cache%E7%9A%84%E5%8C%BA%E5%88%AB%E5%92%8C%E8%81%94%E7%B3%BB%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">6.1.1.</span> <span class="nav-text"> Page Cache和Buffer Cache的区别和联系是什么？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E7%BA%A7cache"><span class="nav-number">6.2.</span> <span class="nav-text"> 多级cache</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#cache%E4%B8%80%E4%B8%80%E8%88%AC%E6%9C%89%E5%87%A0%E7%BA%A7%E4%BB%96%E4%BB%AC%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">6.2.1.</span> <span class="nav-text"> Cache一一般有几级，他们之间的关系是什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#icache%E5%92%8Cdcache%E5%9C%A8%E5%93%AA%E9%87%8C"><span class="nav-number">6.2.2.</span> <span class="nav-text"> ICache和DCache在哪里？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cache%E4%B8%80%E8%87%B4%E6%80%A7"><span class="nav-number">6.3.</span> <span class="nav-text"> Cache一致性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFmesi%E5%8D%8F%E8%AE%AE"><span class="nav-number">6.3.1.</span> <span class="nav-text"> 什么是MESI协议</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#zore-copy"><span class="nav-number">6.4.</span> <span class="nav-text"> Zore Copy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#linux-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E9%9B%B6%E6%8B%B7%E8%B4%9D"><span class="nav-number">6.5.</span> <span class="nav-text"> Linux 如何实现零拷贝？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mmap"><span class="nav-number">6.6.</span> <span class="nav-text"> mmap</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#mmap%E7%9A%84%E7%94%A8%E9%80%94"><span class="nav-number">6.6.1.</span> <span class="nav-text"> mmap的用途</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#copy-on-write"><span class="nav-number">6.7.</span> <span class="nav-text"> Copy-on-Write</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#c%E7%9B%B8%E5%85%B3"><span class="nav-number">7.</span> <span class="nav-text"> C++相关</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -511,20 +597,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-count">13</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">15</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -585,13 +671,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">75k</span>
+    <span title="Symbols count total">93k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">1:09</span>
+    <span title="Reading time total">1:25</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>

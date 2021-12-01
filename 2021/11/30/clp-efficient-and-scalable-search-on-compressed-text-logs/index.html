@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/bitbug_favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/bitbug_favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/bitbug_favicon-32x32.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.kexiang.me","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":"mac","style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Introduction This paper introduces a &quot;tool capable of losslessly compressing unstructured text logs while enabling fast searches directly on the compressed data.&quot;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CLP: Efficient and Scalable Search on Compressed Text Logs">
+<meta property="og:url" content="https://www.kexiang.me/2021/11/30/clp-efficient-and-scalable-search-on-compressed-text-logs/index.html">
+<meta property="og:site_name" content="kexiang&#39;s blog">
+<meta property="og:description" content="Introduction This paper introduces a &quot;tool capable of losslessly compressing unstructured text logs while enabling fast searches directly on the compressed data.&quot;">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-12-01T00:55:01.000Z">
+<meta property="article:modified_time" content="2021-12-01T00:56:21.128Z">
+<meta property="article:author" content="Kexiang Wang">
+<meta property="article:tag" content="Systems">
+<meta property="article:tag" content="Database">
+<meta property="article:tag" content="Paper Reading">
+<meta property="article:tag" content="Big Data">
+<meta property="article:tag" content="Search Engine">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://www.kexiang.me/2021/11/30/clp-efficient-and-scalable-search-on-compressed-text-logs/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>CLP: Efficient and Scalable Search on Compressed Text Logs | kexiang's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">kexiang's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+
+  <a href="https://github.com/KeXiangWang" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://www.kexiang.me/2021/11/30/clp-efficient-and-scalable-search-on-compressed-text-logs/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar-time.jpg">
+      <meta itemprop="name" content="Kexiang Wang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="kexiang's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CLP: Efficient and Scalable Search on Compressed Text Logs
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-11-30 19:55:01 / Modified: 19:56:21" itemprop="dateCreated datePublished" datetime="2021-11-30T19:55:01-05:00">2021-11-30</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/" itemprop="url" rel="index"><span itemprop="name">Academic</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/Paper-Reading/" itemprop="url" rel="index"><span itemprop="name">Paper Reading</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/Database/" itemprop="url" rel="index"><span itemprop="name">Database</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/Database/Search-Engine/" itemprop="url" rel="index"><span itemprop="name">Search Engine</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/Big-Data/" itemprop="url" rel="index"><span itemprop="name">Big Data</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2021/11/30/clp-efficient-and-scalable-search-on-compressed-text-logs/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/11/30/clp-efficient-and-scalable-search-on-compressed-text-logs/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>7.5k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>7 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="introduction"><a class="markdownIt-Anchor" href="#introduction"></a> Introduction</h1>
+<p>This paper introduces a &quot;tool capable of losslessly compressing unstructured text logs while enabling fast searches directly on the compressed data.&quot;</p>
+<p>Two alternative:</p>
+<ul>
+<li>log-search tools: Elasticsearch and Splunk Enterprise
+<ul>
+<li>Defects: The index is too large -&gt; large cost of storage space and memory usage -&gt; only keep the indexed logs for a few weeks.</li>
+</ul>
+</li>
+<li>log archival and compression tools: Gzip
+<ul>
+<li>Defects: The searching is slow due to decompressing process.</li>
+<li>Encode in length-distance pairs.</li>
+</ul>
+</li>
+</ul>
+<p>Background:</p>
+<ul>
+<li>Tech company has lots of log data</li>
+<li>Some industries are required to maintain logs for years</li>
+</ul>
+<p>Method:</p>
+<ul>
+<li>Combining a <strong>domain-specific compression and search algorithm</strong> with a <strong>lightweight general-purpose compression algorithm</strong>.</li>
+<li>The former one is good at performance and bad at compression. The later one on the contrary.</li>
+<li>Process:
+<ol>
+<li>Domain-specific compression extract duplicated patterns into a dictionary</li>
+<li>Convert the remaining value also into a dictionary.</li>
+<li>The the log is encoded as a series of integers and dictionary entries.</li>
+<li>Use general-purpose compressor to compress.</li>
+<li>The search process also encodes the query. And search.</li>
+</ol>
+</li>
+</ul>
+<p>Main limitation: CLP's algorithm is designed primarily for text logs.</p>
+<h1 id="design-overview"><a class="markdownIt-Anchor" href="#design-overview"></a> Design Overview</h1>
+<p>Three objectives:</p>
+<ul>
+<li>Compressed losslessly, so the users can delete their original files.</li>
+<li>Allow users to search their logs for any value.</li>
+<li>Performant and scalable</li>
+</ul>
+<h2 id="compression"><a class="markdownIt-Anchor" href="#compression"></a> Compression</h2>
+<p>Two steps:</p>
+<ul>
+<li>Deduplicates highly repetitive parts of each log message and encodes them in a special format</li>
+<li>Applies a lightweight compressor to the encoded data, further reducing its size.</li>
+</ul>
+<p>Messages are splitted into three pieces:</p>
+<ul>
+<li>log type</li>
+<li>variable values
+<ul>
+<li>dictionary variables: repetitive (e.g. identifiers like a username)</li>
+<li>non-dictionary variables: non repetitive(e.g. a job's completion time)</li>
+</ul>
+</li>
+<li>timestamp  (if the message contains one).</li>
+</ul>
+<h3 id="compressing-messages"><a class="markdownIt-Anchor" href="#compressing-messages"></a> Compressing Messages</h3>
+<p>Storage format:</p>
+<ul>
+<li>Dictionary variables:
+<ul>
+<li>Two-level dictionary</li>
+</ul>
+</li>
+<li>Non-dictionary variable:
+<ul>
+<li>Directly in the encoded log message</li>
+<li>Supports encoding floating point numbers and integers as non-dictionary variables</li>
+<li>Use a fixed-width 64-bit encoding instead of a variable-width encoding</li>
+</ul>
+</li>
+<li>The remaining portion is treated as part of the log type
+<ul>
+<li>Uses byte ‘\x11’ to represent a dictionary variable value</li>
+</ul>
+</li>
+</ul>
+<p>A encoded message</p>
+<ul>
+<li>a 64-bit timestamp</li>
+<li>a 32- bit log type ID</li>
+<li>a sequence of 64-bit variable IDs and encoded variable values</li>
+</ul>
+<p>If ‘\x11’ appear in text logs, CLP will escape them before insertion into the log type.</p>
+<h3 id="decompressing-messages"><a class="markdownIt-Anchor" href="#decompressing-messages"></a> Decompressing Messages</h3>
+<p>Convert the the IDs to original values.</p>
+<h3 id="on-disk-format"><a class="markdownIt-Anchor" href="#on-disk-format"></a> On-disk Format</h3>
+<p>Process:</p>
+<ul>
+<li>The encoded messages are initially buffered in memory</li>
+<li>And then use Zstandard to compress</li>
+<li>Write to disk (Segment)</li>
+<li>Segments belong to an archive (share log type and variable dictionaries.)</li>
+</ul>
+<p>Encoded messages are stored in a column-oriented manner.</p>
+<ul>
+<li>To improve compression ratio</li>
+<li>Improve search performance</li>
+</ul>
+<p>CLP is I/O bound reading segments</p>
+<p>Index at the granularity of segments</p>
+<p>For each archive, CLP stores the corresponding metadata of the files and directories (like paths).</p>
+<p>The timestamp may be reconstructed into other formats.</p>
+<p>Three offsets are stored as metadata.</p>
+<p>The lightweight compressor support different types.</p>
+<ul>
+<li>three modes:
+<ul>
+<li>“Default” that uses Zstandard at level 3</li>
+<li>“Archive” that uses 7z-lzma at level 1</li>
+<li>“Ultra” that uses 7z-lzma at level 9</li>
+</ul>
+</li>
+</ul>
+<h2 id="search"><a class="markdownIt-Anchor" href="#search"></a> Search</h2>
+<p>Given a query, first compress, then search from dictionaries for the log type and dictionary variables.</p>
+<p>CLP supports search phrases that can contain two types of wildcard characters:</p>
+<ul>
+<li>‘*’: zero or more chars</li>
+<li>‘?’: any single char</li>
+</ul>
+<p>With wildcards, a token will be ambiguously categorized as either a log type, a dictionary variable, or a non-dictionary variable.</p>
+<h3 id="handling-ambiguous-tokens"><a class="markdownIt-Anchor" href="#handling-ambiguous-tokens"></a> Handling Ambiguous Tokens</h3>
+<ol>
+<li>Insert *-card at beginning and end.</li>
+<li>Tokenization</li>
+<li>Compare each token again all the variable schemas (if not matches -&gt; log type)</li>
+<li>Generate sub-queries.</li>
+<li>Each sub-query will be processed in three steps
+<ol>
+<li>Searches the ltDict for matching log type</li>
+<li>If find, searching the vDict for the dictionary variables.</li>
+<li>If find, get intersection of log type matched and dictionary variables matched, and  for each of these segments, decompress searches for encoded messages matching the encoded query.</li>
+</ol>
+</li>
+</ol>
+<h3 id="optimizing-clp-queries"><a class="markdownIt-Anchor" href="#optimizing-clp-queries"></a> Optimizing CLP Queries</h3>
+<p>log type dictionary search time &lt; variable dictionary search time &lt; segment scan time</p>
+<p>The best practice is to provide enough information in the search phrase to help CLP narrow down the log type or the dictionary variable values or both.</p>
+<p>CLP does not use any additional index(future work) on its dictionary entries &lt;-- the dictionaries are small.</p>
+<h2 id="handling-special-cases"><a class="markdownIt-Anchor" href="#handling-special-cases"></a> Handling Special Cases</h2>
+<p>Users have two options for changing variable schemas after log data has already been compressed.</p>
+<ul>
+<li>Only apply on new logs</li>
+<li>Decompress and recompress the old data.</li>
+</ul>
+<p>CLP can warn the user if the schemas they provided are not optimal.</p>
+<p>CLP supports the deletion of log messages.</p>
+<ul>
+<li>The segment index in the dictionaries will also be updated.</li>
+</ul>
+<h2 id="distributed-architecture"><a class="markdownIt-Anchor" href="#distributed-architecture"></a> Distributed Architecture</h2>
+<p>A simple controller and data node design.</p>
+<ul>
+<li>Controller: manage metadata and node failures.
+<ul>
+<li>three metadata tables (is only to speedup the search):
+<ul>
+<li>log files, stores the metadata of each raw log file (its file system path, the number of log messages, etc.) as well as the archive that contains this log file.</li>
+<li>archives, stores the metadata of each archive including which data node stores this archive.</li>
+<li>empty directories, stores the paths of empty directories compressed in each archive.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Data nodes: do data intensive computation of compression and search.</li>
+</ul>
+<p>Each archive is independent of other archives and immutable once written.</p>
+<p>To avoid coordination between search threads, each archive is only queried by a single thread for a given query.</p>
+<p>Thus, CLP parallelizes compression and search at the granularity of individual archives.</p>
+<p><strong>CLP support File System Integration Using FUSE, it can imitate find.</strong></p>
+<h1 id="wildcards-and-schemas"><a class="markdownIt-Anchor" href="#wildcards-and-schemas"></a> Wildcards and Schemas</h1>
+<p>Two fundamental challenges:</p>
+<ul>
+<li>Determining how to tokenize a string containing wildcards, given that a wildcard could either match a delimiter or non-delimiter character</li>
+<li>Determining if a token containing wildcards (a wildcard token) could match a given variable schema.</li>
+</ul>
+<h2 id="wildcard-string-tokenization"><a class="markdownIt-Anchor" href="#wildcard-string-tokenization"></a> Wildcard String Tokenization</h2>
+<p>for *-cards, it can be interpreted as either:</p>
+<ul>
+<li>matching non-delimiters only</li>
+<li>matching delimiters only</li>
+<li>matching non-delimiters and delimiters</li>
+</ul>
+<p>If a *-card is interpreted to have a different type than either of the characters surrounding it, the tokenization should split the string at the *-card while leaving *-cards attached to the surrounding character.</p>
+<h2 id="comparing-expressions"><a class="markdownIt-Anchor" href="#comparing-expressions"></a> Comparing Expressions</h2>
+<p>Use a self-designed engine to compute intersection to know whether two wildcard-contained tokens' intersection is empty.</p>
+<h1 id="schema-design"><a class="markdownIt-Anchor" href="#schema-design"></a> Schema Design</h1>
+<p>Provide a few default schemas</p>
+<p>CLP treats most non-alphanumeric characters as delimiters except for a few like underscores and periods.</p>
+<h1 id="compressed-persistent-caching"><a class="markdownIt-Anchor" href="#compressed-persistent-caching"></a> Compressed Persistent Caching</h1>
+<p>Bottleneck: typically to be I/O.</p>
+<p>A caching mechanism is introduced to avoid redundant segment reading.</p>
+<p>Two possible solutions for reading unnecessary data:</p>
+<ul>
+<li>sort the log types in each segment, cause two problems:
+<ul>
+<li>need to recompress when insert</li>
+<li>need to record the old position</li>
+</ul>
+</li>
+<li>store each log type in its own segment, cause complications:
+<ul>
+<li>have to repeatedly open and close several segments</li>
+<li>do not use the strategy in storage, but use it in cache</li>
+</ul>
+</li>
+</ul>
+<p>CLP’s policy: cache recently read, <em>infrequent</em> log types by storing each log type in its own segment.</p>
+<p>Eviction, choose to be evicted:</p>
+<ul>
+<li>have not been recently queried</li>
+<li>contain more messages than the new log type to be cached</li>
+</ul>
+<p>The format of each log type segment in the cache is similar to regular ones, the differences:</p>
+<ul>
+<li>no log type column</li>
+<li>each message additionally includes a log file path identifier, a timestamp format identifier and an optional message number.</li>
+<li>the log type segment is named in a way that it can be easily referenced using the corresponding log type ID</li>
+</ul>
+<p>CLP processes a query in two parts:</p>
+<ul>
+<li>for the log type cache</li>
+<li>for the non-cache segments</li>
+</ul>
+<h1 id="data-scrubbing-and-obfuscation"><a class="markdownIt-Anchor" href="#data-scrubbing-and-obfuscation"></a> Data Scrubbing and Obfuscation</h1>
+<p>The sensitive data (username) can be easily replaced in dictionaries so that the data can be obfuscated.</p>
+<h1 id="evaluation"><a class="markdownIt-Anchor" href="#evaluation"></a> Evaluation</h1>
+<p>Evaluation focuses on:</p>
+<ul>
+<li>CLP’s compression ratio and speed</li>
+<li>CLP’s search performance</li>
+<li>CLP’s scalability and resource efficiency.</li>
+</ul>
+<p>TBA</p>
+<h1 id="questions"><a class="markdownIt-Anchor" href="#questions"></a> Questions</h1>
+<blockquote>
+<p>What if variables contain timestamp</p>
+</blockquote>
+<blockquote>
+<p>Will &quot;assigned it to container&quot; match &quot;assigned to container&quot;?</p>
+</blockquote>
+<blockquote>
+<p>Will the space in query be strictly matched?</p>
+</blockquote>
+<blockquote>
+<p>Will the pipeline be merged? Like search &quot;AA&quot; | grep &quot;CC&quot;</p>
+</blockquote>
+<p>No</p>
+<blockquote>
+<p>Is it allowed to search while writing (strong consistency)? (As some parts are still mutable) Or just keeping inconsistent is OK?</p>
+</blockquote>
+<blockquote>
+<p>One log is considered as one message, so there is no cross-line search support? (Maybe 'find' also does not support)</p>
+</blockquote>
+<blockquote>
+<p>How does the schemes generate? What if get a new message not in the scheme? Really do not understand the Schema Design Section</p>
+</blockquote>
+<p>Use schemes given by users. Use some method to guess. But the result do work very well.</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="Kexiang Wang Alipay">
+        <p>Alipay</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Kexiang Wang
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://www.kexiang.me/2021/11/30/clp-efficient-and-scalable-search-on-compressed-text-logs/" title="CLP: Efficient and Scalable Search on Compressed Text Logs">https://www.kexiang.me/2021/11/30/clp-efficient-and-scalable-search-on-compressed-text-logs/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://twitter.com/KexiangW">
+            <span class="icon">
+              <i class="fab fa-twitter"></i>
+            </span>
+
+            <span class="label">Twitter</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://www.linkedin.com/in/kexiang-wang-73b6171a0/">
+            <span class="icon">
+              <i class="fab fa-linkedin-in"></i>
+            </span>
+
+            <span class="label">Linkedin</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://www.zhihu.com/people/wang-ke-xiang-52">
+            <span class="icon">
+              <i class="fab fa-zhihu"></i>
+            </span>
+
+            <span class="label">Zhihu</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Systems/" rel="tag"># Systems</a>
+              <a href="/tags/Database/" rel="tag"># Database</a>
+              <a href="/tags/Paper-Reading/" rel="tag"># Paper Reading</a>
+              <a href="/tags/Big-Data/" rel="tag"># Big Data</a>
+              <a href="/tags/Search-Engine/" rel="tag"># Search Engine</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/11/22/1759-NOV-18/" rel="prev" title="1759 'Virtualization' NOV-18">
+      <i class="fa fa-chevron-left"></i> 1759 'Virtualization' NOV-18
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/11/30/1759-NOV-25/" rel="next" title="1759 'Scalability' NOV-25">
+      1759 'Scalability' NOV-25 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#introduction"><span class="nav-number">1.</span> <span class="nav-text"> Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#design-overview"><span class="nav-number">2.</span> <span class="nav-text"> Design Overview</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#compression"><span class="nav-number">2.1.</span> <span class="nav-text"> Compression</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#compressing-messages"><span class="nav-number">2.1.1.</span> <span class="nav-text"> Compressing Messages</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#decompressing-messages"><span class="nav-number">2.1.2.</span> <span class="nav-text"> Decompressing Messages</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#on-disk-format"><span class="nav-number">2.1.3.</span> <span class="nav-text"> On-disk Format</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#search"><span class="nav-number">2.2.</span> <span class="nav-text"> Search</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#handling-ambiguous-tokens"><span class="nav-number">2.2.1.</span> <span class="nav-text"> Handling Ambiguous Tokens</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#optimizing-clp-queries"><span class="nav-number">2.2.2.</span> <span class="nav-text"> Optimizing CLP Queries</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#handling-special-cases"><span class="nav-number">2.3.</span> <span class="nav-text"> Handling Special Cases</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#distributed-architecture"><span class="nav-number">2.4.</span> <span class="nav-text"> Distributed Architecture</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#wildcards-and-schemas"><span class="nav-number">3.</span> <span class="nav-text"> Wildcards and Schemas</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#wildcard-string-tokenization"><span class="nav-number">3.1.</span> <span class="nav-text"> Wildcard String Tokenization</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#comparing-expressions"><span class="nav-number">3.2.</span> <span class="nav-text"> Comparing Expressions</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#schema-design"><span class="nav-number">4.</span> <span class="nav-text"> Schema Design</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#compressed-persistent-caching"><span class="nav-number">5.</span> <span class="nav-text"> Compressed Persistent Caching</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#data-scrubbing-and-obfuscation"><span class="nav-number">6.</span> <span class="nav-text"> Data Scrubbing and Obfuscation</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#evaluation"><span class="nav-number">7.</span> <span class="nav-text"> Evaluation</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#questions"><span class="nav-number">8.</span> <span class="nav-text"> Questions</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Kexiang Wang"
+      src="/images/avatar-time.jpg">
+  <p class="site-author-name" itemprop="name">Kexiang Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/KeXiangWang" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;KeXiangWang" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.linkedin.com/in/kexiang-wang-73b6171a0/" title="Linkedin → https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;kexiang-wang-73b6171a0&#x2F;" rel="noopener" target="_blank"><i class="fab fa-linkedin-in fa-fw"></i>Linkedin</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/wang-ke-xiang-52" title="Zhihu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;wang-ke-xiang-52" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>Zhihu</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/KexiangW" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;KexiangW" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ke.wang@hotmail.com" title="E-Mail → mailto:ke.wang@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Kexiang Wang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">127k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">1:55</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('/js/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : true,
+      appId      : '5F4DdksFXCxgcPFJfYq2raiB-gzGzoHsz',
+      appKey     : '36G9n5NWIiCjzVVLQFf5B0QF',
+      placeholder: "Any comments are welcomed! Please leave your E-Mail if you want to be contacted!",
+      avatar     : 'retro',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'en' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

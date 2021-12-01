@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/bitbug_favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/bitbug_favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/bitbug_favicon-32x32.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.kexiang.me","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":"mac","style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="This is a &#39;Paper Reading&#39; post for Course ECE1759. The topic is &#39;Virtualization&#39;. This paper list is here:  Edouard Bugnion, Scott Devine, and Mendel Rosenblum, Disco: Running Commodity Operating Sys">
+<meta property="og:type" content="article">
+<meta property="og:title" content="1759 &#39;Virtualization&#39; NOV-18">
+<meta property="og:url" content="https://www.kexiang.me/2021/11/22/1759-NOV-18/index.html">
+<meta property="og:site_name" content="kexiang&#39;s blog">
+<meta property="og:description" content="This is a &#39;Paper Reading&#39; post for Course ECE1759. The topic is &#39;Virtualization&#39;. This paper list is here:  Edouard Bugnion, Scott Devine, and Mendel Rosenblum, Disco: Running Commodity Operating Sys">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-11-22T18:30:58.000Z">
+<meta property="article:modified_time" content="2021-12-01T01:10:55.742Z">
+<meta property="article:author" content="Kexiang Wang">
+<meta property="article:tag" content="Systems">
+<meta property="article:tag" content="Paper Reading">
+<meta property="article:tag" content="Virtualization">
+<meta property="article:tag" content="OS">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://www.kexiang.me/2021/11/22/1759-NOV-18/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>1759 'Virtualization' NOV-18 | kexiang's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">kexiang's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+
+  <a href="https://github.com/KeXiangWang" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://www.kexiang.me/2021/11/22/1759-NOV-18/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar-time.jpg">
+      <meta itemprop="name" content="Kexiang Wang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="kexiang's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          1759 'Virtualization' NOV-18
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-11-22 13:30:58" itemprop="dateCreated datePublished" datetime="2021-11-22T13:30:58-05:00">2021-11-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-11-30 20:10:55" itemprop="dateModified" datetime="2021-11-30T20:10:55-05:00">2021-11-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/" itemprop="url" rel="index"><span itemprop="name">Academic</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/Paper-Reading/" itemprop="url" rel="index"><span itemprop="name">Paper Reading</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/Paper-Reading/1759/" itemprop="url" rel="index"><span itemprop="name">1759</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/OS/" itemprop="url" rel="index"><span itemprop="name">OS</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/Virtualization/" itemprop="url" rel="index"><span itemprop="name">Virtualization</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2021/11/22/1759-NOV-18/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/11/22/1759-NOV-18/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>22k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>20 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>This is a 'Paper Reading' post for Course ECE1759. The topic is 'Virtualization'. This paper list is here:</p>
+<ul>
+<li>Edouard Bugnion, Scott Devine, and Mendel Rosenblum, Disco: Running Commodity Operating Systems on Scalable Multiprocessors, Proceedings of the Sixteenth ACM Symposium on Operating Systems Principles (SOSP), October 1997, Saint Malo, France.</li>
+<li>Carl A. Waldspurger, Memory Resource Management in VMware ESX Server, In Proceedings of 5th Symposium on Operating Systems Design and Implementation (OSDI), Dec. 2002</li>
+<li>Keith Adams and Ole Agesen, A Comparison of Software and Hardware Techniques for x86 Virtualization, In Proceedings of the 12th International Conference on Architectural Support for Programming Languages and Operating Systems, October 2006.</li>
+<li>[Optional reading] P. Barham, B. Dragovic, K. Fraser, S. Hand, T. Harris, A. Ho, R. Neugebauer, I. Pratt, and A. Warfield, Xen and the Art of Virtualization, In Proceedings of the 19th Symposium on Operating System Principles, October, 2003.</li>
+</ul>
+</blockquote>
+<h1 id="disco-running-commodity-operating-systems-on-scalable-multiprocessors"><a class="markdownIt-Anchor" href="#disco-running-commodity-operating-systems-on-scalable-multiprocessors"></a> Disco: Running Commodity Operating Systems on Scalable Multiprocessors</h1>
+<h2 id="introduction"><a class="markdownIt-Anchor" href="#introduction"></a> Introduction</h2>
+<ul>
+<li>virtual machine monitors was an popular idea in the 1970s.</li>
+<li>use virtual machines to run multiple commodity operating systems on a scalable multi-processor</li>
+<li>Features:
+<ul>
+<li>overhead is small</li>
+<li>provides scalability</li>
+<li>able to deal with NUMA time</li>
+</ul>
+</li>
+<li>Software is complicated, so that to adapt to hardware. -&gt; For functionality and reliability hardware develop faster than software. -&gt; Late, incompatible, and possibly even buggy system.</li>
+<li>Insert an additional layer of software between the hardware and operating system: virtual machine monitor, in which multiple OS can run on a single scalable computer.</li>
+<li>features compared with traditional VM Monitors:
+<ul>
+<li>minimizes the overhead of virtual machines</li>
+<li>enhances the resource sharing between virtual machines running on the same system</li>
+<li>allows OS in different VMs communicate though NFS or TCP/IP</li>
+<li>allows efficient sharing of memory and disk</li>
+<li>has a global buffer cache shared by VMs.</li>
+</ul>
+</li>
+<li>the basic overhead of virtualization is at most 16%</li>
+<li>page placement and dynamic page migration and replication allow Disco to hide the NUMA-ness of the memory system</li>
+</ul>
+<h2 id="core-ideas"><a class="markdownIt-Anchor" href="#core-ideas"></a> Core Ideas</h2>
+<h3 id="a-return-to-virtual-machine-monitors"><a class="markdownIt-Anchor" href="#a-return-to-virtual-machine-monitors"></a> A Return to Virtual Machine Monitors</h3>
+<ul>
+<li>The VMM support two different possible solutions to handle applications whose resource needs exceed the scalability of commodity operating systems
+<ul>
+<li>Modify commodity OS to support sharing memory regions across virtual machine boundaries</li>
+<li>Use specialized operating systems for resource-intensive applications</li>
+</ul>
+</li>
+<li>The failures of OS will only occur in the VM instead of spreading out.</li>
+<li>NUMA memory management issues can also be handled by the monitor, effectively hiding the entire problem from the operating systems.</li>
+<li>Multiple versions of OS can run on a multiprocessor simultaneously.</li>
+</ul>
+<h3 id="challenges-facing-virtual-machines"><a class="markdownIt-Anchor" href="#challenges-facing-virtual-machines"></a> Challenges Facing Virtual Machines</h3>
+<h4 id="overheads"><a class="markdownIt-Anchor" href="#overheads"></a> Overheads</h4>
+<ul>
+<li>Overheads like execution of privileged instructions must be emulated by the monitor. I/O must be intercepted and remapped by the monitor.</li>
+<li>VM cost extra memory.
+<ul>
+<li>large memory structures such as the file system buffer cache are also replicated resulting in a increase in memory usage.</li>
+<li>replication of file systems cause waste.</li>
+</ul>
+</li>
+</ul>
+<h4 id="resource-management"><a class="markdownIt-Anchor" href="#resource-management"></a> Resource Management</h4>
+<ul>
+<li>the lack of information available to the monitor to make good policy decisions.
+<ul>
+<li>the monitor must make resource management decisions without the high-level knowledge that an operating system would have.</li>
+</ul>
+</li>
+</ul>
+<h4 id="communication-and-sharing"><a class="markdownIt-Anchor" href="#communication-and-sharing"></a> Communication and Sharing</h4>
+<ul>
+<li>Previously, files cannot be shared among VMs.</li>
+</ul>
+<h3 id="disco-a-virtual-machine-monitor"><a class="markdownIt-Anchor" href="#disco-a-virtual-machine-monitor"></a> Disco: A Virtual Machine Monitor</h3>
+<h4 id="discos-interface"><a class="markdownIt-Anchor" href="#discos-interface"></a> Disco's Interface</h4>
+<h5 id="processors"><a class="markdownIt-Anchor" href="#processors"></a> Processors</h5>
+<ul>
+<li>To match designated OS, VMM need to emulate a processor, including instructions, the memory management unit, and the trap architecture.</li>
+</ul>
+<h5 id="physical-memory"><a class="markdownIt-Anchor" href="#physical-memory"></a> Physical Memory</h5>
+<ul>
+<li>Disco provides an abstraction of integrate main memory
+<ul>
+<li>residing in a contiguous physical address space starting at address zero.</li>
+</ul>
+</li>
+<li>Use dynamic page migration and replication to imitate UMA on NUMA.</li>
+</ul>
+<h5 id="io-devices"><a class="markdownIt-Anchor" href="#io-devices"></a> I/O Devices</h5>
+<ul>
+<li>Disco intercept all I/O operations to translate or emulate the operation.</li>
+<li>Disco exports special abstractions for the SCSI disk and network devices.
+<ul>
+<li>Disco virtualizes disks by providing a set of virtual disks that any virtual machine can mount.</li>
+<li>the monitor virtualizes access to the networking devices of the underlying system.
+<ul>
+<li>Each virtual machine is assigned <strong>a distinct link-level address</strong> on an <strong>internal virtual subnet</strong> handled by Disco.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="implementation-of-disco"><a class="markdownIt-Anchor" href="#implementation-of-disco"></a> Implementation of Disco</h4>
+<ul>
+<li>careful attention has been given to: NUMA memory placement, cache-aware data structures, and interprocessor communication patterns
+<ul>
+<li>example: do not use cache-unfriendly linked lists</li>
+</ul>
+</li>
+<li>To improve NUMA locality,
+<ul>
+<li>The Disco code is replicated all the memory of the machine to make sure that Disco's instruction cache misses can be satisfied  locally.</li>
+<li>Machine-wide data structures are partitioned and set in the node that the data part is accessed only or mostly on.</li>
+</ul>
+</li>
+<li>For shared data structure,
+<ul>
+<li>few locks are used and wait-free synchronization using the MIPS LL/SC instruction pair is heavily employed.</li>
+</ul>
+</li>
+</ul>
+<h5 id="virtual-cpus"><a class="markdownIt-Anchor" href="#virtual-cpus"></a> Virtual CPUs</h5>
+<ul>
+<li>
+<p>Disco emulates the execution of the virtual CPU by using direct execution on the real CPU.</p>
+</li>
+<li>
+<p>operations that cannot be safely exported to the virtual machine</p>
+<ul>
+<li>privileged instructions performed by the operating system such as TLB modification, and the direct access to physical memory and I/O devices</li>
+</ul>
+</li>
+<li>
+<p>For each virtual CPU</p>
+<ul>
+<li>Disco keeps a process table contains the saved registers and other state of a virtual CPU</li>
+<li>To perform the emulation of privileged instructions
+<ul>
+<li>additionally maintains the privileged registers and TLB contents of the virtual CPU</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Disco contains a simple scheduler that allows the virtual processors to be <strong>time-shared</strong> across the physical processors of the machine.</p>
+</li>
+</ul>
+<h5 id="virtual-physical-memory"><a class="markdownIt-Anchor" href="#virtual-physical-memory"></a> Virtual Physical Memory</h5>
+<ul>
+<li>Logic Addresses -&gt; Physical Addresses -&gt; Machine Addresses</li>
+<li>Disco keeps a pmap data structure for each VM.
+<ul>
+<li>Each pmap entry contains a pre-computed TLB entry that references the physical page location in real memory.</li>
+</ul>
+</li>
+<li>On a normal MIPS processor
+<ul>
+<li>all user mode memory references need to be translated</li>
+<li>kernel mode references can directly access physical memory and I/O devices through the unmapped segment of the kernel virtual address space</li>
+<li>So cannot use previous mapping. To solve the problems:
+<ul>
+<li>Disco re-link the operating system code and data to a mapped region of the address space</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Disco flushes the machine’s TLB when scheduling a different virtual CPU on a physical processor.</li>
+<li>Overhead:
+<ul>
+<li>More cache miss due to the TLB flush when virtual CPU switch.</li>
+<li>Slower TLB miss due to the emulation.</li>
+</ul>
+</li>
+<li>To mitigate the overhead, Disco caches recent virtual-to-machine translations in a second-level software TLB.</li>
+</ul>
+<h5 id="numa-memory-management"><a class="markdownIt-Anchor" href="#numa-memory-management"></a> NUMA Memory Management</h5>
+<ul>
+<li>Disco targets machines that maintain cache-coherence in hardware.</li>
+<li>Disco uses a robust policy that moves only pages that will likely result in an eventual performance benefit
+<ul>
+<li>Move the page to the node use it frequently</li>
+<li>Replicated the read-shared pages</li>
+<li>write-shared pages keep unmoved</li>
+<li>limits the number of times a page can move to avoid excessive overheads</li>
+</ul>
+</li>
+<li>Hardware counts cache misses to each page from every physical processor.</li>
+<li>Disco maintains a memmap data structure that contains an entry for each real machine memory page.
+<ul>
+<li>the memmap entry contains a list of the virtual machines using the page and the virtual addresses used to access them. A memmap entry also contains pointers to any replicated copies of the page.</li>
+</ul>
+</li>
+</ul>
+<h5 id="virtual-io-devices"><a class="markdownIt-Anchor" href="#virtual-io-devices"></a> Virtual I/O Devices</h5>
+<ul>
+<li>Use a special device drivers instead of trapping and emulating</li>
+<li>Each Disco device defines a monitor call used by the device driver to pass all command arguments in a single trap.</li>
+<li>For disks and network interfaces include a DMA map as part of their arguments
+<ul>
+<li>intercept, translate into machine address, then interact directly with the physical device.</li>
+</ul>
+</li>
+<li>Disco's copy-on-write disks allow virtual machines to share both main memory and disk storage resources.</li>
+</ul>
+<h5 id="copy-on-write-disks"><a class="markdownIt-Anchor" href="#copy-on-write-disks"></a> Copy-on-write Disks</h5>
+<ul>
+<li>Disco intercepts every disk request that DMAs data into memory.
+<ul>
+<li>For the shared-data request, make the page read-only for new request and use COW when write.</li>
+</ul>
+</li>
+<li>All the virtual machines can share the same root disk containing the kernel and application programs.</li>
+<li>To preserve the isolation of the virtual machines, disk writes must be kept private to the virtual machine that issues them.
+<ul>
+<li>Disco logs the modified sectors so that the copy-on-write disk is never actually modified.</li>
+<li>For now only for non-persistent disks (????).</li>
+</ul>
+</li>
+<li>Two data structures for memory and disk sharing:
+<ul>
+<li>For each disk device:
+<ul>
+<li>maintains a B-Tree indexed by the range of disk sectors being requested. It's used to find the machine memory address of the sectors in the global disk cache.</li>
+</ul>
+</li>
+<li>A second B-Tree is kept for each disk and VM to find any modifications to the block made by that VM.</li>
+</ul>
+</li>
+<li>COW is for the disk whose modifications should not be shared or persistent.</li>
+<li>For persistent disks containing user files, only one VM can mount it.</li>
+<li>NFS can be use to share files though VMs.</li>
+</ul>
+<h5 id="virtual-network-interface"><a class="markdownIt-Anchor" href="#virtual-network-interface"></a> Virtual Network Interface</h5>
+<ul>
+<li>A virtual subnet is designed to allow virtual machines to communicate with each other, while avoiding replicated data whenever possible.</li>
+<li>The virtual subnet and networking interfaces of Disco also use copy-on-write mappings to reduce copying and to allow for memory sharing.</li>
+<li>message transfer between VMs -&gt; the DMA unit to map the page read-only into both the sending and receiving virtual machine�s physical address spaces.</li>
+<li>The file data of NFS can be shared among servers and clients.
+<ul>
+<li>global buffer cache:
+<ul>
+<li>copy-on-write disks</li>
+<li>the access to persistent data through the specialized network device</li>
+</ul>
+</li>
+<li>all read-only pages can be shared between virtual machines.
+<ul>
+<li>to avoid access remote shared-page, use replication</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="running-commodity-operating-systems"><a class="markdownIt-Anchor" href="#running-commodity-operating-systems"></a> Running Commodity Operating Systems</h4>
+<ul>
+<li>hardware abstraction level (HAL): a level allows the operating system to be effectively �ported� to run on new platforms.
+<ul>
+<li>Typically the HAL of modern operating systems changes with each new version of a machine while the rest of the system can remain unchanged.</li>
+</ul>
+</li>
+<li>Most of the changes made in IRIX were part of the HAL</li>
+</ul>
+<h5 id="necessary-changes-for-mips-architecture"><a class="markdownIt-Anchor" href="#necessary-changes-for-mips-architecture"></a> Necessary Changes for MIPS Architecture</h5>
+<ul>
+<li>basically try to solve the directly mapping problem for MIPS's kernel mode.
+<ul>
+<li>relocate the unmapped segment of the virtual machines into a portion of the mapped supervisor segment of the MIPS processor.</li>
+</ul>
+</li>
+</ul>
+<h5 id="device-drivers"><a class="markdownIt-Anchor" href="#device-drivers"></a> Device Drivers</h5>
+<ul>
+<li>Disco designed drivers, like UART, SCSI disks, and ethernet drivers, to support Disco�s monitor call interface.</li>
+</ul>
+<h5 id="changes-to-the-hal"><a class="markdownIt-Anchor" href="#changes-to-the-hal"></a> Changes to the HAL</h5>
+<ul>
+<li>
+<p>convert these frequently used privileged instructions to use non-trapping load and store instructions to a special page of the address space that contains these registers.</p>
+<ul>
+<li>only applied to instructions that read and write privileged registers without causing other side-effects</li>
+<li>Reduce trap for the privileged register access.</li>
+</ul>
+</li>
+<li>
+<p>To help the monitor make better resource management decisions, the author added code to the HAL to pass hints to the monitor giving it higher-level knowledge of resource utilization.</p>
+<ul>
+<li>inserted some monitor calls in physical memory management module</li>
+</ul>
+</li>
+<li>
+<p>Disco add semantics to HAL to support a idle mode(reduced power consumption mode) of MIPS processors. This mode is used by the operating system  henever the system is idle. Disco will deschedule the virtual CPU until the mode is cleared or an interrupt is posted.</p>
+</li>
+</ul>
+<h5 id="other-changes-to-irix"><a class="markdownIt-Anchor" href="#other-changes-to-irix"></a> Other Changes to IRIX</h5>
+<ul>
+<li>the virtual network device can only take advantage of the remapping techniques if the packets contain <strong>properly aligned, complete pages that are not written</strong>.
+<ul>
+<li>But the mbuf of IRIX do not meet the requirements, so they modified the data structure.</li>
+</ul>
+</li>
+<li>Specialized a call to bcopy to a new remap function offered by the HAL to avoid NFS's copying from mbufs to buffer cache. With the call, they as shared as much as possible.</li>
+</ul>
+<h4 id="splashos-a-specialized-operating-system"><a class="markdownIt-Anchor" href="#splashos-a-specialized-operating-system"></a> SPLASHOS: A Specialized Operating System</h4>
+<ul>
+<li>They design a small OS without virtual memory, deferring all page faulting responsibilities directly to Disco.
+<ul>
+<li>The application is linked with the library operating system and runs in the same address space as the operating system.</li>
+<li>The OS is a good example that Disco is good for small special application that do not require a full function OS.</li>
+</ul>
+</li>
+</ul>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<h1 id="memory-resource-management-in-vmware-esx-server"><a class="markdownIt-Anchor" href="#memory-resource-management-in-vmware-esx-server"></a> Memory Resource Management in VMware ESX Server</h1>
+<h2 id="introduction-2"><a class="markdownIt-Anchor" href="#introduction-2"></a> Introduction</h2>
+<ul>
+<li>Techniques:
+<ul>
+<li>ballooning:
+<ul>
+<li>reclaims the pages considered least valuable by the operating system running in a virtual machine.</li>
+</ul>
+</li>
+<li>idle memory tax
+<ul>
+<li>achieves efficient memory utilization while maintaining  performance isolation guarantees</li>
+</ul>
+</li>
+<li>content-based page sharing &amp; hot I/O page remapping
+<ul>
+<li>exploit transparent page remapping to eliminate redundancy and reduce copying overheads.</li>
+</ul>
+</li>
+<li>They are combined to efficiently support virtual machine workloads that overcommit memory</li>
+</ul>
+</li>
+<li>In many computing environments, individual servers are underutilized.</li>
+<li>VMware Workstation:
+<ul>
+<li>a hosted VM.</li>
+<li>Use pre-existing OS for portable I/O device support.</li>
+</ul>
+</li>
+<li>The need to run existing OSs without modification.</li>
+</ul>
+<h2 id="core-ideas-2"><a class="markdownIt-Anchor" href="#core-ideas-2"></a> Core Ideas</h2>
+<h3 id="memory-virtualization"><a class="markdownIt-Anchor" href="#memory-virtualization"></a> Memory Virtualization</h3>
+<ul>
+<li>Same as Disco, ESX Server maintains a pmap data structure for each VM to translate �physical� page numbers (PPNs) to machine page numbers (MPNs).</li>
+<li>ESX can remap PPN -&gt; MPN relations</li>
+<li>ESX can monitor or interpose on guest memory accesses</li>
+</ul>
+<h3 id="reclamation-mechanisms"><a class="markdownIt-Anchor" href="#reclamation-mechanisms"></a> Reclamation Mechanisms</h3>
+<ul>
+<li>supports overcommitment of memory
+<ul>
+<li>the total size configured for all running virtual machines &gt;&gt; the total amount of actual machine memory</li>
+</ul>
+</li>
+<li>Each VM is given the illusion of having a fixed amount of physical memory: &quot;max size&quot;, constant.</li>
+</ul>
+<h4 id="page-replacement-issues"><a class="markdownIt-Anchor" href="#page-replacement-issues"></a> Page Replacement Issues</h4>
+<ul>
+<li>need a reclaim mechanism</li>
+<li>earlier virtual machine systems?
+<ul>
+<li>Introduce another level of paging, moving some VM �physical� pages to a swap area on disk.</li>
+<li>Problem: <strong>hard to decide which pages to reclaim</strong></li>
+</ul>
+</li>
+</ul>
+<h4 id="ballooning"><a class="markdownIt-Anchor" href="#ballooning"></a> Ballooning</h4>
+<ul>
+<li>balloon works like a pseudo-device driver or kernel service in Guest OS.</li>
+<li>It has no external interface within the guest, and communicates with ESX Server via a private channel.</li>
+<li>When reclaim, the balloon inflate by allocating pinned physical pages within the VM.</li>
+<li>When memory is plentiful, the guest OS will return memory from its free list.</li>
+<li>When memory is scarce, it must reclaim space to satisfy the driver allocation request.</li>
+<li><strong>The guest OS decides which particular pages to reclaim</strong> and, if necessary, pages them out to its own virtual disk.</li>
+<li>When a guest PPN is ballooned, the system annotates its pmap entry and deallocates the associated MPN.
+<ul>
+<li>If the ballooned page is reaccessed(though should not happen), reallocate a new MPN for the PPN.</li>
+</ul>
+</li>
+<li>balloon drivers poll the server once per second to obtain a target balloon size, and limit the allocation rates to avoid stressing the guest OS.</li>
+<li>Concerns:
+<ul>
+<li>being uninstalled</li>
+<li>being disabled</li>
+<li>unavailable when booting</li>
+<li>being limited the balloon size as an application on Guest OS.</li>
+</ul>
+</li>
+</ul>
+<h4 id="demand-paging"><a class="markdownIt-Anchor" href="#demand-paging"></a> Demand Paging</h4>
+<ul>
+<li>When ballooning is not possible or insufficient, the system falls back to a paging mechanism.
+<ul>
+<li>Memory is reclaimed by paging out to an ESX Server swap area on disk, without any guest involvement.</li>
+</ul>
+</li>
+<li>The ESX Server use a swap daemon and a higher-level policy module to manage swapping.</li>
+<li>Now a randomized page replacement policy is used.</li>
+</ul>
+<h3 id="sharing-memory"><a class="markdownIt-Anchor" href="#sharing-memory"></a> Sharing Memory</h3>
+<h4 id="transparent-page-sharing"><a class="markdownIt-Anchor" href="#transparent-page-sharing"></a> Transparent Page Sharing</h4>
+<ul>
+<li>Mentioned in Disco</li>
+<li>Problem: Disco required several guest OS modifications</li>
+</ul>
+<h4 id="content-based-page-sharing"><a class="markdownIt-Anchor" href="#content-based-page-sharing"></a> Content-Based Page Sharing</h4>
+<ul>
+<li>Basic Idea: identify page copies by their contents</li>
+<li>Pages with identical contents can be shared regardless of when, where, or how those contents were generated.</li>
+<li>Using Hashing to identify pages.
+<ul>
+<li>false matches are possible</li>
+<li>Once found existed shared page, COW is used</li>
+</ul>
+</li>
+<li>Higher-level page sharing policies control when and where to scan for copies.</li>
+</ul>
+<h4 id="implementation"><a class="markdownIt-Anchor" href="#implementation"></a> Implementation</h4>
+<ul>
+<li>Each frame is encoded compactly in 16 bytes.</li>
+<li>A shared frame:
+<ul>
+<li>a hash value, MPN, a reference count(16-bit), and a link for chaining.</li>
+</ul>
+</li>
+<li>A hint frame:
+<ul>
+<li>a truncated hash value to make room for a reference back to the corresponding guest page, a VM identifier, PPN.</li>
+</ul>
+</li>
+<li>Overhead of page sharing &lt; 0.5% of system memory.</li>
+<li>a separate overflow table is used to store any extended frames with larger counts.
+<ul>
+<li>For example, the empty zero page filled completely with zero bytes</li>
+</ul>
+</li>
+<li>The current ESX Server page sharing implementation scans guest pages randomly.
+<ul>
+<li>Configuration are use to avoid overhead from scanning CPU overhead</li>
+</ul>
+</li>
+</ul>
+<h3 id="shares-vs-working-sets"><a class="markdownIt-Anchor" href="#shares-vs-working-sets"></a> Shares vs. Working Sets</h3>
+<ul>
+<li>an explicit parameter is introduced that allows system administrators to control the relative importance of these conflicting goals.</li>
+</ul>
+<h4 id="share-based-allocation"><a class="markdownIt-Anchor" href="#share-based-allocation"></a> Share-Based Allocation</h4>
+<ul>
+<li>resource rights are encapsulated by shares, which are owned by clients that consume resources</li>
+<li>A client is entitled to consume resources proportional to its share allocation</li>
+<li>When one client demands more space, a replacement algorithm selects a victim client that relinquishes some of its previously-allocated space. Memory is revoked from the client that owns the fewest shares per allocated page.</li>
+</ul>
+<h4 id="reclaiming-idle-memory"><a class="markdownIt-Anchor" href="#reclaiming-idle-memory"></a> Reclaiming Idle Memory</h4>
+<ul>
+<li>limitation of pure proportional-share
+<ul>
+<li>ignore memory usage and working sets</li>
+</ul>
+</li>
+<li>ESX Server resolves this problem by introducing an idle memory tax.
+<ul>
+<li>The basic idea is to charge a client more for an idle page than for one it is actively using.</li>
+<li>Min-funding revocation is extended to use an adjusted shares-per-page ratio.</li>
+</ul>
+</li>
+</ul>
+<h4 id="measuring-idle-memory"><a class="markdownIt-Anchor" href="#measuring-idle-memory"></a> Measuring Idle Memory</h4>
+<ul>
+<li>specific active and idle pages need not be identified individually.</li>
+<li>ESX Server uses a statistical sampling approach to obtain aggregate VM working set estimates directly, <strong>without any guest involvement</strong>.</li>
+<li>Selected randomly using a uniform distribution to evaluate active ratio.</li>
+<li>By default, ESX Server samples 100 pages for each 30 second period.</li>
+<li>To avoid sudden change, inspired by work on balancing stability and agility from the networking domain, ESX maintains separate exponentially-weighted moving averages with different gain parameters.</li>
+<li>what is idle memory and active memory. (invalidate its cached mapping, if re-establish in the sampling periods, then active).</li>
+</ul>
+<h3 id="allocation-policies"><a class="markdownIt-Anchor" href="#allocation-policies"></a> Allocation Policies</h3>
+<ul>
+<li>This section describes how these various mechanisms are coordinated in response to specified allocation parameters and system load.</li>
+</ul>
+<h4 id="parameters"><a class="markdownIt-Anchor" href="#parameters"></a> Parameters</h4>
+<ul>
+<li>System administrators use three basic parameters to control the allocation of memory to each VM:
+<ul>
+<li>a <em>min</em> size, a <em>max</em> size, and memory <em>shares</em>.</li>
+</ul>
+</li>
+</ul>
+<h4 id="admission-control"><a class="markdownIt-Anchor" href="#admission-control"></a> Admission Control</h4>
+<ul>
+<li>An admission control policy ensures that sufficient unreserved memory and server swap space is available before a VM is allowed to power on.</li>
+<li>Typical VMs reserve 32 MB for overhead, of which 4 to 8 MB is devoted to the frame buffer, and the remainder contains implementation-specific data structures. Additional memory is required for VMs larger than 1 GB.</li>
+<li>Disk swap space must be reserved for the remaining VM memory; i.e. max - min.</li>
+</ul>
+<h4 id="dynamic-reallocation"><a class="markdownIt-Anchor" href="#dynamic-reallocation"></a> Dynamic Reallocation</h4>
+<ul>
+<li>ESX Server recomputes memory allocations dynamically in response to various events. For example:
+<ul>
+<li>changes to system-wide or per-VM allocation parameters.</li>
+<li>addition or removal of a VM</li>
+<li>changes in the amount of free memory</li>
+</ul>
+</li>
+<li>EXS uses four thresholds to reflect different reclamation states: <em>high</em>, <em>soft</em>, <em>hard</em>, and <em>low</em>, which default to 6%, 4%, 2%, and 1% of system memory, respectively
+<ul>
+<li>high state, free memory is sufficient and no reclamation is performed.</li>
+<li>soft state, the system reclaims memory using ballooning, and resorts to paging only in cases where ballooning is not possible.</li>
+<li>hard state, the system relies on paging to forcibly reclaim memory</li>
+<li>below the low threshold, the system continues to reclaim memory via paging, and additionally blocks the execution of all VMs that are above their target allocations.</li>
+</ul>
+</li>
+</ul>
+<h2 id="questions"><a class="markdownIt-Anchor" href="#questions"></a> Questions</h2>
+<h2 id="advantages"><a class="markdownIt-Anchor" href="#advantages"></a> Advantages</h2>
+<h2 id="disadvantages"><a class="markdownIt-Anchor" href="#disadvantages"></a> Disadvantages</h2>
+<ul>
+<li>Shared paging cause overhead. Sometimes the performance is more important than utilization.</li>
+</ul>
+<h2 id="reference-2"><a class="markdownIt-Anchor" href="#reference-2"></a> Reference</h2>
+<h1 id="a-comparison-of-software-and-hardware-techniques-for-x86-virtualization"><a class="markdownIt-Anchor" href="#a-comparison-of-software-and-hardware-techniques-for-x86-virtualization"></a> A Comparison of Software and Hardware Techniques for x86 Virtualization</h1>
+<h2 id="introduction-3"><a class="markdownIt-Anchor" href="#introduction-3"></a> Introduction</h2>
+<ul>
+<li>Until recently, The x86 architecture has not permitted classical trap-and-emulate virtualization.
+<ul>
+<li>Recently, the major x86 CPU manufacturers have announced architectural extensions to directly support virtualization in hard</li>
+</ul>
+</li>
+<li>Surprisingly, the hardware VMM often suffers lower performance than the pure software VMM.</li>
+<li>hardware support problems:
+<ul>
+<li>it offers no support for MMU virtualization</li>
+<li>it fails to co-exist with existing software techniques for MMU virtualization</li>
+</ul>
+</li>
+<li><strong>Software virtualization: binary translation.</strong></li>
+<li>Contribution of this paper:
+<ul>
+<li>a review of VMware Workstation�s software VMM, focusing on performance properties of the virtual instruction execution engine;</li>
+<li>a review of the emerging hardware support, identifying performance trade-offs;</li>
+<li>a quantitative performance comparison of a software and a hardware VMM.</li>
+</ul>
+</li>
+<li>first-generation hardware support offer rare performance advantages
+<ul>
+<li>reason: high VMM/guest transition costs and a rigid programming model lacking flexibility</li>
+</ul>
+</li>
+</ul>
+<h2 id="core-ideas-3"><a class="markdownIt-Anchor" href="#core-ideas-3"></a> Core Ideas</h2>
+<h3 id="classical-virtualization"><a class="markdownIt-Anchor" href="#classical-virtualization"></a> Classical virtualization</h3>
+<ul>
+<li>essential characteristics of VMM:
+<ul>
+<li>Fidelity: executes identically.</li>
+<li>Performance: executes majority of instructions without VMM.</li>
+<li>Safety: manages hardware resources.</li>
+</ul>
+</li>
+<li>1974?trap-and-emulate</li>
+<li>the most important ideas from classical VMM implementations: <strong>deprivileging, shadow structures and traces.</strong></li>
+</ul>
+<h4 id="de-privileging"><a class="markdownIt-Anchor" href="#de-privileging"></a> De-privileging</h4>
+<ul>
+<li>A classical VMM executes guest operating systems directly, but at a reduced privilege level.
+<ul>
+<li>intercepts traps from the de-privileged guest, and emulates the trapping instruction against the virtual machine state.</li>
+</ul>
+</li>
+</ul>
+<h4 id="primary-and-shadow-structures"><a class="markdownIt-Anchor" href="#primary-and-shadow-structures"></a> Primary and shadow structures</h4>
+<ul>
+<li>VMM derives shadow structures from guest-level primary structures
+<ul>
+<li>On-CPU privileged state(e.g. register): use image to emulate.</li>
+<li>off-CPU privileged data(e.g. memory): not naturally coincide with trapping instructions. hard to control</li>
+</ul>
+</li>
+</ul>
+<h4 id="memory-traces"><a class="markdownIt-Anchor" href="#memory-traces"></a> Memory traces</h4>
+<ul>
+<li>VMMs typically use hardware page protection mechanisms to trap accesses to in-memory primary structures.
+<ul>
+<li>Basically set the shadow structure write protected. It cause a fault when being access, then the VMM capture that and do modification in primary structures and then propagate it to shadow structures.</li>
+</ul>
+</li>
+</ul>
+<h4 id="tracing-example-x86-page-tables"><a class="markdownIt-Anchor" href="#tracing-example-x86-page-tables"></a> Tracing example: x86 page tables</h4>
+<ul>
+<li>To protect the host from guest memory accesses, VMMs typically construct shadow page tables in which to run the guest.</li>
+<li>VMware Workstation�s VMM manages its shadow page tables as a cache of the guest page tables.
+<ul>
+<li>As the guest accesses previously untouched regions of its virtual address space</li>
+<li>The VMM distinguishes <em>true page faults</em> from <em>hidden page faults</em>.</li>
+<li>True faults are forwarded to the guest;</li>
+<li>hidden faults cause the VMM to construct an appropriate shadow PTE, and resume guest execution.</li>
+</ul>
+</li>
+<li>The VMM uses <strong>traces</strong> to prevent its shadow PTEs from becoming incoherent with the guest PTEs, though tracing can cause overhead.</li>
+<li>three-way trade-off among trace costs, hidden page faults and context switch costs</li>
+</ul>
+<h4 id="refinements-to-classical-virtualization"><a class="markdownIt-Anchor" href="#refinements-to-classical-virtualization"></a> Refinements to classical virtualization</h4>
+<ul>
+<li>Previously, the VMM, hardware, OS are designed by one company.
+<ul>
+<li>researchers and practitioners using two orthogonal approaches to refine classical virtualization.</li>
+</ul>
+</li>
+<li>One approach, add flexibility in the VMM/guest OS interface:
+<ul>
+<li>modified guest OSs to provide higher-level information to the VMM.
+<ul>
+<li>relax fidelity requirement</li>
+<li>better performance</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Other approach, add flexibility in the hardware/VMM interface:
+<ul>
+<li>VMM encodes much of the guest privileged state in a <strong>hardware-defined format</strong>, then executes the SIE instruction to �start interpretive execution.� Many guest operations which would trap in a de-privileged environment directly access shadow fields in interpretive execution. (Basically use new hardware and corresponding instructions to reduce traps)</li>
+</ul>
+</li>
+<li>The first one revive as paravirtualization</li>
+<li>For the second one, x86 vendors are introducing hardware facilities inspired by interpretive execution.</li>
+</ul>
+<h3 id="software-virtualization"><a class="markdownIt-Anchor" href="#software-virtualization"></a> Software virtualization</h3>
+<h4 id="x86-obstacles-to-virtualization"><a class="markdownIt-Anchor" href="#x86-obstacles-to-virtualization"></a> x86 obstacles to virtualization</h4>
+<ul>
+<li>The x86 protected modes are not classically virtualizable
+<ul>
+<li>Visibility of privileged state.</li>
+<li>Lack of traps when privileged instructions run at user-level.</li>
+</ul>
+</li>
+</ul>
+<h4 id="simple-binary-translation"><a class="markdownIt-Anchor" href="#simple-binary-translation"></a> Simple binary translation</h4>
+<ul>
+<li>Use interpreter separates virtual state (the VCPU) from physical state (the CPU) to overcome semantic obstacles to x86 virtualization.</li>
+<li>interpretation ensures Fidelity and Safety but fail to meet Performance bar.</li>
+<li>translator's properties:
+<ul>
+<li>Binary</li>
+<li>Dynamic</li>
+<li>On demand</li>
+<li>System level</li>
+<li>Subsetting</li>
+<li>Adaptive</li>
+</ul>
+</li>
+<li>The translator does not attempt to �improve� the translated code. Assume if guest code is performance critical, it should have been optimized.</li>
+</ul>
+<h3 id="hardware-virtualization"><a class="markdownIt-Anchor" href="#hardware-virtualization"></a> Hardware virtualization</h3>
+<ul>
+<li>AMD: SVM</li>
+<li>Intel: VT</li>
+</ul>
+<h4 id="x86-architecture-extensions"><a class="markdownIt-Anchor" href="#x86-architecture-extensions"></a> x86 architecture extensions</h4>
+<ul>
+<li>virtual machine control block(VMCB) combines control state with a subset of the state of a guest virtual CPU.</li>
+<li>A new, less privileged execution mode, guest mode, supports direct execution of guest code, including privileged code.</li>
+<li>A new instruction, vmrun, transfers from host(previously architected x86 execution environment) to guest mode.
+<ul>
+<li>Upon execution of vmrun, the hardware loads guest state from the VMCB and continues execution in guest mode.</li>
+<li>Guest execution proceeds until some condition, expressed by the VMM using control bits of the VMCB, is reached.</li>
+<li>Performs an exit operation to quit guest mode.</li>
+</ul>
+</li>
+</ul>
+<h4 id="hardware-vmm-implementation"><a class="markdownIt-Anchor" href="#hardware-vmm-implementation"></a> Hardware VMM implementation</h4>
+<ul>
+<li>When running a protected mode guest, the VMM fills in a VMCB with the current guest state and executes vmrun.</li>
+<li>On guest exits, the VMM reads the VMCB fields describing the conditions for the exit, and vectors to appropriate emulation code.</li>
+<li>Most of this emulation code is shared with the software VMM.</li>
+<li>Since current virtualization hardware does not include explicit support for MMU virtualization, the hardware VMM inherits the software VMM�s implementation of the shadowing technique.</li>
+<li>The VT and SVM extensions make classical virtualization possible on x86. The resulting performance depends primarily on the frequency of exits.</li>
+</ul>
+<h3 id="qualitative-comparison"><a class="markdownIt-Anchor" href="#qualitative-comparison"></a> Qualitative comparison</h3>
+<ul>
+<li>Where BT(Binary Translation) wins:
+<ul>
+<li>Trap elimination</li>
+<li>Emulation speed</li>
+<li>Callout avoidance</li>
+</ul>
+</li>
+<li>Where hardware VMM wins:
+<ul>
+<li>Code density</li>
+<li>Precise exceptions</li>
+<li>System calls run without VMM intervention</li>
+</ul>
+</li>
+</ul>
+<h2 id="lectures"><a class="markdownIt-Anchor" href="#lectures"></a> Lectures</h2>
+<ul>
+<li>For MIPS, when try to access TLB, there is a trap</li>
+<li>For x86, when try to access TLB, it is handled by hardware, if hit, then return without trap. If miss, a page fault(trap) is issued.
+<ul>
+<li>When TLB hit, the performance is the same.</li>
+</ul>
+</li>
+</ul>
+<h2 id="reference-3"><a class="markdownIt-Anchor" href="#reference-3"></a> Reference</h2>
+<h1 id="xen-and-the-art-of-virtualization"><a class="markdownIt-Anchor" href="#xen-and-the-art-of-virtualization"></a> Xen and the Art of Virtualization</h1>
+<h2 id="reference-4"><a class="markdownIt-Anchor" href="#reference-4"></a> Reference</h2>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="Kexiang Wang Alipay">
+        <p>Alipay</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Kexiang Wang
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://www.kexiang.me/2021/11/22/1759-NOV-18/" title="1759 &#39;Virtualization&#39; NOV-18">https://www.kexiang.me/2021/11/22/1759-NOV-18/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://twitter.com/KexiangW">
+            <span class="icon">
+              <i class="fab fa-twitter"></i>
+            </span>
+
+            <span class="label">Twitter</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://www.linkedin.com/in/kexiang-wang-73b6171a0/">
+            <span class="icon">
+              <i class="fab fa-linkedin-in"></i>
+            </span>
+
+            <span class="label">Linkedin</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://www.zhihu.com/people/wang-ke-xiang-52">
+            <span class="icon">
+              <i class="fab fa-zhihu"></i>
+            </span>
+
+            <span class="label">Zhihu</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Systems/" rel="tag"># Systems</a>
+              <a href="/tags/Paper-Reading/" rel="tag"># Paper Reading</a>
+              <a href="/tags/Virtualization/" rel="tag"># Virtualization</a>
+              <a href="/tags/OS/" rel="tag"># OS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/11/08/seda-an-architecture-for-well-conditioned-scalable-internet-services/" rel="prev" title="SEDA: An Architecture for Well-Conditioned, Scalable Internet Services">
+      <i class="fa fa-chevron-left"></i> SEDA: An Architecture for Well-Conditioned, Scalable Internet Services
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/11/30/clp-efficient-and-scalable-search-on-compressed-text-logs/" rel="next" title="CLP: Efficient and Scalable Search on Compressed Text Logs">
+      CLP: Efficient and Scalable Search on Compressed Text Logs <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#disco-running-commodity-operating-systems-on-scalable-multiprocessors"><span class="nav-number">1.</span> <span class="nav-text"> Disco: Running Commodity Operating Systems on Scalable Multiprocessors</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction"><span class="nav-number">1.1.</span> <span class="nav-text"> Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#core-ideas"><span class="nav-number">1.2.</span> <span class="nav-text"> Core Ideas</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#a-return-to-virtual-machine-monitors"><span class="nav-number">1.2.1.</span> <span class="nav-text"> A Return to Virtual Machine Monitors</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#challenges-facing-virtual-machines"><span class="nav-number">1.2.2.</span> <span class="nav-text"> Challenges Facing Virtual Machines</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#overheads"><span class="nav-number">1.2.2.1.</span> <span class="nav-text"> Overheads</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#resource-management"><span class="nav-number">1.2.2.2.</span> <span class="nav-text"> Resource Management</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#communication-and-sharing"><span class="nav-number">1.2.2.3.</span> <span class="nav-text"> Communication and Sharing</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#disco-a-virtual-machine-monitor"><span class="nav-number">1.2.3.</span> <span class="nav-text"> Disco: A Virtual Machine Monitor</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#discos-interface"><span class="nav-number">1.2.3.1.</span> <span class="nav-text"> Disco&#39;s Interface</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#processors"><span class="nav-number">1.2.3.1.1.</span> <span class="nav-text"> Processors</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#physical-memory"><span class="nav-number">1.2.3.1.2.</span> <span class="nav-text"> Physical Memory</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#io-devices"><span class="nav-number">1.2.3.1.3.</span> <span class="nav-text"> I&#x2F;O Devices</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#implementation-of-disco"><span class="nav-number">1.2.3.2.</span> <span class="nav-text"> Implementation of Disco</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#virtual-cpus"><span class="nav-number">1.2.3.2.1.</span> <span class="nav-text"> Virtual CPUs</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#virtual-physical-memory"><span class="nav-number">1.2.3.2.2.</span> <span class="nav-text"> Virtual Physical Memory</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#numa-memory-management"><span class="nav-number">1.2.3.2.3.</span> <span class="nav-text"> NUMA Memory Management</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#virtual-io-devices"><span class="nav-number">1.2.3.2.4.</span> <span class="nav-text"> Virtual I&#x2F;O Devices</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#copy-on-write-disks"><span class="nav-number">1.2.3.2.5.</span> <span class="nav-text"> Copy-on-write Disks</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#virtual-network-interface"><span class="nav-number">1.2.3.2.6.</span> <span class="nav-text"> Virtual Network Interface</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#running-commodity-operating-systems"><span class="nav-number">1.2.3.3.</span> <span class="nav-text"> Running Commodity Operating Systems</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#necessary-changes-for-mips-architecture"><span class="nav-number">1.2.3.3.1.</span> <span class="nav-text"> Necessary Changes for MIPS Architecture</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#device-drivers"><span class="nav-number">1.2.3.3.2.</span> <span class="nav-text"> Device Drivers</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#changes-to-the-hal"><span class="nav-number">1.2.3.3.3.</span> <span class="nav-text"> Changes to the HAL</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#other-changes-to-irix"><span class="nav-number">1.2.3.3.4.</span> <span class="nav-text"> Other Changes to IRIX</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#splashos-a-specialized-operating-system"><span class="nav-number">1.2.3.4.</span> <span class="nav-text"> SPLASHOS: A Specialized Operating System</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reference"><span class="nav-number">1.3.</span> <span class="nav-text"> Reference</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#memory-resource-management-in-vmware-esx-server"><span class="nav-number">2.</span> <span class="nav-text"> Memory Resource Management in VMware ESX Server</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction-2"><span class="nav-number">2.1.</span> <span class="nav-text"> Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#core-ideas-2"><span class="nav-number">2.2.</span> <span class="nav-text"> Core Ideas</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#memory-virtualization"><span class="nav-number">2.2.1.</span> <span class="nav-text"> Memory Virtualization</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#reclamation-mechanisms"><span class="nav-number">2.2.2.</span> <span class="nav-text"> Reclamation Mechanisms</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#page-replacement-issues"><span class="nav-number">2.2.2.1.</span> <span class="nav-text"> Page Replacement Issues</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ballooning"><span class="nav-number">2.2.2.2.</span> <span class="nav-text"> Ballooning</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#demand-paging"><span class="nav-number">2.2.2.3.</span> <span class="nav-text"> Demand Paging</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sharing-memory"><span class="nav-number">2.2.3.</span> <span class="nav-text"> Sharing Memory</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#transparent-page-sharing"><span class="nav-number">2.2.3.1.</span> <span class="nav-text"> Transparent Page Sharing</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#content-based-page-sharing"><span class="nav-number">2.2.3.2.</span> <span class="nav-text"> Content-Based Page Sharing</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#implementation"><span class="nav-number">2.2.3.3.</span> <span class="nav-text"> Implementation</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shares-vs-working-sets"><span class="nav-number">2.2.4.</span> <span class="nav-text"> Shares vs. Working Sets</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#share-based-allocation"><span class="nav-number">2.2.4.1.</span> <span class="nav-text"> Share-Based Allocation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#reclaiming-idle-memory"><span class="nav-number">2.2.4.2.</span> <span class="nav-text"> Reclaiming Idle Memory</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#measuring-idle-memory"><span class="nav-number">2.2.4.3.</span> <span class="nav-text"> Measuring Idle Memory</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#allocation-policies"><span class="nav-number">2.2.5.</span> <span class="nav-text"> Allocation Policies</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#parameters"><span class="nav-number">2.2.5.1.</span> <span class="nav-text"> Parameters</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#admission-control"><span class="nav-number">2.2.5.2.</span> <span class="nav-text"> Admission Control</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dynamic-reallocation"><span class="nav-number">2.2.5.3.</span> <span class="nav-text"> Dynamic Reallocation</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#questions"><span class="nav-number">2.3.</span> <span class="nav-text"> Questions</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#advantages"><span class="nav-number">2.4.</span> <span class="nav-text"> Advantages</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#disadvantages"><span class="nav-number">2.5.</span> <span class="nav-text"> Disadvantages</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reference-2"><span class="nav-number">2.6.</span> <span class="nav-text"> Reference</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#a-comparison-of-software-and-hardware-techniques-for-x86-virtualization"><span class="nav-number">3.</span> <span class="nav-text"> A Comparison of Software and Hardware Techniques for x86 Virtualization</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction-3"><span class="nav-number">3.1.</span> <span class="nav-text"> Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#core-ideas-3"><span class="nav-number">3.2.</span> <span class="nav-text"> Core Ideas</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#classical-virtualization"><span class="nav-number">3.2.1.</span> <span class="nav-text"> Classical virtualization</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#de-privileging"><span class="nav-number">3.2.1.1.</span> <span class="nav-text"> De-privileging</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#primary-and-shadow-structures"><span class="nav-number">3.2.1.2.</span> <span class="nav-text"> Primary and shadow structures</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#memory-traces"><span class="nav-number">3.2.1.3.</span> <span class="nav-text"> Memory traces</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#tracing-example-x86-page-tables"><span class="nav-number">3.2.1.4.</span> <span class="nav-text"> Tracing example: x86 page tables</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#refinements-to-classical-virtualization"><span class="nav-number">3.2.1.5.</span> <span class="nav-text"> Refinements to classical virtualization</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#software-virtualization"><span class="nav-number">3.2.2.</span> <span class="nav-text"> Software virtualization</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#x86-obstacles-to-virtualization"><span class="nav-number">3.2.2.1.</span> <span class="nav-text"> x86 obstacles to virtualization</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#simple-binary-translation"><span class="nav-number">3.2.2.2.</span> <span class="nav-text"> Simple binary translation</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hardware-virtualization"><span class="nav-number">3.2.3.</span> <span class="nav-text"> Hardware virtualization</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#x86-architecture-extensions"><span class="nav-number">3.2.3.1.</span> <span class="nav-text"> x86 architecture extensions</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#hardware-vmm-implementation"><span class="nav-number">3.2.3.2.</span> <span class="nav-text"> Hardware VMM implementation</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#qualitative-comparison"><span class="nav-number">3.2.4.</span> <span class="nav-text"> Qualitative comparison</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lectures"><span class="nav-number">3.3.</span> <span class="nav-text"> Lectures</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reference-3"><span class="nav-number">3.4.</span> <span class="nav-text"> Reference</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#xen-and-the-art-of-virtualization"><span class="nav-number">4.</span> <span class="nav-text"> Xen and the Art of Virtualization</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#reference-4"><span class="nav-number">4.1.</span> <span class="nav-text"> Reference</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Kexiang Wang"
+      src="/images/avatar-time.jpg">
+  <p class="site-author-name" itemprop="name">Kexiang Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/KeXiangWang" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;KeXiangWang" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.linkedin.com/in/kexiang-wang-73b6171a0/" title="Linkedin → https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;kexiang-wang-73b6171a0&#x2F;" rel="noopener" target="_blank"><i class="fab fa-linkedin-in fa-fw"></i>Linkedin</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/wang-ke-xiang-52" title="Zhihu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;wang-ke-xiang-52" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>Zhihu</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/KexiangW" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;KexiangW" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ke.wang@hotmail.com" title="E-Mail → mailto:ke.wang@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Kexiang Wang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">127k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">1:55</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('/js/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : true,
+      appId      : '5F4DdksFXCxgcPFJfYq2raiB-gzGzoHsz',
+      appKey     : '36G9n5NWIiCjzVVLQFf5B0QF',
+      placeholder: "Any comments are welcomed! Please leave your E-Mail if you want to be contacted!",
+      avatar     : 'retro',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'en' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

@@ -47,10 +47,11 @@
 <meta property="og:image" content="https://www.kexiang.me/images/deeper-bagu/linux2.2-page-cache.png">
 <meta property="og:image" content="https://www.kexiang.me/images/deeper-bagu/linux2.4-page-cache.png">
 <meta property="article:published_time" content="2021-10-12T01:16:06.000Z">
-<meta property="article:modified_time" content="2021-11-18T03:14:30.914Z">
+<meta property="article:modified_time" content="2021-12-05T19:37:17.533Z">
 <meta property="article:author" content="Kexiang Wang">
 <meta property="article:tag" content="八股">
 <meta property="article:tag" content="OS">
+<meta property="article:tag" content="Web Application">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://www.kexiang.me/images/deeper-bagu/linux2.2-page-cache.png">
 
@@ -220,7 +221,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-11-17 22:14:30" itemprop="dateModified" datetime="2021-11-17T22:14:30-05:00">2021-11-17</time>
+                <time title="Modified: 2021-12-05 14:37:17" itemprop="dateModified" datetime="2021-12-05T14:37:17-05:00">2021-12-05</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -267,14 +268,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>4.6k</span>
+              <span>8.4k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>4 mins.</span>
+              <span>8 mins.</span>
             </span>
 
         </div>
@@ -432,6 +433,143 @@
 <h2 id="copy-on-write"><a class="markdownIt-Anchor" href="#copy-on-write"></a> Copy-on-Write</h2>
 <p>TBA</p>
 <h1 id="c相关"><a class="markdownIt-Anchor" href="#c相关"></a> C++相关</h1>
+<h1 id="后端相关"><a class="markdownIt-Anchor" href="#后端相关"></a> 后端相关</h1>
+<h2 id="数据同步相关"><a class="markdownIt-Anchor" href="#数据同步相关"></a> 数据同步相关</h2>
+<blockquote>
+<h3 id="redis与mysql双写一致性如何保证"><a class="markdownIt-Anchor" href="#redis与mysql双写一致性如何保证"></a> Redis与MySQL双写一致性如何保证</h3>
+</blockquote>
+<p>前言：这个题虽然也是个八股，但是多少有点系统设计的意思了。</p>
+<p>首先这里指的是<strong>数据一致性</strong>（也见过叫读写一致性的），不是数据库的事务一致性。数据一致性整体有两种（具体参考后文）：</p>
+<ul>
+<li>强一致性</li>
+<li>弱一致性
+<ul>
+<li>需要专门提一下最终一致性</li>
+</ul>
+</li>
+</ul>
+<p><strong>三个经典的缓存模式</strong>：</p>
+<ul>
+<li>Cache-Aside Pattern
+<ul>
+<li>读
+<ul>
+<li>读的时候，先读缓存，缓存命中的话，直接返回数据</li>
+<li>缓存没有命中的话，就去读数据库，从数据库取出数据，放入缓存后，同时返回响应。</li>
+</ul>
+</li>
+<li>写
+<ul>
+<li>更新的时候，先更新数据库，然后再删除缓存。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Read-Through/Write through
+<ul>
+<li>读
+<ul>
+<li>从缓存读取数据，读到直接返回</li>
+<li>如果读取不到的话，从数据库加载，写入缓存后，再返回响应。</li>
+</ul>
+</li>
+<li>写
+<ul>
+<li>先看在缓存是否存在，存在则先更新缓存然后再更新数据库最后返回；不存在则有两对应策略：一种是先将数据写入缓存，然后由缓存组件将数据同步更新到数据库；另一种策略是不写缓存直接将数据写入数据库。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Write behind（Write-Back）
+<ul>
+<li>读同Read-Through/Write through</li>
+<li>写与Read-Through/Write through也类似，在对数据进行数据持久化存储回写时一般采用异步回写，也可以间隔一定时间后批量回写。</li>
+<li>适用于这一策略适用于多写的情况。但是先写数据库再更新缓存，可能带来数据的不一致，读取的延时。</li>
+</ul>
+</li>
+</ul>
+<p><strong>强一致</strong></p>
+<p>上述的简单三种策略几乎都无法保证较强的一致性，甚至无法保证最终一致性。如果需要强一致，那最好的办法还是两阶段协议保证更新，但是如果这样还不如让使用其他一致性策略，让强一致需求的请求直接操作MySQL，弱一致的读Redis。</p>
+<p><strong>弱一致</strong></p>
+<p>保证<strong>最终一致性</strong>的终极解决办法是使用TTL，让Redis上的数据过期后重新从MySQL上拉取。</p>
+<p><strong>其他更弱的一致性</strong>可以使用一些更宽松的策略，比如之前提到的三种缓存模式。</p>
+<p>上面是从策略的角度纵向分析，从读写策略的角度横向分析的话，<strong>读</strong>比较简单，命中直接读，未命中要么读数据库返回并Dirty Cache，要么读完先更新Cache再返回。两种策略区别不大。</p>
+<p><strong>写的策略相对复杂一些</strong>，大概有四种：</p>
+<ol>
+<li>先删除缓存，再更新数据库</li>
+<li>先更新数据库，再删除缓存</li>
+<li>先更新缓存，再更新数据库</li>
+<li>先更新数据库，再更新缓存</li>
+</ol>
+<p><strong>3和4</strong>在多线程情况下，由于两层存储写入步调不一致，都非常容易出现数据不一致的情况，比如出现脏数据等。主要是Read-Through/Write through和Write behind（Write-Back）两种场景使用。一般在以读为主或者需要较高一致性的场景用的不多。</p>
+<p><strong>对于1</strong>（先删除缓存，再更新数据库）：</p>
+<p>1问题很明显，读操作是先读数据库（假如发现Redis Miss），再更新缓存。写操作确实先改变缓存，再更新数据库。读数据库还比写数据库慢。很有可能出现下面的不一致场景：</p>
+<ul>
+<li>请求A进行写操作，删除缓存</li>
+<li>请求B查询发现缓存不存在</li>
+<li>请求B去数据库查询得到旧值</li>
+<li>请求B将旧值写入缓存</li>
+<li>请求A将新值写入数据库</li>
+</ul>
+<p>如果没有TTL或者新的写操作，B写入缓存的数据会一直成为脏数据。如果MySQL上是读写分离架构（主上写，从上读，非强一致），主上的写和从上的读同样会有类似的问题。</p>
+<p>一个简单的解决办法是，写请求，在经过一段时间之后进行二次删除（延时双删策略）。代码来说：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">write</span><span class="params">(String key,Object data)</span></span>&#123;</span><br><span class="line">        redis.delKey(key);</span><br><span class="line">        db.updateData(data);</span><br><span class="line">        Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">        redis.delKey(key);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>sleep的时间需要根据业务来决定。虽然不能根治上述问题，但是可以很大程度缓解。Sleep代来的延时可以用异步的方法回避。最终带来的Overhead仅仅是多一次Redis Miss。</p>
+<p>不过如果第二次删除因为各种原因失败了，还是会出现不一致。相对来说，方案2中出现这种情况的概率会小很多，是更常见的解决方案。</p>
+<p><strong>对于2</strong>（先更新数据库，再删除缓存）：</p>
+<p>也就是之前提到的Cache-Aside pattern策略。Facebook的<a target="_blank" rel="noopener" href="https://www.usenix.org/system/files/conference/nsdi13/nsdi13-final170_update.pdf"><em>Scaling Memcache at Facebook</em></a>中提到，Facebook使用了同样的方法。由于此时读写（Redis Miss的时候）都是先操作MySQL再操作更新Redis。不会出现之前的情况。但是可能有另一种不一致（这一种不一致同样会发生在策略1）：</p>
+<ol>
+<li>缓存刚好失效</li>
+<li>请求A查询数据库，得到一个旧值</li>
+<li>请求B将新值写入数据库</li>
+<li>请求B删除缓存</li>
+<li>请求A将查到的旧值写入缓存</li>
+</ol>
+<p>这种情况同样会发生数据不一致。但是只有在读MySQL延迟特别高，高到允许写操作写完MySQL再写完Redis的时候才会发生。但是一般读操作延迟比写都低，所以实际发生可能性不大。使用之前提到的延时双删策略，可以进一步减少这种可能。</p>
+<p>关于延时双删策略，第二次删除失败，解决方案主要还是重试。可以选择直接让业务代码进行重试。也可以用异步的方式进行重试。或者订阅MySQL的BinLog来异步删除。</p>
+<p><strong>总结：综合下来如果不要求强一致（这种场景可能也很少需要强一致），在多读少写的场景下，使用Cache-Aside Pattern，结合延时双删和重试，是更好也是更常见的选择。</strong></p>
+<p>参考资料：</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/azure/architecture/patterns/cache-aside">https://docs.microsoft.com/en-us/azure/architecture/patterns/cache-aside</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.usenix.org/system/files/conference/nsdi13/nsdi13-final170_update.pdf">https://www.usenix.org/system/files/conference/nsdi13/nsdi13-final170_update.pdf</a></p>
+<p><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000040709794">https://segmentfault.com/a/1190000040709794</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.daimajiaoliu.com/daima/8c79f95dc1ab809">https://www.daimajiaoliu.com/daima/8c79f95dc1ab809</a></p>
+<h1 id="分布式相关"><a class="markdownIt-Anchor" href="#分布式相关"></a> 分布式相关</h1>
+<h2 id="一致性相关"><a class="markdownIt-Anchor" href="#一致性相关"></a> 一致性相关</h2>
+<blockquote>
+<h3 id="区别数据一致性和事务一致性"><a class="markdownIt-Anchor" href="#区别数据一致性和事务一致性"></a> 区别数据一致性和事务一致性？</h3>
+</blockquote>
+<p><strong>数据一致性</strong>，CAP里面的C。针对<strong>数据复制</strong>导致的多副本可能不同步，核心的判断标准是全局各个副本读写顺序的一致性（可以粗放地理解为读到和写到的内容的一致性）。</p>
+<p><strong>强一致性</strong>：<strong>读写顺序全局一致</strong>，比较经典的理解方式是在主副本的写完成后，从副本上立马可见最新的更新。具体来说强一致性包含两种</p>
+<ul>
+<li><strong>线性一致性</strong>（<strong>Linearizable Consistency</strong>），在强一致的条件下，加入了读写顺序必须和全局时钟一致（具体的表现，实际的读写顺序和client上读写请求发出的顺序匹配），目前因为做不到全局时钟，所以<strong>无法实现</strong>。</li>
+<li><strong>顺序一致性</strong>（<strong>Sequential Consistency</strong>），不需要和全局时钟一致，全局统一就可以了（client上先发出地读请求可能在后发出地写请求之后，在server上执行）。一般强一致就是这种。</li>
+</ul>
+<p><strong>弱一致性</strong>：不是强一致的其他一致性，<strong>读写顺序全局不一定一致</strong>。常见的主要是：</p>
+<ul>
+<li><strong>因果一致性</strong>（<strong>Causal Consistency</strong>），传说中的 ”<strong>Happened-Before</strong>“，可以参考Lamport的 <em><a target="_blank" rel="noopener" href="https://lamport.azurewebsites.net/pubs/time-clocks.pdf">Time, Clocks, and the Ordering of Events in a Distributed System</a></em>， 简单来说，因果一致性只保证有因果顺序的请求读写顺序一致。对于没有因果关系的，不保证。因果顺序是一种<strong>偏序关系</strong>，公式表达为：如果<em>o</em>1和<em>o</em>2满足因果顺序，记为<em>o</em>1→<em>o</em>2：
+<ul>
+<li><em>o</em>1和<em>o</em>2属于同一个进程，且<em>o</em>1在<em>o</em>2前面执行。</li>
+<li><em>o</em>1是个写操作，<em>o</em>2是个读操作，且<em>o</em>2读到的值是由<em>o</em>1写入的。</li>
+<li>存在一个操作<em>o’</em>，满足<em>o</em>1→<em>o’<em>→</em>o</em>2。</li>
+</ul>
+</li>
+<li><strong>最终一致性</strong>（<strong>Eventual Consistency</strong>），只保证所有副本的数据最终在某个时刻会保持一致。比因果一致性更弱，基本上就是所有的数据库都能保证。一些不严肃的场景不在意丢数据可能会连最终一致性都不保证。</li>
+<li>除了上面两种还有一些<strong>以客户端为中心的一致性（Client-centric Consistency）</strong>，用的不多，暂时不详细解释了，感兴趣可以参考后面的参考资料。
+<ul>
+<li><strong>单调读一致性（Monotonic-read Consistency）</strong></li>
+<li><strong>单调写一致性（Monotonic-write Consistency）</strong></li>
+<li><strong>读写一致性（Read-your-writes Consistency）</strong></li>
+<li><strong>写读一致性（Writes-follow-reads Consistency）</strong></li>
+</ul>
+</li>
+</ul>
+<hr />
+<p><strong>事务一致性</strong>，ACID里面的C，似乎很多人把这个C和CAP里面的C搞混。其实主要指的是数据库里面的各种约束（<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Integrity_constraints">constraints</a>, <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Cascading_rollback">cascades</a>, <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Database_trigger">triggers</a>, and any combination thereof），不会被任何情况打破（比如重启，crash，新的读写等）。永远Valid。</p>
+<p>参考资料：</p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/59119088">https://zhuanlan.zhihu.com/p/59119088</a></p>
+<p><a target="_blank" rel="noopener" href="https://lamport.azurewebsites.net/pubs/time-clocks.pdf">https://lamport.azurewebsites.net/pubs/time-clocks.pdf</a></p>
+<p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/ACID#Consistency_(Correctness)">https://en.wikipedia.org/wiki/ACID#Consistency_(Correctness)</a></p>
+<p><a target="_blank" rel="noopener" href="http://kaiyuan.me/2018/04/21/consistency-concept/">http://kaiyuan.me/2018/04/21/consistency-concept/</a></p>
 
     </div>
 
@@ -514,6 +652,7 @@
           <div class="post-tags">
               <a href="/tags/%E5%85%AB%E8%82%A1/" rel="tag"># 八股</a>
               <a href="/tags/OS/" rel="tag"># OS</a>
+              <a href="/tags/Web-Application/" rel="tag"># Web Application</a>
           </div>
 
         
@@ -588,7 +727,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%9B%B8%E5%85%B3"><span class="nav-number">1.</span> <span class="nav-text"> 线程相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8F%E7%A8%8B"><span class="nav-number">1.1.</span> <span class="nav-text"> 协程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E7%9B%B8%E5%85%B3"><span class="nav-number">2.</span> <span class="nav-text"> 内核相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E6%8A%A2%E5%8D%A0"><span class="nav-number">2.1.</span> <span class="nav-text"> 内核抢占</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%94%81%E7%9B%B8%E5%85%B3"><span class="nav-number">3.</span> <span class="nav-text"> 锁相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#volatile"><span class="nav-number">3.1.</span> <span class="nav-text"> Volatile</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#volatile%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">3.1.1.</span> <span class="nav-text"> Volatile的作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#volatile%E9%92%88%E5%AF%B9%E7%9A%84%E4%BC%98%E5%8C%96%E5%AF%BC%E8%87%B4%E7%9A%84%E9%97%AE%E9%A2%98%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8%E9%94%81%E4%B8%8D%E9%9C%80%E8%A6%81%E5%85%B3%E5%BF%83-%E6%AF%94%E5%A6%82%E4%B8%8D%E4%BC%9A%E5%87%BA%E7%8E%B0%E6%94%BE%E9%94%81%E4%B9%8B%E5%90%8E%E4%B8%B4%E7%95%8C%E5%8C%BA%E5%8F%98%E9%87%8F%E7%9A%84%E5%80%BC%E8%BF%98%E4%BF%9D%E7%95%99%E5%9C%A8%E5%AF%84%E5%AD%98%E5%99%A8%E4%B8%AD%E6%B2%A1%E6%9C%89%E5%88%B7%E6%96%B0%E5%88%B0%E5%86%85%E5%AD%98%E5%90%97"><span class="nav-number">3.1.2.</span> <span class="nav-text"> volatile针对的优化导致的问题，为什么使用锁不需要关心。比如不会出现，放锁之后，临界区变量的值还保留在寄存器中没有刷新到内存吗？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#spin_lock"><span class="nav-number">3.2.</span> <span class="nav-text"> Spin_lock</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#spin_lock%E7%9A%84%E4%BD%9C%E7%94%A8%E5%92%8C%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F%E5%92%8Cmutex%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">3.2.1.</span> <span class="nav-text"> spin_lock的作用和实现方式？和mutex的区别？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#futex"><span class="nav-number">3.3.</span> <span class="nav-text"> Futex</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E7%9B%B8%E5%85%B3"><span class="nav-number">4.</span> <span class="nav-text"> 网络相关</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%9B%B8%E5%85%B3"><span class="nav-number">5.</span> <span class="nav-text"> 虚拟内存相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AE%B5%E9%A1%B5%E5%BC%8F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-number">5.1.</span> <span class="nav-text"> 段页式内存管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AE%B5%E9%A1%B5%E5%BC%8F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E7%9A%84%E6%AE%B5%E5%85%B7%E4%BD%93%E6%8C%87%E7%9A%84%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">5.1.1.</span> <span class="nav-text"> 段页式内存管理的段具体指的是什么</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#io%E7%9B%B8%E5%85%B3"><span class="nav-number">6.</span> <span class="nav-text"> IO相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#page-cache%E5%92%8Cbuffer-cache"><span class="nav-number">6.1.</span> <span class="nav-text"> Page Cache和Buffer Cache</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#page-cache%E5%92%8Cbuffer-cache%E7%9A%84%E5%8C%BA%E5%88%AB%E5%92%8C%E8%81%94%E7%B3%BB%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">6.1.1.</span> <span class="nav-text"> Page Cache和Buffer Cache的区别和联系是什么？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E7%BA%A7cache"><span class="nav-number">6.2.</span> <span class="nav-text"> 多级cache</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#cache%E4%B8%80%E4%B8%80%E8%88%AC%E6%9C%89%E5%87%A0%E7%BA%A7%E4%BB%96%E4%BB%AC%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">6.2.1.</span> <span class="nav-text"> Cache一一般有几级，他们之间的关系是什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#icache%E5%92%8Cdcache%E5%9C%A8%E5%93%AA%E9%87%8C"><span class="nav-number">6.2.2.</span> <span class="nav-text"> ICache和DCache在哪里？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cache%E4%B8%80%E8%87%B4%E6%80%A7"><span class="nav-number">6.3.</span> <span class="nav-text"> Cache一致性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFmesi%E5%8D%8F%E8%AE%AE"><span class="nav-number">6.3.1.</span> <span class="nav-text"> 什么是MESI协议</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#zore-copy"><span class="nav-number">6.4.</span> <span class="nav-text"> Zore Copy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#linux-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E9%9B%B6%E6%8B%B7%E8%B4%9D"><span class="nav-number">6.5.</span> <span class="nav-text"> Linux 如何实现零拷贝？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mmap"><span class="nav-number">6.6.</span> <span class="nav-text"> mmap</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#mmap%E7%9A%84%E7%94%A8%E9%80%94"><span class="nav-number">6.6.1.</span> <span class="nav-text"> mmap的用途</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#copy-on-write"><span class="nav-number">6.7.</span> <span class="nav-text"> Copy-on-Write</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#c%E7%9B%B8%E5%85%B3"><span class="nav-number">7.</span> <span class="nav-text"> C++相关</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%9B%B8%E5%85%B3"><span class="nav-number">1.</span> <span class="nav-text"> 线程相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8F%E7%A8%8B"><span class="nav-number">1.1.</span> <span class="nav-text"> 协程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E7%9B%B8%E5%85%B3"><span class="nav-number">2.</span> <span class="nav-text"> 内核相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E6%8A%A2%E5%8D%A0"><span class="nav-number">2.1.</span> <span class="nav-text"> 内核抢占</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%94%81%E7%9B%B8%E5%85%B3"><span class="nav-number">3.</span> <span class="nav-text"> 锁相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#volatile"><span class="nav-number">3.1.</span> <span class="nav-text"> Volatile</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#volatile%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">3.1.1.</span> <span class="nav-text"> Volatile的作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#volatile%E9%92%88%E5%AF%B9%E7%9A%84%E4%BC%98%E5%8C%96%E5%AF%BC%E8%87%B4%E7%9A%84%E9%97%AE%E9%A2%98%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8%E9%94%81%E4%B8%8D%E9%9C%80%E8%A6%81%E5%85%B3%E5%BF%83-%E6%AF%94%E5%A6%82%E4%B8%8D%E4%BC%9A%E5%87%BA%E7%8E%B0%E6%94%BE%E9%94%81%E4%B9%8B%E5%90%8E%E4%B8%B4%E7%95%8C%E5%8C%BA%E5%8F%98%E9%87%8F%E7%9A%84%E5%80%BC%E8%BF%98%E4%BF%9D%E7%95%99%E5%9C%A8%E5%AF%84%E5%AD%98%E5%99%A8%E4%B8%AD%E6%B2%A1%E6%9C%89%E5%88%B7%E6%96%B0%E5%88%B0%E5%86%85%E5%AD%98%E5%90%97"><span class="nav-number">3.1.2.</span> <span class="nav-text"> volatile针对的优化导致的问题，为什么使用锁不需要关心。比如不会出现，放锁之后，临界区变量的值还保留在寄存器中没有刷新到内存吗？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#spin_lock"><span class="nav-number">3.2.</span> <span class="nav-text"> Spin_lock</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#spin_lock%E7%9A%84%E4%BD%9C%E7%94%A8%E5%92%8C%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F%E5%92%8Cmutex%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">3.2.1.</span> <span class="nav-text"> spin_lock的作用和实现方式？和mutex的区别？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#futex"><span class="nav-number">3.3.</span> <span class="nav-text"> Futex</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E7%9B%B8%E5%85%B3"><span class="nav-number">4.</span> <span class="nav-text"> 网络相关</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%9B%B8%E5%85%B3"><span class="nav-number">5.</span> <span class="nav-text"> 虚拟内存相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AE%B5%E9%A1%B5%E5%BC%8F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-number">5.1.</span> <span class="nav-text"> 段页式内存管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AE%B5%E9%A1%B5%E5%BC%8F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E7%9A%84%E6%AE%B5%E5%85%B7%E4%BD%93%E6%8C%87%E7%9A%84%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">5.1.1.</span> <span class="nav-text"> 段页式内存管理的段具体指的是什么</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#io%E7%9B%B8%E5%85%B3"><span class="nav-number">6.</span> <span class="nav-text"> IO相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#page-cache%E5%92%8Cbuffer-cache"><span class="nav-number">6.1.</span> <span class="nav-text"> Page Cache和Buffer Cache</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#page-cache%E5%92%8Cbuffer-cache%E7%9A%84%E5%8C%BA%E5%88%AB%E5%92%8C%E8%81%94%E7%B3%BB%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">6.1.1.</span> <span class="nav-text"> Page Cache和Buffer Cache的区别和联系是什么？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E7%BA%A7cache"><span class="nav-number">6.2.</span> <span class="nav-text"> 多级cache</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#cache%E4%B8%80%E4%B8%80%E8%88%AC%E6%9C%89%E5%87%A0%E7%BA%A7%E4%BB%96%E4%BB%AC%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">6.2.1.</span> <span class="nav-text"> Cache一一般有几级，他们之间的关系是什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#icache%E5%92%8Cdcache%E5%9C%A8%E5%93%AA%E9%87%8C"><span class="nav-number">6.2.2.</span> <span class="nav-text"> ICache和DCache在哪里？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cache%E4%B8%80%E8%87%B4%E6%80%A7"><span class="nav-number">6.3.</span> <span class="nav-text"> Cache一致性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFmesi%E5%8D%8F%E8%AE%AE"><span class="nav-number">6.3.1.</span> <span class="nav-text"> 什么是MESI协议</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#zore-copy"><span class="nav-number">6.4.</span> <span class="nav-text"> Zore Copy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#linux-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E9%9B%B6%E6%8B%B7%E8%B4%9D"><span class="nav-number">6.5.</span> <span class="nav-text"> Linux 如何实现零拷贝？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mmap"><span class="nav-number">6.6.</span> <span class="nav-text"> mmap</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#mmap%E7%9A%84%E7%94%A8%E9%80%94"><span class="nav-number">6.6.1.</span> <span class="nav-text"> mmap的用途</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#copy-on-write"><span class="nav-number">6.7.</span> <span class="nav-text"> Copy-on-Write</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#c%E7%9B%B8%E5%85%B3"><span class="nav-number">7.</span> <span class="nav-text"> C++相关</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%8E%E7%AB%AF%E7%9B%B8%E5%85%B3"><span class="nav-number">8.</span> <span class="nav-text"> 后端相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5%E7%9B%B8%E5%85%B3"><span class="nav-number">8.1.</span> <span class="nav-text"> 数据同步相关</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#redis%E4%B8%8Emysql%E5%8F%8C%E5%86%99%E4%B8%80%E8%87%B4%E6%80%A7%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81"><span class="nav-number">8.1.1.</span> <span class="nav-text"> Redis与MySQL双写一致性如何保证</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E7%9B%B8%E5%85%B3"><span class="nav-number">9.</span> <span class="nav-text"> 分布式相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E8%87%B4%E6%80%A7%E7%9B%B8%E5%85%B3"><span class="nav-number">9.1.</span> <span class="nav-text"> 一致性相关</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8C%BA%E5%88%AB%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4%E6%80%A7%E5%92%8C%E4%BA%8B%E5%8A%A1%E4%B8%80%E8%87%B4%E6%80%A7"><span class="nav-number">9.1.1.</span> <span class="nav-text"> 区别数据一致性和事务一致性？</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -604,7 +743,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-count">17</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -617,7 +756,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-count">19</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -678,13 +817,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">127k</span>
+    <span title="Symbols count total">141k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">1:55</span>
+    <span title="Reading time total">2:08</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>

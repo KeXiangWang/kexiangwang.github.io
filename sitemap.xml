@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://www.kexiang.me/2021/10/11/deeper-bagu/</loc>
+    
+    <lastmod>2021-12-05</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.kexiang.me/2021/12/04/1759-DEC-2/</loc>
+    
+    <lastmod>2021-12-05</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://www.kexiang.me/2021/11/22/1759-NOV-18/</loc>
     
     <lastmod>2021-12-02</lastmod>
@@ -61,13 +75,6 @@
     <loc>https://www.kexiang.me/2021/11/30/clp-efficient-and-scalable-search-on-compressed-text-logs/</loc>
     
     <lastmod>2021-12-01</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://www.kexiang.me/2021/10/11/deeper-bagu/</loc>
-    
-    <lastmod>2021-11-18</lastmod>
     
   </url>
   
@@ -137,7 +144,7 @@
 
   <url>
     <loc>https://www.kexiang.me/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -145,126 +152,133 @@
   
   <url>
     <loc>https://www.kexiang.me/tags/Daily-Life/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/tags/Blog-Building/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/tags/Industry-Research/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/tags/Systems/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/tags/Database/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/tags/Streaming/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/tags/Paper-Reading/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/tags/Security/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/tags/Virtualization/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/tags/%E5%85%AB%E8%82%A1/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/tags/HPC/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/tags/OS/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/tags/Network/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/tags/File-Systems/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.kexiang.me/tags/Scalability/</loc>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/tags/Web-Application/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/tags/Big-Data/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/tags/Search-Engine/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/tags/Bugs/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
@@ -273,168 +287,168 @@
   
   <url>
     <loc>https://www.kexiang.me/categories/Life/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Market/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Market/Database/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Industry/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Industry/Database/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Academic/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Academic/Paper-Reading/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Academic/Paper-Reading/1759/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Academic/OS/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Academic/Security/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Academic/Virtualization/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Industry/%E5%85%AB%E8%82%A1/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Academic/Paper-Reading/1747/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Academic/HPC/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Industry/OS/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Academic/Database/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Academic/Database/Search-Engine/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Academic/Network/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Academic/Big-Data/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Academic/OS/Bugs/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Academic/OS/Memory/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Academic/OS/Kernel/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Academic/File-System/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://www.kexiang.me/categories/Academic/OS/Historical-Perspective/</loc>
-    <lastmod>2021-12-02</lastmod>
+    <lastmod>2021-12-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>

@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/bitbug_favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/bitbug_favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/bitbug_favicon-32x32.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.kexiang.me","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":"mac","style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言：这个是我自己老板参与的论文，发表在ASPLOS 20上，之后可能要做的东西和这个思路有一些关联，有必要读下。存算分离是解决scalability的大趋势，在网络带宽不再是瓶颈的时代，提供了存储和计算分别扩缩容的能力。文章聚焦到LSM上，把compaction作为算的部分，做了remote compaction的设计。   TL;DR版">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hailstorm: Disaggregated Compute and Storage for Distributed LSM-based Databases">
+<meta property="og:url" content="https://www.kexiang.me/2021/12/16/hailstorm-disaggregated-compute-and-storage-for-distributed-lsm-based-databases/index.html">
+<meta property="og:site_name" content="kexiang&#39;s blog">
+<meta property="og:description" content="前言：这个是我自己老板参与的论文，发表在ASPLOS 20上，之后可能要做的东西和这个思路有一些关联，有必要读下。存算分离是解决scalability的大趋势，在网络带宽不再是瓶颈的时代，提供了存储和计算分别扩缩容的能力。文章聚焦到LSM上，把compaction作为算的部分，做了remote compaction的设计。   TL;DR版">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://www.kexiang.me/images/hailstorm/rocksdb-throughput.png">
+<meta property="og:image" content="https://www.kexiang.me/images/hailstorm/rocksdb-latency.png">
+<meta property="og:image" content="https://www.kexiang.me/images/hailstorm/hailstorm-arch.png">
+<meta property="og:image" content="https://www.kexiang.me/images/hailstorm/exp-throughput.png">
+<meta property="og:image" content="https://www.kexiang.me/images/hailstorm/exp-throughput-timeline.png">
+<meta property="og:image" content="https://www.kexiang.me/images/hailstorm/exp-latency.png">
+<meta property="og:image" content="https://www.kexiang.me/images/hailstorm/mongo-reshard.png">
+<meta property="og:image" content="https://www.kexiang.me/images/hailstorm/exp-tidb-throughput-timeline.png">
+<meta property="og:image" content="https://www.kexiang.me/images/hailstorm/exp-hdfs.png">
+<meta property="article:published_time" content="2021-12-16T20:46:05.000Z">
+<meta property="article:modified_time" content="2021-12-16T20:46:05.516Z">
+<meta property="article:author" content="Kexiang Wang">
+<meta property="article:tag" content="Systems">
+<meta property="article:tag" content="Database">
+<meta property="article:tag" content="Paper Reading">
+<meta property="article:tag" content="LSM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.kexiang.me/images/hailstorm/rocksdb-throughput.png">
+
+<link rel="canonical" href="https://www.kexiang.me/2021/12/16/hailstorm-disaggregated-compute-and-storage-for-distributed-lsm-based-databases/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Hailstorm: Disaggregated Compute and Storage for Distributed LSM-based Databases | kexiang's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">kexiang's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+
+  <a href="https://github.com/KeXiangWang" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://www.kexiang.me/2021/12/16/hailstorm-disaggregated-compute-and-storage-for-distributed-lsm-based-databases/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar-time.jpg">
+      <meta itemprop="name" content="Kexiang Wang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="kexiang's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Hailstorm: Disaggregated Compute and Storage for Distributed LSM-based Databases
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-12-16 15:46:05" itemprop="dateCreated datePublished" datetime="2021-12-16T15:46:05-05:00">2021-12-16</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/" itemprop="url" rel="index"><span itemprop="name">Academic</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/Paper-Reading/" itemprop="url" rel="index"><span itemprop="name">Paper Reading</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/Database/" itemprop="url" rel="index"><span itemprop="name">Database</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/Big-Data/" itemprop="url" rel="index"><span itemprop="name">Big Data</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Academic/Database/LSM/" itemprop="url" rel="index"><span itemprop="name">LSM</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2021/12/16/hailstorm-disaggregated-compute-and-storage-for-distributed-lsm-based-databases/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/12/16/hailstorm-disaggregated-compute-and-storage-for-distributed-lsm-based-databases/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>4.3k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>前言：这个是我自己老板参与的论文，发表在ASPLOS 20上，之后可能要做的东西和这个思路有一些关联，有必要读下。存算分离是解决scalability的大趋势，在网络带宽不再是瓶颈的时代，提供了存储和计算分别扩缩容的能力。文章聚焦到LSM上，把compaction作为算的部分，做了remote compaction的设计。</p>
+</blockquote>
+<h1 id="tldr版"><a class="markdownIt-Anchor" href="#tldr版"></a> TL;DR版</h1>
+<p>本文通过加了一次disk pool设计的共享文件系统，实现了存储池化和存算分离。具体到LSM数据库上，通过存储池化来利用空闲磁盘I/O带宽，并基于池化的存储，按照存算分离思想将Compaction的过程放到CPU空闲的机器，以此提高Skew时load balance的效果，最终提高整体性能。</p>
+<h1 id="背景"><a class="markdownIt-Anchor" href="#背景"></a> 背景</h1>
+<p>使用RocksDB为首的LSM，在分布式场景下，一般会将数据shard到多个机器上，然后rocksdb落盘到本地（shared-nothing，MPP）。这种方式的问题是，</p>
+<ul>
+<li>如果skew，需要reshard（比如分裂？），带来数据从一台机器上到另一台上潜移的成本，也会对性能有一些影响。</li>
+<li>后台操作，比如Compaction和Flushing会有I/O和CPU的占用。导致整体性能不稳定（尤其是有range query的时候）（参见下图）。</li>
+</ul>
+<img src="/images/hailstorm/rocksdb-throughput.png" width="70%" height="70%">
+<img src="/images/hailstorm/rocksdb-latency.png" width="70%" height="70%">
+<p>Hailstorm本质上是个轻量文件系统，专门用来解决LSM数据库load balance和资源利用率的问题。使用Hailstorm，数据库可以实现存储和计算分别scale的功能。</p>
+<ul>
+<li>对于storage的scaling，Hailstorm将一个机架（rack）上的磁盘池化，所有DB的LSM engine都可以共享磁盘贷款。上**层的数据会分block（1MB，extra information：rocksdb的单个sstable文件大小一般是64MB）**均匀落到各个磁盘上。保证磁盘的充分利用。</li>
+<li>对于CPU的scaling，让其他机器做compaction，降低热点机器CPU占用。</li>
+</ul>
+<p>实验证明，在skewed的测试集上，tail latecny明显降低，吞吐也有所提高（尤其是scan类型的）。</p>
+<h1 id="设计"><a class="markdownIt-Anchor" href="#设计"></a> 设计</h1>
+<img src="/images/hailstorm/hailstorm-arch.png" width="80%" height="80%">
+<p>基于Hailstorm的数据库架构可以参看上图。设计时主要参考的原则是：</p>
+<ul>
+<li>存算分离</li>
+<li>存储池化</li>
+<li>通过加一层redistribution（之前说到底的1MB的block）来避免数据热点。</li>
+<li>计算外推，支持remote compaction</li>
+</ul>
+<h2 id="hailstorm文件系统特点"><a class="markdownIt-Anchor" href="#hailstorm文件系统特点"></a> Hailstorm文件系统特点</h2>
+<ul>
+<li>只支持了一部分必要的Posix FS接口。</li>
+<li>本地保存文件metadata，避免中心化文件metadata管理。</li>
+<li>因为LSM KV已经有journaling，Hailstorm没有继续journaling。</li>
+<li>既然主要任务是compaction，可以使用很激进的prefetch策略。</li>
+<li>LSM的WAL还是在本地机器上的。</li>
+</ul>
+<h2 id="hailstorm存储架构"><a class="markdownIt-Anchor" href="#hailstorm存储架构"></a> Hailstorm存储架构</h2>
+<ul>
+<li>池化的磁盘在同一个机架，延时比较短（几us），对比存算一体，产生的延时可控。</li>
+<li>在N台机器的集群种，块大小为B，数据offset I分布在机器 ceil((I / B) % N) 上。数据分布是静态的，没有考虑机器挂掉等情况。</li>
+<li>flatten目录树结构，每个文件有个uuid</li>
+<li>Hailstorm的client自己保存文件的uuid和文件到block的映射，以及其他文件元信息。</li>
+<li>用了伪随机和batch sampling（没看懂）来避免server上的热点/skew。</li>
+<li>虽然数据以block存取，为了优化读，读会以更小的力度来进行（避免每次读1MB)，一次降低延时。</li>
+<li>大部分请求异步，除了上层用fsync的时候。</li>
+<li>支持RAID防丢数据。</li>
+</ul>
+<h2 id="hailstorm计算外放"><a class="markdownIt-Anchor" href="#hailstorm计算外放"></a> Hailstorm计算外放</h2>
+<ul>
+<li>Hailstorm在每个client上加了个agent，用来统计资源（CPU and/or memory）利用状态。</li>
+<li><strong>当agent发现本地资源过载，会停止正在进行的compaction，联系其他client代理完成。并提供必要信息比如文件元信息等。目标client起一个新的LSM（这个不清楚具体怎么做的）来专门做compaction。完成之后返回compact之后新生成的文件的元信息给源client。</strong></li>
+<li>使用EMA（exponential moving average移动窗口平均）计算per-node参数 a（大小在0-1之间） 来评估资源利用状态，并于其他机器进行相关信息的同步。当发现一台机器 a &lt; threshold。就找到最新 a 的机器，将compaction任务发送过去。如果要禁止remote compaction就设置threshold为1。</li>
+</ul>
+<h1 id="实现细节"><a class="markdownIt-Anchor" href="#实现细节"></a> 实现细节</h1>
+<ul>
+<li>1,000 lines of C++ code（比我预想的少好多）实现Hailstorm，是同Fuse挂载进行服务（据说也可以用Parallel NFS，这个没了解）。</li>
+<li>2,000 lines of Scala code实现distribution（？），client-server通信，agents。</li>
+<li>使用Akka toolkit（也没有接触过，看上去是个类似于RPC的东西）来实现高性能并发和分布式。</li>
+<li>对RocksDB更改只有几十行。</li>
+<li>关于1MB，实验表明100 KB to 4 MB性能差不多，使用1MB是为了在多次FUSE延时和单次Remote访问延时之间的性能平衡。之前提到的为了读优化，读会有更小的粒度，实验采用的是64 KB。</li>
+</ul>
+<h1 id="实验结果"><a class="markdownIt-Anchor" href="#实验结果"></a> 实验结果</h1>
+<h2 id="hightlight一下hailstorm的性能mongodb"><a class="markdownIt-Anchor" href="#hightlight一下hailstorm的性能mongodb"></a> Hightlight一下Hailstorm的性能（MongoDB）</h2>
+<img src="/images/hailstorm/exp-throughput.png" width="70%" height="70%">
+<img src="/images/hailstorm/exp-throughput-timeline.png" width="70%" height="70%">
+<ul>
+<li>在各个测试集（不同测试集的请求类型和比例不同）里，Key均匀分布的请求模式下，Hailstorm吞吐基本和baseline（shared-nothing）打平，这意味着性能损耗不大（主要是网络和FUSE上的损耗）。</li>
+<li>对于写密集请求(YCSB A、F、I)，在ZipFian分布下，Hailstorm的吞吐比baseline有明先提高，池化存储和remote compaction都是原因。</li>
+<li>对于读密集请求(YCSB B、C、D)，在ZipFian分布下，Hailstorm的吞吐比baseline有明先提高，主要是因为池化存储分摊了读的压力，相当于读带宽高。</li>
+<li>对于scan密集请求(YCSB E)，在ZipFian分布下，Hailstorm的吞吐比baseline有明先提高，这个就是remote compaction的功劳了。</li>
+<li>同时，在ZipFion分布下，Hailstorm的吞吐抖动很小，基本不变，但是baseline上可以看到清晰的上下波动。</li>
+</ul>
+<img src="/images/hailstorm/exp-latency.png" width="60%" height="60%">
+<ul>
+<li>在各个测试集中，对比baseline均匀分布延时基本没有提高（包括99.9%），ZipFian分布时延时和尾延明显降低。</li>
+<li>在数据规模量大了之后，即使是均匀分布，baseline同样会有吞吐的性能抖动，但是Hailstorm不会，因为compaction得到了和合理的分布。</li>
+</ul>
+<h2 id="关于resharding"><a class="markdownIt-Anchor" href="#关于resharding"></a> 关于resharding</h2>
+<img src="/images/hailstorm/mongo-reshard.png" width="70%" height="70%">
+<ul>
+<li>能看到明显reshard对mongodb有提升，尤其是skrew的时候。</li>
+<li>在Hailstorm实验中，开了reshard反而更慢，原因是reshard需要解决的热点问题由池化存储解决，再进行reshard只会带来额外的IO损耗。所以上面实验中，hailstorm版的mongodb都是关闭了resharding的。</li>
+</ul>
+<h2 id="tidb性能测试"><a class="markdownIt-Anchor" href="#tidb性能测试"></a> TiDB性能测试</h2>
+<img src="/images/hailstorm/exp-tidb-throughput-timeline.png" width="60%" height="60%">
+<p>吞吐提升也不错。</p>
+<h2 id="hailstorm和hdfs对比"><a class="markdownIt-Anchor" href="#hailstorm和hdfs对比"></a> Hailstorm和HDFS对比</h2>
+<img src="/images/hailstorm/exp-hdfs.png" width="60%" height="60%">
+<p>图中 i: 8 表示 i 个机器在服务请求，8 - i 个机器是idle的。</p>
+<p>作者自己做了个小benchmark，对比了rocksdb-on-HDFS（不进行任何备份）和rocksdb-on-hailstorm，明显吞吐更高。这解释了为啥不用常见开源系统，需要专门设计一个。</p>
+<p>HDFS慢的原因：</p>
+<ul>
+<li>去NameNode读元数据</li>
+<li>每次读写一个block</li>
+<li>写倾向于写本地磁盘（为了locality）</li>
+</ul>
+<p>有个有趣的点值得关注下：</p>
+<ul>
+<li>对于Read-intensive的请求，当严重skrew的时候，Hailstrom吞吐提升有限。调查发现是CPU成了瓶颈，大部分时间花在在内存里面二分查找。</li>
+</ul>
+<h2 id="可以用在b-tree上吗"><a class="markdownIt-Anchor" href="#可以用在b-tree上吗"></a> 可以用在B-Tree上吗</h2>
+<ul>
+<li>B-Tree没有Compaction，不过作者任务B-Tree也有garbage collection这样的background task，也可以用来balance CPU。</li>
+<li>作者试着不开computation offloading（不开remote compaction），在读场景优化有限，因为是CPU-bound。在写的场景和Scan的场景性能很好，因为池化存储分摊了I/O带宽。</li>
+</ul>
+<h1 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h1>
+<h2 id="进步意义"><a class="markdownIt-Anchor" href="#进步意义"></a> 进步意义</h2>
+<ul>
+<li>把Remote Compaction这件事情落到了纸上并做了实验验证。</li>
+<li>用一个阉割版posix文件系统，在rocksdb下面做了一层sharding，以两层sharding实现更好的load balance。还能基于此做compaction，挺巧妙的。阉割版也避免了实现的复杂性和复杂协议带来的性能损失。</li>
+<li>架构上看已经和cloud-native有一些异曲同工之妙了。不过没有把所有的能力都下推到底层，在上层保留了容灾备份等能力。</li>
+<li>做了比较完善的实验和各种角度的分析，各种替代选择几乎都提到了。</li>
+</ul>
+<h2 id="局限"><a class="markdownIt-Anchor" href="#局限"></a> 局限</h2>
+<ul>
+<li>所谓的解决skew的方法，其实和论文里面提到的Two-level sharding本质上差不多，没有太多新意。更有趣的可能还是Remote Compaction。</li>
+<li>Hailstorm作为一个文件系统有点简陋，没有考虑很多分布式文件系统该有的能力，比如语义完整性，备份（Hailstorm架构通过上层数据库层直接对shard备份），高可用等能力。甚至client或者server挂了数据就丢了，不过支持了RAID（氪金手段。。。测试性能的时候估计没开）可以缓解。如果一个server出问题，是全局所有sstable都丢失数据，这种不安全可能会是企业的选择。</li>
+<li>文中的系统是建立在单个rack上的。如果为了实现高可用（比如两地三中心），需要每个rack做一个group，内部做balance，但是这个group也会发生skrew的情况。如果跨rack，网络延时可以忽略这个前提又不成了（也许单个机房内做group，group内的延时也可以接受？需要对比两种延时验证下）。<strong>Locality的问题可能其实没有解决，只是一定程度上掩盖住了。</strong></li>
+<li>TiDB的吞吐看上去并没有很稳定，似乎没有进一步分析。</li>
+<li>作者如果试试在对比rocksdb-on-HDFS和ocksdb-on-HDFS-with-remote-compaction就更好了。可以进一步证明computation offloading的能力。估计会有人会想了解一下这种方案的性能。</li>
+</ul>
+<h1 id="相关资料"><a class="markdownIt-Anchor" href="#相关资料"></a> 相关资料</h1>
+<p><a target="_blank" rel="noopener" href="https://youtu.be/7-X9cXdNA1g">https://youtu.be/7-X9cXdNA1g</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/381280016">https://zhuanlan.zhihu.com/p/381280016</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="Kexiang Wang Alipay">
+        <p>Alipay</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Kexiang Wang
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://www.kexiang.me/2021/12/16/hailstorm-disaggregated-compute-and-storage-for-distributed-lsm-based-databases/" title="Hailstorm: Disaggregated Compute and Storage for Distributed LSM-based Databases">https://www.kexiang.me/2021/12/16/hailstorm-disaggregated-compute-and-storage-for-distributed-lsm-based-databases/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://twitter.com/KexiangW">
+            <span class="icon">
+              <i class="fab fa-twitter"></i>
+            </span>
+
+            <span class="label">Twitter</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://www.linkedin.com/in/kexiang-wang-73b6171a0/">
+            <span class="icon">
+              <i class="fab fa-linkedin-in"></i>
+            </span>
+
+            <span class="label">Linkedin</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://www.zhihu.com/people/wang-ke-xiang-52">
+            <span class="icon">
+              <i class="fab fa-zhihu"></i>
+            </span>
+
+            <span class="label">Zhihu</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Systems/" rel="tag"># Systems</a>
+              <a href="/tags/Database/" rel="tag"># Database</a>
+              <a href="/tags/Paper-Reading/" rel="tag"># Paper Reading</a>
+              <a href="/tags/LSM/" rel="tag"># LSM</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/12/04/1759-DEC-2/" rel="prev" title="1759 'Big Data' DEC-2">
+      <i class="fa fa-chevron-left"></i> 1759 'Big Data' DEC-2
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/12/16/elastic-and-stable-compaction-for-lsm-tree-a-faas-based-approach-on-terarkdb/" rel="next" title="Elastic and Stable Compaction for LSM-tree: A FaaS-Based Approach on TerarkDB">
+      Elastic and Stable Compaction for LSM-tree: A FaaS-Based Approach on TerarkDB <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#tldr%E7%89%88"><span class="nav-number">1.</span> <span class="nav-text"> TL;DR版</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">2.</span> <span class="nav-text"> 背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.</span> <span class="nav-text"> 设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#hailstorm%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%89%B9%E7%82%B9"><span class="nav-number">3.1.</span> <span class="nav-text"> Hailstorm文件系统特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hailstorm%E5%AD%98%E5%82%A8%E6%9E%B6%E6%9E%84"><span class="nav-number">3.2.</span> <span class="nav-text"> Hailstorm存储架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hailstorm%E8%AE%A1%E7%AE%97%E5%A4%96%E6%94%BE"><span class="nav-number">3.3.</span> <span class="nav-text"> Hailstorm计算外放</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82"><span class="nav-number">4.</span> <span class="nav-text"> 实现细节</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E7%BB%93%E6%9E%9C"><span class="nav-number">5.</span> <span class="nav-text"> 实验结果</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#hightlight%E4%B8%80%E4%B8%8Bhailstorm%E7%9A%84%E6%80%A7%E8%83%BDmongodb"><span class="nav-number">5.1.</span> <span class="nav-text"> Hightlight一下Hailstorm的性能（MongoDB）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B3%E4%BA%8Eresharding"><span class="nav-number">5.2.</span> <span class="nav-text"> 关于resharding</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#tidb%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95"><span class="nav-number">5.3.</span> <span class="nav-text"> TiDB性能测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hailstorm%E5%92%8Chdfs%E5%AF%B9%E6%AF%94"><span class="nav-number">5.4.</span> <span class="nav-text"> Hailstorm和HDFS对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%AF%E4%BB%A5%E7%94%A8%E5%9C%A8b-tree%E4%B8%8A%E5%90%97"><span class="nav-number">5.5.</span> <span class="nav-text"> 可以用在B-Tree上吗</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text"> 总结</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E6%AD%A5%E6%84%8F%E4%B9%89"><span class="nav-number">6.1.</span> <span class="nav-text"> 进步意义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B1%80%E9%99%90"><span class="nav-number">6.2.</span> <span class="nav-text"> 局限</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E8%B5%84%E6%96%99"><span class="nav-number">7.</span> <span class="nav-text"> 相关资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Kexiang Wang"
+      src="/images/avatar-time.jpg">
+  <p class="site-author-name" itemprop="name">Kexiang Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/KeXiangWang" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;KeXiangWang" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.linkedin.com/in/kexiang-wang-73b6171a0/" title="Linkedin → https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;kexiang-wang-73b6171a0&#x2F;" rel="noopener" target="_blank"><i class="fab fa-linkedin-in fa-fw"></i>Linkedin</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/wang-ke-xiang-52" title="Zhihu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;wang-ke-xiang-52" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>Zhihu</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/KexiangW" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;KexiangW" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ke.wang@hotmail.com" title="E-Mail → mailto:ke.wang@hotmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Kexiang Wang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">152k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">2:18</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('/js/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : true,
+      appId      : '5F4DdksFXCxgcPFJfYq2raiB-gzGzoHsz',
+      appKey     : '36G9n5NWIiCjzVVLQFf5B0QF',
+      placeholder: "Any comments are welcomed! Please leave your E-Mail if you want to be contacted!",
+      avatar     : 'retro',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'en' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

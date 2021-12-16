@@ -1,3 +1,6 @@
+https://www.kexiang.me/2021/12/16/notes-for-pingcap-opensource-and-commerce-1/
+https://www.kexiang.me/2021/12/16/elastic-and-stable-compaction-for-lsm-tree-a-faas-based-approach-on-terarkdb/
+https://www.kexiang.me/2021/12/16/hailstorm-disaggregated-compute-and-storage-for-distributed-lsm-based-databases/
 https://www.kexiang.me/2021/12/04/1759-DEC-2/
 https://www.kexiang.me/2021/11/30/1759-NOV-25/
 https://www.kexiang.me/2021/11/30/clp-efficient-and-scalable-search-on-compressed-text-logs/

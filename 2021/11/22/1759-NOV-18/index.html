@@ -45,7 +45,7 @@
 <meta property="og:description" content="This is a &#39;Paper Reading&#39; post for Course ECE1759. The topic is &#39;Virtualization&#39;. This paper list is here:  Edouard Bugnion, Scott Devine, and Mendel Rosenblum, Disco: Running Commodity Operating Sys">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-11-22T18:30:58.000Z">
-<meta property="article:modified_time" content="2021-12-02T17:23:35.976Z">
+<meta property="article:modified_time" content="2021-12-09T20:25:48.059Z">
 <meta property="article:author" content="Kexiang Wang">
 <meta property="article:tag" content="Systems">
 <meta property="article:tag" content="Paper Reading">
@@ -219,7 +219,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-12-02 12:23:35" itemprop="dateModified" datetime="2021-12-02T12:23:35-05:00">2021-12-02</time>
+                <time title="Modified: 2021-12-09 15:25:48" itemprop="dateModified" datetime="2021-12-09T15:25:48-05:00">2021-12-09</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -527,7 +527,7 @@
 <ul>
 <li>A virtual subnet is designed to allow virtual machines to communicate with each other, while avoiding replicated data whenever possible.</li>
 <li>The virtual subnet and networking interfaces of Disco also use copy-on-write mappings to reduce copying and to allow for memory sharing.</li>
-<li>message transfer between VMs -&gt; the DMA unit to map the page read-only into both the sending and receiving virtual machine�s physical address spaces.</li>
+<li>message transfer between VMs -&gt; the DMA unit to map the page read-only into both the sending and receiving virtual machines physical address spaces.</li>
 <li>The file data of NFS can be shared among servers and clients.
 <ul>
 <li>global buffer cache:
@@ -546,7 +546,7 @@
 </ul>
 <h4 id="running-commodity-operating-systems"><a class="markdownIt-Anchor" href="#running-commodity-operating-systems"></a> Running Commodity Operating Systems</h4>
 <ul>
-<li>hardware abstraction level (HAL): a level allows the operating system to be effectively �ported� to run on new platforms.
+<li>hardware abstraction level (HAL): a level allows the operating system to be effectively ported to run on new platforms.
 <ul>
 <li>Typically the HAL of modern operating systems changes with each new version of a machine while the rest of the system can remain unchanged.</li>
 </ul>
@@ -563,7 +563,7 @@
 </ul>
 <h5 id="device-drivers"><a class="markdownIt-Anchor" href="#device-drivers"></a> Device Drivers</h5>
 <ul>
-<li>Disco designed drivers, like UART, SCSI disks, and ethernet drivers, to support Disco�s monitor call interface.</li>
+<li>Disco designed drivers, like UART, SCSI disks, and ethernet drivers, to support Discos monitor call interface.</li>
 </ul>
 <h5 id="changes-to-the-hal"><a class="markdownIt-Anchor" href="#changes-to-the-hal"></a> Changes to the HAL</h5>
 <ul>
@@ -638,7 +638,7 @@
 <h2 id="core-ideas-2"><a class="markdownIt-Anchor" href="#core-ideas-2"></a> Core Ideas</h2>
 <h3 id="memory-virtualization"><a class="markdownIt-Anchor" href="#memory-virtualization"></a> Memory Virtualization</h3>
 <ul>
-<li>Same as Disco, ESX Server maintains a pmap data structure for each VM to translate �physical� page numbers (PPNs) to machine page numbers (MPNs).</li>
+<li>Same as Disco, ESX Server maintains a pmap data structure for each VM to translate physical page numbers (PPNs) to machine page numbers (MPNs).</li>
 <li>ESX can remap PPN -&gt; MPN relations</li>
 <li>ESX can monitor or interpose on guest memory accesses</li>
 </ul>
@@ -656,7 +656,7 @@
 <li>need a reclaim mechanism</li>
 <li>earlier virtual machine systems?
 <ul>
-<li>Introduce another level of paging, moving some VM �physical� pages to a swap area on disk.</li>
+<li>Introduce another level of paging, moving some VM physical pages to a swap area on disk.</li>
 <li>Problem: <strong>hard to decide which pages to reclaim</strong></li>
 </ul>
 </li>
@@ -831,7 +831,7 @@
 <li><strong>Software virtualization: binary translation.</strong></li>
 <li>Contribution of this paper:
 <ul>
-<li>a review of VMware Workstation�s software VMM, focusing on performance properties of the virtual instruction execution engine;</li>
+<li>a review of VMware Workstations software VMM, focusing on performance properties of the virtual instruction execution engine;</li>
 <li>a review of the emerging hardware support, identifying performance trade-offs;</li>
 <li>a quantitative performance comparison of a software and a hardware VMM.</li>
 </ul>
@@ -883,7 +883,7 @@
 <h4 id="tracing-example-x86-page-tables"><a class="markdownIt-Anchor" href="#tracing-example-x86-page-tables"></a> Tracing example: x86 page tables</h4>
 <ul>
 <li>To protect the host from guest memory accesses, VMMs typically construct shadow page tables in which to run the guest.</li>
-<li>VMware Workstation�s VMM manages its shadow page tables as a cache of the guest page tables.
+<li>VMware Workstations VMM manages its shadow page tables as a cache of the guest page tables.
 <ul>
 <li>As the guest accesses previously untouched regions of its virtual address space</li>
 <li>The VMM distinguishes <em>true page faults</em> from <em>hidden page faults</em>.</li>
@@ -913,7 +913,7 @@
 </li>
 <li>Other approach, add flexibility in the hardware/VMM interface:
 <ul>
-<li>VMM encodes much of the guest privileged state in a <strong>hardware-defined format</strong>, then executes the SIE instruction to �start interpretive execution.� Many guest operations which would trap in a de-privileged environment directly access shadow fields in interpretive execution. (Basically use new hardware and corresponding instructions to reduce traps)</li>
+<li>VMM encodes much of the guest privileged state in a <strong>hardware-defined format</strong>, then executes the SIE instruction to start interpretive execution. Many guest operations which would trap in a de-privileged environment directly access shadow fields in interpretive execution. (Basically use new hardware and corresponding instructions to reduce traps)</li>
 </ul>
 </li>
 <li>The first one revive as paravirtualization</li>
@@ -943,7 +943,7 @@
 <li>Adaptive</li>
 </ul>
 </li>
-<li>The translator does not attempt to �improve� the translated code. Assume if guest code is performance critical, it should have been optimized.</li>
+<li>The translator does not attempt to improve the translated code. Assume if guest code is performance critical, it should have been optimized.</li>
 </ul>
 <h3 id="hardware-virtualization"><a class="markdownIt-Anchor" href="#hardware-virtualization"></a> Hardware virtualization</h3>
 <ul>
@@ -967,7 +967,7 @@
 <li>When running a protected mode guest, the VMM fills in a VMCB with the current guest state and executes vmrun.</li>
 <li>On guest exits, the VMM reads the VMCB fields describing the conditions for the exit, and vectors to appropriate emulation code.</li>
 <li>Most of this emulation code is shared with the software VMM.</li>
-<li>Since current virtualization hardware does not include explicit support for MMU virtualization, the hardware VMM inherits the software VMM�s implementation of the shadowing technique.</li>
+<li>Since current virtualization hardware does not include explicit support for MMU virtualization, the hardware VMM inherits the software VMMs implementation of the shadowing technique.</li>
 <li>The VT and SVM extensions make classical virtualization possible on x86. The resulting performance depends primarily on the frequency of exits.</li>
 </ul>
 <h3 id="qualitative-comparison"><a class="markdownIt-Anchor" href="#qualitative-comparison"></a> Qualitative comparison</h3>
@@ -1173,20 +1173,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-count">20</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-count">26</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-count">22</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1247,13 +1247,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">141k</span>
+    <span title="Symbols count total">152k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">2:08</span>
+    <span title="Reading time total">2:18</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>

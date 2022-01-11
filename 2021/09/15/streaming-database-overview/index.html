@@ -66,7 +66,7 @@
 <meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/HStreamDB-arch.png">
 <meta property="og:image" content="https://www.kexiang.me/images/streaming-database-overview/compare-with-TSDB.svg">
 <meta property="article:published_time" content="2021-09-15T19:07:30.000Z">
-<meta property="article:modified_time" content="2021-12-15T01:14:19.950Z">
+<meta property="article:modified_time" content="2022-01-11T01:16:33.510Z">
 <meta property="article:author" content="Kexiang Wang">
 <meta property="article:tag" content="Industry Research">
 <meta property="article:tag" content="Systems">
@@ -242,7 +242,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-12-14 20:14:19" itemprop="dateModified" datetime="2021-12-14T20:14:19-05:00">2021-12-14</time>
+                <time title="Modified: 2022-01-10 20:16:33" itemprop="dateModified" datetime="2022-01-10T20:16:33-05:00">2022-01-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -707,10 +707,10 @@
 <h4 id="奇点无限singularitydata"><a class="markdownIt-Anchor" href="#奇点无限singularitydata"></a> 奇点无限SingularityData</h4>
 <p>奇点无限大约创立于21年初或20年底，</p>
 <p>21年初，获数百万美元种子轮投资。</p>
-<p>21年8月获云启资本的种子轮1000万美元投资。</p>
+<p>21年8月获云启资本的种子轮近千万美元投资。</p>
 <p>奇点无限的CEO吴英骏博士毕业于新国立，先后在IBM的数据库团队和AWS的RedShift团队工作。是Flink的早期贡献者。</p>
-<p>CTO张焕晨本科就读于UW-Madison，师从著名存储大拿Remzi Arpaci-Dusseau。博士毕业于CMU，师从数据库科学家Dave Andersen和AndyPavlo。目前在清华姚班担任助理讲师。2021年5月获数据库领域的大奖Jim Gray奖。</p>
-<p>奇点无限是近期市场上最热的基础架构创业公司之一，在种子轮已估值达到两亿美金，是几乎所有投资人眼中的香饽饽。目前他们的系统还在紧锣密鼓的开发，团队扩张也在进行中。不少基础架构领域的年轻人都以加入这家公司作为目标。</p>
+<p>联合创始人张焕晨本科就读于UW-Madison，师从著名存储大拿Remzi Arpaci-Dusseau。博士毕业于CMU，师从数据库科学家Dave Andersen和AndyPavlo。目前在清华姚班担任助理讲师。2021年5月获数据库领域的大奖Jim Gray Dissertation奖。</p>
+<p>奇点无限是近期市场上最热的基础架构创业公司之一，在种子轮已估值达到上亿美金，是许多投资人眼中的香饽饽。目前他们的系统还在紧锣密鼓的开发，团队扩张也在进行中。不少基础架构领域的年轻人都以加入这家公司作为目标。</p>
 <h3 id="国外"><a class="markdownIt-Anchor" href="#国外"></a> 国外</h3>
 <h4 id="confluent-ksqldb"><a class="markdownIt-Anchor" href="#confluent-ksqldb"></a> Confluent - ksqlDB</h4>
 <p>Confluent建立于2014年。</p>
@@ -762,10 +762,10 @@
 <p>时序数据库本质上是一种AP能力的特化优化，放弃了一部分比如Join操作的性能来获取其他操作上的性能。其在生产场景中的写入模式更类似于TP，读取模式类似AP。时序数据库针在基本没有消耗更多系统资源的条件下，对这种操作模式提供特定优化，形成一个类似窄列数据库的系统模型。涛思数据的TDengine甚至专门针对IoT这一单一场景做系统设计，依靠反木桶原理创造出了美好的性能指标。</p>
 <p>目前流数据库的设计基本是可以覆盖时序数据库中的需求的，但是从存储和系统优化的角度来说，大概率做不到TSDB这种极致优化。如果希望提供一站式服务，必定需要牺牲极致的性能。流数据库是在尽量保证计算能力的完备性条件下，使用资源换性能的方式给出了自己的性能提升。</p>
 <h2 id="流数据库olap的对比"><a class="markdownIt-Anchor" href="#流数据库olap的对比"></a> 流数据库&amp;OLAP的对比</h2>
-<p>流数据库能不能取代OLAP，用流式的能力完成批式运算，可能也是很多人会感兴趣的话题。目前来看似乎还存在一些GAP，一个是OLAP毕竟很多时候是在离线在batch运算，可以做很多单独的性能优化，但是streaming database未必可以做到同等的优化程度。再有就是批式计算还是有一些场景/Corner Case是流式处理无法覆盖的。短期内我们可能看不到流数据库能完全cover OLAP的局面，但是长期来看流数据库这一数据模型应该是有这个潜力的。</p>
+<p>流数据库能不能取代OLAP，用流式的能力完成批式运算，可能也是很多人会感兴趣的话题。目前来看似乎还存在一些GAP，一个是OLAP毕竟很多时候是在离线在batch运算，可以做很多单独的性能优化，但是streaming database未必可以做到同等的优化程度。再有就是批式计算还是有一些场景/Corner Case是流式处理无法覆盖或者很难处理的。短期内我们可能看不到流数据库能完全cover OLAP的局面，但是长期来看流数据库这一数据模型应该是有这个潜力的。</p>
 <h1 id="结论"><a class="markdownIt-Anchor" href="#结论"></a> 结论</h1>
 <p>流数据库作为一个新兴的数据模型，从功能性角度讲，具有较大的潜力，理论上可以以相对优雅的性能，处理几乎所有的请求和分析模式。从性能角度讲，目标是实现实时或近实时的请求处理。对应的，流数据库为自身引入了一定的系统复杂度和较高的额外资源开销。</p>
-<p>流数据库作为一个新兴的商业软件，在市场规模上，顺应流数据和时序性需求的发展，会有不错的潜力。在市场竞争中，还处于比较早期的时间点，参与竞争的企业较水。目前真正使用流数据库的企业不多，企业在寻找合适的用户上多做投入，甚至自己培养用户习惯。在不断扩展市场需求的同时，提高自身的多能性，实时性，易用性，是流数据库未来的出路。</p>
+<p>流数据库作为一个新兴的商业软件，在市场规模上，顺应流数据和时序性需求的发展，会有不错的潜力。在市场竞争中，还处于比较早期的时间点，参与竞争的企业较少。目前真正使用流数据库的企业不多，企业需要在寻找合适的用户上多做投入，甚至自己培养用户习惯。在不断扩展市场需求的同时，提高自身多能性，实时性，易用性，是流数据库未来的出路。</p>
 <hr class="footnotes-sep" />
 <section class="footnotes">
 <ol class="footnotes-list">
@@ -1085,8 +1085,8 @@
 
 <div class="copyright">
   
-  &copy; 
-  <span itemprop="copyrightYear">2021</span>
+  &copy; 2021 – 
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

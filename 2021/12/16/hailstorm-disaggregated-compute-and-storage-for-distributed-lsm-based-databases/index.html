@@ -54,7 +54,7 @@
 <meta property="og:image" content="https://www.kexiang.me/images/hailstorm/exp-tidb-throughput-timeline.png">
 <meta property="og:image" content="https://www.kexiang.me/images/hailstorm/exp-hdfs.png">
 <meta property="article:published_time" content="2021-12-16T20:46:05.000Z">
-<meta property="article:modified_time" content="2021-12-16T20:46:05.516Z">
+<meta property="article:modified_time" content="2021-12-24T23:57:42.939Z">
 <meta property="article:author" content="Kexiang Wang">
 <meta property="article:tag" content="Systems">
 <meta property="article:tag" content="Database">
@@ -224,6 +224,13 @@
 
               <time title="Created: 2021-12-16 15:46:05" itemprop="dateCreated datePublished" datetime="2021-12-16T15:46:05-05:00">2021-12-16</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-12-24 18:57:42" itemprop="dateModified" datetime="2021-12-24T18:57:42-05:00">2021-12-24</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -376,7 +383,7 @@
 <h2 id="关于resharding"><a class="markdownIt-Anchor" href="#关于resharding"></a> 关于resharding</h2>
 <img src="/images/hailstorm/mongo-reshard.png" width="70%" height="70%">
 <ul>
-<li>能看到明显reshard对mongodb有提升，尤其是skrew的时候。</li>
+<li>能看到明显reshard对mongodb有提升，尤其是skew的时候。</li>
 <li>在Hailstorm实验中，开了reshard反而更慢，原因是reshard需要解决的热点问题由池化存储解决，再进行reshard只会带来额外的IO损耗。所以上面实验中，hailstorm版的mongodb都是关闭了resharding的。</li>
 </ul>
 <h2 id="tidb性能测试"><a class="markdownIt-Anchor" href="#tidb性能测试"></a> TiDB性能测试</h2>
@@ -394,7 +401,7 @@
 </ul>
 <p>有个有趣的点值得关注下：</p>
 <ul>
-<li>对于Read-intensive的请求，当严重skrew的时候，Hailstrom吞吐提升有限。调查发现是CPU成了瓶颈，大部分时间花在在内存里面二分查找。</li>
+<li>对于Read-intensive的请求，当严重skew的时候，Hailstrom吞吐提升有限。调查发现是CPU成了瓶颈，大部分时间花在在内存里面二分查找。</li>
 </ul>
 <h2 id="可以用在b-tree上吗"><a class="markdownIt-Anchor" href="#可以用在b-tree上吗"></a> 可以用在B-Tree上吗</h2>
 <ul>
@@ -413,7 +420,7 @@
 <ul>
 <li>所谓的解决skew的方法，其实和论文里面提到的Two-level sharding本质上差不多，没有太多新意。更有趣的可能还是Remote Compaction。</li>
 <li>Hailstorm作为一个文件系统有点简陋，没有考虑很多分布式文件系统该有的能力，比如语义完整性，备份（Hailstorm架构通过上层数据库层直接对shard备份），高可用等能力。甚至client或者server挂了数据就丢了，不过支持了RAID（氪金手段。。。测试性能的时候估计没开）可以缓解。如果一个server出问题，是全局所有sstable都丢失数据，这种不安全可能会是企业的选择。</li>
-<li>文中的系统是建立在单个rack上的。如果为了实现高可用（比如两地三中心），需要每个rack做一个group，内部做balance，但是这个group也会发生skrew的情况。如果跨rack，网络延时可以忽略这个前提又不成了（也许单个机房内做group，group内的延时也可以接受？需要对比两种延时验证下）。<strong>Locality的问题可能其实没有解决，只是一定程度上掩盖住了。</strong></li>
+<li>文中的系统是建立在单个rack上的。如果为了实现高可用（比如两地三中心），需要每个rack做一个group，内部做balance，但是这个group也会发生skew的情况。如果跨rack，网络延时可以忽略这个前提又不成了（也许单个机房内做group，group内的延时也可以接受？需要对比两种延时验证下）。<strong>Locality的问题可能其实没有解决，只是一定程度上掩盖住了。</strong></li>
 <li>TiDB的吞吐看上去并没有很稳定，似乎没有进一步分析。</li>
 <li>作者如果试试在对比rocksdb-on-HDFS和ocksdb-on-HDFS-with-remote-compaction就更好了。可以进一步证明computation offloading的能力。估计会有人会想了解一下这种方案的性能。</li>
 </ul>
@@ -657,8 +664,8 @@
 
 <div class="copyright">
   
-  &copy; 
-  <span itemprop="copyrightYear">2021</span>
+  &copy; 2021 – 
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
